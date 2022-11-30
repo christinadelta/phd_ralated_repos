@@ -61,7 +61,7 @@ subjects        = 1;
 conditions      = 2; % high volatility and low volatility
 
 % set parameters
-params(1)       = .50;  % alpha 
+params(1)       = .24;  % alpha 
 params(2)       = 4;    % beta 
 
 % set labels:
@@ -114,12 +114,19 @@ end % end of subjects loop
 
 %% simulate more participants
 
+% clear workspace
+clear all 
+clc
+
+% add function folder to the path
+addpath(genpath('functions'))
+
 % how many subjects two simulate?
-subjects        = 2;
+subjects        = 50;
 conditions      = 2; % high volatility and low volatility
 
 % set parameters
-params(1)       = .50;  % alpha 
+params(1)       = .24;  % alpha 
 params(2)       = 4;    % beta 
 
 % set labels:
@@ -131,14 +138,10 @@ nparams         = length(volatility);
 ntrials         = 184; % number of trials (per volatility condition)
 
 % init variables for group plotting 
-scores          = nan(conditions,subjects);
-responses       = nan(subjects, ntrials);
-vvals           = nan(subjects, ntrials,2); % subjects x trials x stimuli choices
-probs           = nan(subjects, ntrials);   % will plot probabilities only for one stim choice
-
-figh            = figure('Name','Data');
-set(figh,'position',[10 60 900 650],'paperunits','centimeters','Color','w');
-
+points          = nan(conditions,subjects);
+responses       = nan(subjects, ntrials,conditions);
+vvals           = nan(subjects, ntrials,2,conditions); % subjects x trials x stimuli choices
+probs           = nan(subjects, ntrials,conditions);   % will plot probabilities only for one stim choice
 
 % create simulared data for subjects and task conditions
 % loop over subjects 
@@ -146,18 +149,59 @@ for sub = 1:subjects
     
     for cond = 1:conditions
         
+        [data, output]              = simulateRL(params, cond, sub);
+        alldata{sub,1}{cond,1}      = data;
+        alloutput{sub,1}{cond,1}    = output;
+        vvals(sub,:,:,cond)         = output.vv;        % get values in one matrix to average by subjects when ploting 
+        probs(sub,:,cond)           = output.pp(:,1);   % get only probabilities for choice 1
+        responses(sub,:,cond)       = 2 - data.choices; % convert choices to 1 and 0 
         
+        thiscondresp                = responses(:,:,cond);
         
-        
-        
-        
-        
+        % get scores (points) for each condition based on rewards 
+        points(cond,sub) = (sum(thiscondresp(sub,data.simdata.outcomeprob == data.simdata.prob)==1)...
+            + sum(thiscondresp(sub,data.simdata.outcomeprob==(1-data.simdata.prob))==0)) / ntrials;
+  
     end % end of conditions loop
-    
-    
     
 end % end of subjects loop
 
+% 
 
+% init variables for figure handling
+figh            = figure('Name','Data');
+set(figh,'position',[10 60 900 650],'paperunits','centimeters','Color','w');
 
+% plot main figures 
+for cond = 1:conditions
+    
+    figure(figh)
+    subplot(2,1,cond); hold on
+    plot(alldata{1,1}{cond,1}.simdata.outcomeprob, 'k:','linewidth',2)
+    plot(nanmean(responses(:,:,cond),1),'k-','linewidth',1)
+    plot(mean(probs(:,:,cond),1),'b-','linewidth',2)
+    plot(mean(squeeze(vvals(:,:,1,cond)),1),':','color',[.4 0.4 1],'linewidth',2)
+    plot(mean(squeeze(vvals(:,:,2,cond)),1),':','color',[1 .35 0.1],'linewidth',2)
+    
+     % add legend and title info
+    legend({'p(house|tone)','mean choice (house)','p(choose house)','value(house)','value(face)'},'location','northeastoutside');
+    title(sprintf('MEAN data, %s volatility, alpha = %0.02f, beta = %02.01f', volatility{cond}, params(1), params(2)))
+   
+    legend boxoff
+    ylabel('probability');
+    ylim([0 1]);
+    xlabel('trial');
+
+end
+
+% plot accuracy/perfomance figures
+figpoints = figure('Name','score');set(figpoints,'position',[10 60 250 400],'paperunits','centimeters','paperposition',[0 0 6 6],'Color','w');
+barplt(points, [], volatility,true);
+set(gca,'xtick',1:2,'xticklabel',volatility);
+xlabel('volatility');
+ylabel('p(correct)');
+title('correct choice')
+hline(.5,'w:');
+ylim([0 1])
+box off
 

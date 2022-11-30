@@ -62,6 +62,7 @@ nchoice                     = nstim; % 2 choice options (house vs face)
 sim.outcomeprob         = outcomeprob;
 sim.outcome             = outcome;
 sim.nchoice             = nchoice;
+sim.prob                = prb;
 data.simdata            = sim;
 
 % ---------------------
