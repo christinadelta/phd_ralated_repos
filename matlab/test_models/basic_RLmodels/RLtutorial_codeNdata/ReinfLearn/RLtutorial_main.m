@@ -33,12 +33,12 @@ function fitted = RLtutorial_main
 %==========================================================================
 %% Section 1: Preparation
 %==========================================================================
-close all;
+% close all;
 
 %%%%%%%%%%%%    MODIFY      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subjects        = 'all'; % use vector of numbers if simulating or using a subset of the data; use string 'all' if using all available real datasets
-simulate        = false;    % true if simulate, false if using real data
-fitData         = true; 	% if false, we only simulate / plot data
+subjects        = 1:4; % use vector of numbers if simulating or using a subset of the data; use string 'all' if using all available real datasets
+simulate        = true;    % true if simulate, false if using real data
+fitData         = false; 	% if false, we only simulate / plot data
 plotIndividual  = false;  % only set to to true if running a small number of individuals!
 
 % If simulating data, specify the parameters you want to use for fitting
@@ -111,7 +111,7 @@ for task = 1:2 % we'll do the subjects separately by task condition
     PP      = nan(nsubTask,nTrial);
     
     for sID = sortedsubs{task}
-        ct = ct+1;
+        ct = ct+1; % ubdate for each subject in task condition
         
         % Simulate data
         %==================================================================

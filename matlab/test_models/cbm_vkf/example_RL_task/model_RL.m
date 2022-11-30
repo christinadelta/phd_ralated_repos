@@ -3,7 +3,7 @@ nd_alpha  = parameters(1); % normally-distributed alpha
 alpha     = 1/(1+exp(-nd_alpha)); % alpha (transformed to be between zero and one)
 
 nd_beta  = parameters(2);
-beta    = exp(nd_beta);
+beta    = exp(nd_beta); % why exponential?
 
 % unpack data
 actions = subj.actions; % 1 for action=1 and 2 for action=2

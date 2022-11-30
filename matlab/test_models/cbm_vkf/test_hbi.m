@@ -4,7 +4,7 @@
 addpath(genpath(fullfile(pwd,'codes')))
 
 
-%% EXAMPLE 1 - BANDIT TASK
+%% EXAMPLE 1 - TEST TASK
 
 % add RL_task dir to the path (badit-task directory)
 addpath(genpath(fullfile(pwd,'example_RL_task')))
@@ -21,13 +21,14 @@ subj1   = data{1,1};                    % subj struct
 params  = randn(1,2);                   % parameters for that subj
 params2 = randn(1,3);                   % parameters for that subj for dual alpha model
 f1      = model_RL(params,subj1);       % run model with 1 learning rate (and 1 beta param)
-f2      = model_dualRL(params2,subj1);  % run model with 2 learning rates (and 1 beta param)
+f2      = model_dualRL(params2,subj1);  % run model with 2 learning rates for (negative and positivr PE, and 1 beta param)
 
 %%% QUESTION: output of model_RL and model_dualRL is just the posterior?
 %%% %%%
 
 %%% QUESTION 2: in both f1 and f2 cases the posterior (or output) is
-%%% negative... should it always be negative? why is it negative? 
+%%% negative... should it always be negative? why is it negative? -- 
+%%% ANSWER: f1 and f2 are negative log-likelihoods of choice data
 
 %%
 % try with more extreme param values
@@ -138,8 +139,61 @@ pxp = hbi_out2.output.protected_exceedance_prob;
 clear all
 clc
 
+addpath(genpath(fullfile(pwd,'example_2step_task')))
+
+% 20 subjects are used in this example
+fdata   = load('all_data.mat');
+data    = fdata.data;
+
+subj1   = data{1};
+
+% take a look at subject 1 description and run model-based RL
+prior_mb        = struct('mean', zeros(4,1), 'variance', 6.25);
+fname_mb        = 'lap_mb.mat';
+mb_rl           = cbm_lap(data, @model_mb, prior_mb, fname_mb);
+
+% for many subjects or many params, run cbm_lap in parallel:
+data_sub        = data(1); % input 1: data of 1 subj
+prior_mf        = struct('mean', zeros(6,1), 'variance', 6.25);
+fname_mf_sub    = fullfile('lap_subjects', 'lap_mf_1.mat'); 
+mf_rl           = cbm_lap(data_sub, @model_mf, prior_mf, fname_mf_sub); % model needs 4 params
+
+% make a list of all subjects
+fname_subs = cell(20,1);
+for n               = 1:length(fname_subs)
+    fname_subs{n}   = fullfile('lap_subjects', ['lap_mf_' num2str(n) '.mat']);    
+end
+
+% specify output file-address and call cbm_lap_aggregate to aggregate/sum
+% individual files
+fname_mf    = 'lap_mf.mat';
+cbm_lap_aggregate(fname_subs, fname_mf);
+
+% lastly fit model hybrid to data
+models      = {@model_hybrid, @model_mb, @model_mf}; % this is 2nd input, 1st is data
+fcbm_maps   = {'lap_hybrid.mat', 'lap_mb.mat', 'lap_mf.mat'}; % 3rd input: file-adresses
+fname_hbi   = 'hbi_2step.mat'; % 4rth input: file-address for output
+all_rl      = cbm_hbi(data, models, fcbm_maps, fname_hbi);
+
+% look at output: hybrid model takes about 65% of total responsibility 
+all_rl.output.model_frequency
 
 
+% look at exceedance probability -- third model (model-free agent) does not contribute at all
+all_rl.output.exceedance_prob
 
+% check parameters of the model:
+fname_hbi       = 'hbi_2step.mat';
+model_names     = {'hybrid', 'mb', 'mf'};
+param_names     = {'\alpha_1', '\alpha_2', '\lambda', '\beta_1', 'w', 'p', '\beta_2'};
+transform       = {'sigmoid', 'sigmoid', 'sigmoid', 'exp', 'sigmoid', 'none', 'exp'};
+cbm_hbi_plot(fname_hbi, model_names, param_names, transform)
 
+% run statistics 
+fname_hbi = 'hbi_2step';
+k = 1; %index the model of interest (1st model -- hybrid)
+m = 0;
+i = 5;
+
+[p, stats] = cbm_hbi_ttest(all_rl, k, m, i);
 

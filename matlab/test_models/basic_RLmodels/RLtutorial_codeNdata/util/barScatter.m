@@ -13,12 +13,6 @@ function [hb,he]=barScatter(data, errors, bw_xtick, bScatter)
 %
 % [hb,he]=barScatter(...) will give handle HB to the bars and HE to the
 % errorbars.
-% 
-% ------------------------------------------------------------------------
-% Written by Hanneke den Ouden 2015 <h.denouden@gmail.com>
-% Donders Center for Cognitive Neuroimaging
-% Donders Center for Brain, Cognition and Behavior
-% Radboud University Nijmegen
 % ------------------------------------------------------------------------
 
 % Get function arguments

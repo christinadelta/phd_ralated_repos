@@ -26,7 +26,7 @@ alpha   = params(1);% sensitivity to reward and punishment
 beta    = params(2); %learning rate
 
 % Define initial value of each stimulus.
-v0      = .5*ones(1,2); % initial value
+v0      = .5*ones(1,2); % initial value 
 % v0      = [0.8 0.5];
 v       = v0; % initialise v
 

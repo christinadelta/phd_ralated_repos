@@ -33,19 +33,6 @@
 % stimulus with the largest value?
 %
 
-%% plot the data
-
-clear all
-clc
-
-subjects = 2;
-simulate = false;
-
-
-
-
-
-
 
 
 
