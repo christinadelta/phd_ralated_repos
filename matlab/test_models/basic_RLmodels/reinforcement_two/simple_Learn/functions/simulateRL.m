@@ -1,11 +1,16 @@
 function [data, output] = simulateRL(params, cond, sub)
 
+% @christinadelta
+
 % this function simulates data for every subject seperately
 % subjects with odd number are included in the high volatility condition
 % subjects with even number in the low volatility 
 
 % VERSION 1 created in November 2022
-% @christinadelta
+% VERSION 2 modified in December 2022:
+% - added task versions
+% - corrected probabilities 
+
 
 % ----------------------------
 %% first part - prepare some initial parameters
@@ -49,6 +54,7 @@ for block = 1:blocks
         cnt                 = cnt+1; % update counter
         outcomeprob(cnt)    = trialprob(block);
         outcome(cnt)        = double(rand(1) <= outcomeprob(cnt)); % if random number (0 to 1) is smaller or equal to outcome probability, add 1)
+        taskblock(cnt)      = block;
         
     end % end of trials loop
 end % end of blocks loop
@@ -56,6 +62,7 @@ end % end of blocks loop
 outcomeprob                 = outcomeprob(:);
 outcome                     = outcome(:);
 outcome(:,2)                = 1-outcome; 
+taskblock                   = taskblock(:);
 nchoice                     = nstim; % 2 choice options (house vs face)
 
 % store in data struct
@@ -102,8 +109,8 @@ for trl = 1:totaltrials
  
 end % end of trial loop
 
-choice1                 = data.choices == 1; % stimulus 1 (i.e., house)
-choice2                 = data.choices == 2; % stimulus 2 (i.e., face)
+choice1                 = data.choices == 1;            % stimulus 1 (i.e., house)
+choice2                 = data.choices == 2;            % stimulus 2 (i.e., face)
 data.out(choice1)       = outcome(choice1, 1);
 data.out(choice2)       = outcome(choice2, 2);
 

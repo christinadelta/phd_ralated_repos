@@ -84,7 +84,7 @@ for sub = 1:subjects
         probs       = nan(subjects, ntrials);
 
         % simulate data for specified number of subjects, seperately 
-        [data, output]      = simulateRL(params, cond, sub);
+        [data, output]      = simulateRL_v2(params, cond, sub);
         alldata{cond,1}     = data;
         alloutput{cond,1}   = output;
         vvals(1,:,:)        = output.vv; 

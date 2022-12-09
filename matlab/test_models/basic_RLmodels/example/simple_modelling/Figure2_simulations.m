@@ -25,7 +25,7 @@ AZbrick = [74, 48, 39]/256;
 
 
 % experiment parameters
-T   = 100;         % number of trials
+T   = 100;          % number of trials
 mu  = [0.2 0.8];    % mean reward of bandits
 
 % number of repetitions for simulations
