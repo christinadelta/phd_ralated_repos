@@ -61,6 +61,10 @@
 % both learning rate alpha and/or inverse temperature beta -- relates to the speed of learning but also to the
 % noisiness in asymptotic behaviour 
 
+% in all the example models, we want to find:
+% how do people maximise rewards, when the most rewarding choice is unknown
+% 
+
 %% define colours for plotting
 
 % 

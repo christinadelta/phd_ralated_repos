@@ -1,19 +1,35 @@
-% running local minima part two
+% this script is generated based on the paper: 10 simple rules for the
+% computational modelling of behavioural data
 
-% still I have no idea what that does
+% in this script I will be running local/global minima for the simulated WM
+% task
 
-clear all
-clc
+% 1. I will first simulate some data for the task (one dataset)
+% 2. then I'll fit the free parameters (alpha, rho, beta) using the simulated
+% dataset with 10 different starting points (for the 3 params)
+% 3. and find the (global) best fit of the 10 (the minimum ll)
+% 4. the next step is to brute force compute maximum ll (using the range of different parameter values) and plot 
+% 5. simulate 100 datasets, for each dataset run step 2 and 3
+% 6. and plot the results from step 5
 
-%% define parameters 
+% the 4 plots:
+% 1. plot the brute force max lls using one simulated dataset
+% 2. plot best ll of the 100 simulated datasets (across the 10 startings
+% points for each dataset)
+% 3. plot the distance to global best params 
+% 4. 
 
-% define a banch of initial parameter values for alpha, rho and beta:
-alphas      = [.06:.01:.5]; % learning rate
-betas       = [1 4:2:20];   % inverse temperature
-rhos        = [.5:.01:.98]; % WM memory weight
-Ks          = 2:6;          % capacity
 
-% also define real simulation parametrs 
+
+%% define initial parameters 
+
+% define a banch of different parameters values:
+alphas      = [0.06:0.01:0.5];  % range of alphas: 0.06 to 0.5
+betas       = [1 4:2:20];       % range of betas: from 1 to 20
+rhos        = [0.5:0.01:0.98];  % wm weight ranges: from 0.5 to 0.98
+Ks          = 1:6;              % capacity: ranges from 1 to 6
+
+% define real simulation parameters (like initial parameters, that will be used to simulate data)
 realalpha   = .1;
 realbeta    = 8;
 realrho     = .9;
@@ -26,7 +42,7 @@ realK       = 4;
 
 % set fmincon options
 options = optimset('MaxFunEval',100000,'Display','off','algorithm','active-set');%
-        
+
 % run optimization over 10 starting points
 for init = 1:10
     
@@ -40,7 +56,7 @@ for init = 1:10
     % fval that is returned is the function value (the ll value) 
     
     % store optimization result
-    pars(init,:) = [pval,fval];
+    pars(init,:) = [pval,fval]; % pval stands for parameter value (for the three parameters), fvall is the function value (ll)
     
 end
 
@@ -50,27 +66,32 @@ end
 
 pars = pars(i,:); % optimised rho, alpha, beta for minimum ll
 
-%% brute force fitting
+%% brute force fitting 
 
+% for this we'll use the range of alphas, rhos and betas specified in the
+% beginning (the parameter space) 
+
+% this is the simplest approach fot finding the maximum likelihood 
 i1 = 0;
+
 for alpha = alphas
     
-    i1      = i1+1;
+    i1      = i1+1; % increment alpha
     i2      = 0;
     
     for beta = betas
         
-        i2  = i2+1;
+        i2  = i2+1; % increment beta
         j1  = 0;
         
         for rho = rhos
             
-            j1 = j1+1;
+            j1 = j1+1; % increment rho
             j2 = 0;
             
             for K = realK
                 
-                j2  = j2+1;
+                j2  = j2+1; % increment k 
                 p   = [rho,alpha,beta/50];
                 
                 % store likelihood over parameters in a mesh
@@ -101,9 +122,9 @@ plot(pars(2),pars(1),'*k')
 xlabel('alpha')
 ylabel('rho')
     set(gca,'fontsize',16)
-    
+
 %% iterate simulation and fitting
-    
+
 options = optimset('MaxFunEval',100000,'Display','off','algorithm','active-set');%
 
 % number of random starting points for optimizer
@@ -180,3 +201,5 @@ set(gca,'fontsize',14)
 legend('global = best','global = |llh-best|<.01')
 ylabel('iteration where global llh first reached')
 xlabel('sorted simulation number')
+
+

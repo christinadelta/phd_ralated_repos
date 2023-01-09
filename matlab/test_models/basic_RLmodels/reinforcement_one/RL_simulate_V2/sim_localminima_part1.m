@@ -1,6 +1,7 @@
 % PART 1 OF FINDING THE LOCAL MINIMA 
 
-% MORE COMMENTS SHOULD GO HERE
+% in this part, we run the simplest approach, that is brute force searching
+% of the entire parameter space
 
 clear all 
 clc

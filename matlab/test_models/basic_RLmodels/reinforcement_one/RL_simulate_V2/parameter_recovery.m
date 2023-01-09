@@ -1,8 +1,10 @@
 % parameter recovery in RL 
-% I'll be using the RW model
+% I'll be using this in the RW model
 
 % in Parameter recovery first simulate data (actions and rewards), fit the data and then recover the
 % simulated parameters 
+
+
 
 %% set colours 
 
@@ -25,25 +27,26 @@ addpath(genpath('utilities'))
 
 %% define experimental parameters 
 
-ttrials     = 1000;           % number of trials 
-mu          = [0.2 0.8];    % mean reward of bandits 
+ttrials     = 100; % number of trials
+mu          = [0.2 0.8]; % mean reward of bandits
 
 rng(2);
 
-% run RW model
-for count = 1:1000
-    
-    alpha           = rand;
-    beta            = exprnd(10);
+% run the RW model 
+for count = 1:50
+
+    alpha           = rand; % choose a random number betwen 0 and 1
+    beta            = exprnd(10); % generate a random number from the exponential distributuin with mean value of 10
     [a, r]          = model3_sim(ttrials, mu, alpha, beta); % simulate RW data
     [Xf, LL, BIC]   = model3_fit(a, r);        % fit RW model
-    
+
     Xsim(1,count)   = alpha;
     Xsim(2,count)   = beta;
     Xfit(1,count)   = Xf(1);
     Xfit(2,count)   = Xf(2);
 
 end
+
 
 %% basic parameter recovery plots
 
@@ -95,11 +98,10 @@ for i = 1:size(Xsim,1)
     plot(xl, xl, 'k--')
 end
 
+
 %%
 
 figure(1); clf; hold on;
 % plot(Xsim(1,:), Xsim(2,:),'.')
 plot(Xfit(2,:), Xfit(1,:),'.')
 set(gca, 'xscale', 'log')
-
-
