@@ -33,17 +33,17 @@ mu          = [0.2 0.8]; % mean reward of bandits
 rng(2);
 
 % run the RW model 
-for count = 1:50
+for count = 1:1000
 
-    alpha           = rand; % choose a random number betwen 0 and 1
-    beta            = exprnd(10); % generate a random number from the exponential distributuin with mean value of 10
-    [a, r]          = model3_sim(ttrials, mu, alpha, beta); % simulate RW data
-    [Xf, LL, BIC]   = model3_fit(a, r);        % fit RW model
+    alpha                   = rand; % choose a random number betwen 0 and 1
+    beta                    = exprnd(10); % generate a random number from the exponential distributuin with mean value of 10
+    [a,r,updatedQvals]      = model3_sim(ttrials, mu, alpha, beta); % simulate RW data
+    [Xf, LL, BIC]           = model3_fit(a, r);        % fit RW model
 
-    Xsim(1,count)   = alpha;
-    Xsim(2,count)   = beta;
-    Xfit(1,count)   = Xf(1);
-    Xfit(2,count)   = Xf(2);
+    Xsim(1,count)           = alpha;
+    Xsim(2,count)           = beta;
+    Xfit(1,count)           = Xf(1); % fitted alpha
+    Xfit(2,count)           = Xf(2); % fitted beta
 
 end
 
@@ -102,6 +102,6 @@ end
 %%
 
 figure(1); clf; hold on;
-% plot(Xsim(1,:), Xsim(2,:),'.')
-plot(Xfit(2,:), Xfit(1,:),'.')
+plot(Xsim(1,:), Xsim(2,:),'.')
+% plot(Xfit(2,:), Xfit(1,:),'.')
 set(gca, 'xscale', 'log')

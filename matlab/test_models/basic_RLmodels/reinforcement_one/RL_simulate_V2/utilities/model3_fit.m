@@ -11,6 +11,6 @@ UB = [1 inf];
 
 
 LL = -NegLL;
-BIC = length(X0) * log(length(a)) + 2*NegLL;
+BIC = length(X0) * log(length(a)) + 2*NegLL; % measure for scoring and selecting a model 
 
 end

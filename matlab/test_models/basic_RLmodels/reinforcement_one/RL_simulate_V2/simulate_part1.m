@@ -92,7 +92,7 @@ addpath(genpath('utilities'))
 % SIMULATING BEHAVIOUR IN THE BANDIT TASK
 
 % first define parameters of the task:
-ttrials     = 40;           % total trials 
+ttrials     = 100;           % total trials 
 nslots      = 2;            % number of stimuli, or options
 mu          = [0.2 0.8 ];   % reward probabilities for each option
 reps        = 2;            % number of repetitions for simulations 
