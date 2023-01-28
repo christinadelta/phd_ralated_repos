@@ -14,7 +14,6 @@
 % A simple 2-armed bandit choice. More details in the simulation function:
 % avlearn_simulate_m1.m
 
-
 clear all  
 clc
 %% initialise variables
@@ -119,10 +118,10 @@ end
 %% explore parameter values
 
 % use different parameter values and re-run the model 
-alphas  = [0.2 0.4 0.7 1]; % use different alpha values and re-run the model 
+alphas  = [0.25 0.5 0.75 1]; % use different alpha values and re-run the model 
 betas   = [3 5 9 15];
 
-for rep = 1:200
+for rep = 1:500
     for alpha = 1:length(alphas)
     
         for beta = 1:length(betas)
@@ -141,16 +140,21 @@ for rep = 1:200
                 % prob gabor) for all combinations of alphas and betas
                 % prob_vertical{cond}(alpha,beta,rep)     = nanmean(modelout.allPs(:,1)); % average choice prob for vertical over trials
                 
+
                 % extract actions/choices for the high probability
                 if cond == 1
                     [~, imax] = max(probs(1,:));
                 else
                     [~, imax] = max(probs(2,:)); % probabilities are different for volatile condition 
                 end
+
+                % store trial-by-trial vertical-gabor choices for ploting 
+                trlbytrl_choices{alpha}{beta}(rep,:) = modelout.a == imax;
+                
                 
                 % store correct choices for the vertical gabor (high
                 % prob gabor) for all combinations of alphas and betas
-                correctchoices{cond}(alpha,beta,rep) = nanmean(modelout.a == imax);
+                % correctchoices{cond}(alpha,beta,rep) = nanmean(modelout.a == imax);
                 correctchoicese{cond}(alpha,beta,rep) = nanmean(modelout.a(1:10) == imax); % only get the first 10 trials
                 correctchoicesl{cond}(alpha,beta,rep) = nanmean(modelout.a(end-9:end) == imax); % only get the last 10 trials
 
@@ -161,7 +165,27 @@ for rep = 1:200
     end % end of alphas loop
 end % end of repetition loop
 
-%% if stable condition look at choice-vertical trials
+%% if stable condition look at trial-by-trial choices-vertical 
+
+% loop over alphas and betas to extract reps and average them 
+for i = 1:length(alphas)
+
+    for j = 1:length(betas)
+
+        avtrl_choices{1,i}(j,:) = mean(trlbytrl_choices{1,i}{1,j});
+    end
+end
+
+% for every alpha parameter seperately, plot trial-by-trial choices for
+% each beta parameter value
+trl_plts = trlplots(avtrl_choices,alphas,betas);
+
+% store the figure 
+filename = fullfile(figpath, 'trialbytrial_params_plot.fig');
+saveas(trl_plts, filename)
+
+
+%% if stable condition look at choice-vertical (early-late) trials
 
 % average choices over beta values for early and late trials
 earlystable = nanmean(correctchoicese{1,1},3);
