@@ -1,7 +1,9 @@
 %  PART 1 OF THE AVERSIVE - LEARNING VERSION. 
 
 % Date created: 29/12/2022
-% modeified 1: 15/1/2023
+% modified 1: 15/1/2023
+% modified 2: 29/1/2023 (added trial-by-trial plots, and more simulated
+% participants)
 
 % In part 1 I only simulate data for the stable condition and let's start
 % with simulating data one participant only.
@@ -16,6 +18,7 @@
 
 clear all  
 clc
+
 %% initialise variables
 
 % set paths
@@ -24,10 +27,10 @@ outpath = fullfile(pwd, 'output'); addpath(outpath);
 figpath = fullfile(pwd, 'figures'); addpath(figpath);
 
 % initialise variables 
-subjects        = 1;
+subjects        = 2;
 params          = [.25 4];                % alpha and beta values 
 condition       = 1;                      % only stable condition for now (if 2 = stable and volatile)
-task            = 1;                      % stable without switch (if task = 2 then stable with one switch)
+task            = 2;                      % stable without switch (if task = 2 then stable with one switch)
 
 if condition == 1
     probs           = [.75 .25];          % probabilities of the stable condition
@@ -74,6 +77,10 @@ subfig          = nan(2,subjects); % figure handle for ploting 1 simulated datas
 % plot one simulated dataset
 subfig          = plot_onesub(allQs, allPs, choices, feedbackprob, subfig, params);
 
+% store the plot
+filename = fullfile(figpath, 'stable_noswitch_plot.fig');
+saveas(subfig, filename)
+
 %% simulate, model and visualise the 2 stable conditions  
 
 % first simulate the two datasets 
@@ -110,60 +117,21 @@ for task = 1:2
     subfig(task)    = plot_onesub(allQs, allPs, choices, feedbackprob, subfig(task), params); % plot data
 
     % save figures 
-    filename = fullfile(figpath, sprintf('stable_%d.fig', task));
+    filename = fullfile(figpath, sprintf('stable_%d_plot.fig', task));
     saveas(subfig(task),filename)
 
 end
 
 %% explore parameter values
 
-% use different parameter values and re-run the model 
-alphas  = [0.25 0.5 0.75 1]; % use different alpha values and re-run the model 
+% run combparams.m function to simulate data and model with different
+% parameter values of alpha and beta
+
+% parameter values to be used:
+alphas  = [0.20 0.5 0.75 1];
 betas   = [3 5 9 15];
-
-for rep = 1:500
-    for alpha = 1:length(alphas)
-    
-        for beta = 1:length(betas)
-    
-            for cond = 1:condition
-    
-                temp_params = [alphas(alpha) betas(beta)]; 
-                
-                % simulate data 
-                data        = avlearn_simulate_v1(condition, probs, trials, outpath, task); % data is a structure containaining the simulation output
-                
-                % run model
-                modelout    = modelRW_v1(temp_params, data, outpath);
-                
-                % store mean probability of choosing the vertical gabor (high
-                % prob gabor) for all combinations of alphas and betas
-                % prob_vertical{cond}(alpha,beta,rep)     = nanmean(modelout.allPs(:,1)); % average choice prob for vertical over trials
-                
-
-                % extract actions/choices for the high probability
-                if cond == 1
-                    [~, imax] = max(probs(1,:));
-                else
-                    [~, imax] = max(probs(2,:)); % probabilities are different for volatile condition 
-                end
-
-                % store trial-by-trial vertical-gabor choices for ploting 
-                trlbytrl_choices{alpha}{beta}(rep,:) = modelout.a == imax;
-                
-                
-                % store correct choices for the vertical gabor (high
-                % prob gabor) for all combinations of alphas and betas
-                % correctchoices{cond}(alpha,beta,rep) = nanmean(modelout.a == imax);
-                correctchoicese{cond}(alpha,beta,rep) = nanmean(modelout.a(1:10) == imax); % only get the first 10 trials
-                correctchoicesl{cond}(alpha,beta,rep) = nanmean(modelout.a(end-9:end) == imax); % only get the last 10 trials
-
-            end % end of condition loop
-    
-        end % end of betas
-
-    end % end of alphas loop
-end % end of repetition loop
+[trlbytrl_choices] = combparams(condition,probs,trials, outpath,task); % run simulations
+% [trlbytrl_choices, correctchoicese, correctchoicesl] = combparams(condition,probs,trials, outpath,task); % run simulations
 
 %% if stable condition look at trial-by-trial choices-vertical 
 
@@ -221,6 +189,11 @@ set(leg1, 'position', [0.6267    0.6453    0.1500   0.2000]);
 % store the figure 
 filename = fullfile(figpath, 'earlyVslatetrls.fig');
 saveas(plts, filename)
+
+%% visualise many subjects
+
+
+
 
 %% add the volatility component 
 
