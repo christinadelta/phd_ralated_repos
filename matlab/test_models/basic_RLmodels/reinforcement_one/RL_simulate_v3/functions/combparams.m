@@ -22,7 +22,7 @@ for rep = 1:1000
                 temp_params = [alphas(alpha) betas(beta)]; 
                 
                 % simulate data 
-                data        = avlearn_simulate_v1(condition, probs, trials, outpath, task); % data is a structure containaining the simulation output
+                data        = avlearn_simulate_v1(cond, probs, trials, outpath, task); % data is a structure containaining the simulation output
                 
                 % run model
                 modelout    = modelRW_v1(temp_params, data, outpath);
@@ -38,13 +38,13 @@ for rep = 1:1000
                     if task == 2 % if stable with one switch
                         for i = 1:trials
 
-                            if tmpchoice(i,1) == probs(1) && tmpchoice(i,2) == 1
+                            if tmpchoice(i,1) == probs(1,1) && tmpchoice(i,2) == 1
 
                                 tmptrial(i) = 1;
-                            elseif tmpchoice(i,1) == probs(1) && tmpchoice(i,2) == 2
+                            elseif tmpchoice(i,1) == probs(1,1) && tmpchoice(i,2) == 2
                                 tmptrial(i) = 0;
                                 
-                            elseif tmpchoice(i,1) == probs(2) && tmpchoice(i,2) == 2
+                            elseif tmpchoice(i,1) == probs(1,2) && tmpchoice(i,2) == 2
 
                                 tmptrial(i) = 1;
                             else
@@ -57,11 +57,28 @@ for rep = 1:1000
                         tmptrial = modelout.a == imax;
 
                     end
+                else % if condition = 2 (volatile condition
+
+                    for i = 1:trials
+
+                        if tmpchoice(i,1) == probs(2,1) && tmpchoice(i,2) == 1
+
+                            tmptrial(i) = 1;
+                        elseif tmpchoice(i,1) == probs(2,1) && tmpchoice(i,2) == 2
+                            tmptrial(i) = 0;
+                            
+                        elseif tmpchoice(i,1) ~= probs(2,1) && tmpchoice(i,2) == 2
+
+                            tmptrial(i) = 1;
+                        else
+                            tmptrial(i) = 0;
+                        end
+                    end
                
                 end % end of if statement
 
                 % store trial-by-trial vertical-gabor choices for ploting 
-                trlbytrl_choices{alpha}{beta}(rep,:) = tmptrial;
+                trlbytrl_choices{cond}{alpha}{beta}(rep,:) = tmptrial;
                 
                 
                 % store correct choices for the vertical gabor (high

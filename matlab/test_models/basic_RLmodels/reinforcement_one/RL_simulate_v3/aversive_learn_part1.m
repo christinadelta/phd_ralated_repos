@@ -27,7 +27,7 @@ outpath = fullfile(pwd, 'output'); addpath(outpath);
 figpath = fullfile(pwd, 'figures'); addpath(figpath);
 
 % initialise variables 
-subjects        = 2;
+subjects        = 1;
 params          = [.25 4];                % alpha and beta values 
 condition       = 2;                      % only stable condition for now (if 2 = stable and volatile)
 task            = 2;                      % stable without switch (if task = 2 then stable with one switch)
@@ -140,7 +140,7 @@ for i = 1:length(alphas)
 
     for j = 1:length(betas)
 
-        avtrl_choices{1,i}(j,:) = mean(trlbytrl_choices{1,i}{1,j});
+        avtrl_choices{1,i}(j,:) = mean(trlbytrl_choices{1,1}{1,i}{1,j});
     end
 end
 
@@ -201,14 +201,15 @@ for sub = 1:subjects
 
 end % end of subjects loop
 
-fprob = data.feedbackprob; % needed for plotting 
+fprob               = data.feedbackprob; % needed for plotting 
+volatility          = data.volatility;
 
 % plot the averaged sub model
-figh = plot_manysubs(allQs, allPs, choices, fprob, params, condition);
+figh = plot_manysubs(allQs, allPs, choices, fprob, params, condition, volatility);
 
 % save the figure
 filename = fullfile(figpath, 'plot_manysubs_stable.fig');
-saveas(plts, filename)
+saveas(figh, filename)
 
 %% add the volatility component 
 
@@ -262,6 +263,59 @@ end % end of condition loop
 
 % now that the volatility component is added 
 % loop over conditions 
+for cond = 1:condition
 
+    % loop over subjects 
+    for sub = 1:subjects
 
+        cond_allQs{1,cond}(sub,:,:) = allsub_modelout{1,sub}{1,cond}.Qvals;
+        cond_allPs{1,cond}(sub,:)   = allsub_modelout{1,sub}{1,cond}.allPs(:,1);
+        cond_choices{1,cond}(sub,:) = 2 - allsub_modelout{1,sub}{1,cond}.a;
+        cond_fprob{1,cond}          = allsub_data{1,1}{1,cond}.feedbackprob;
+        cond_volatility{1,cond}      = allsub_data{1,1}{1,cond}.volatility;
+    end
+
+end 
+
+% plot the averaged sub model
+figh = plot_manysubs(cond_allQs, cond_allPs, cond_choices, cond_fprob, params, condition, cond_volatility);
+
+% save figures 
+filename = fullfile(figpath, 'plot_manysubs_allconds.fig');
+saveas(figh,filename)
+
+%% make trial-wise plots with the two conditions (stable-volatile)
+
+% run many simulations first 
+% parameter values to be used:
+alphas  = [0.20 0.5 0.75 1];
+betas   = [3 5 9 15];
+[trlbytrl_choices] = combparams(condition,probs,trials, outpath,task); % run simulations
+
+%% visualise stable and volatile condition look at trial-by-trial choices-vertical 
+
+% loop over alphas and betas to extract reps and average them 
+for cond = 1:condition
+    for i = 1:length(alphas)
+    
+        for j = 1:length(betas)
+    
+            allavtrl_choices{cond}{1,i}(j,:) = mean(trlbytrl_choices{1,cond}{1,i}{1,j});
+        end
+    end
+end
+
+% for every alpha parameter seperately, plot trial-by-trial choices for
+% each beta parameter value
+for cond = 1:condition
+
+    avtrl_choices = allavtrl_choices{1,cond};
+
+    trl_plts = trlplots(avtrl_choices,alphas,betas);
+    
+    % store the figure 
+    filename = fullfile(figpath, sprintf('trialbytrial_params_plot_%d.fig',cond));
+    saveas(trl_plts, filename)
+
+end
 
