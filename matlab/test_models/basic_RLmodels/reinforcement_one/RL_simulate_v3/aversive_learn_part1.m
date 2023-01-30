@@ -29,7 +29,7 @@ figpath = fullfile(pwd, 'figures'); addpath(figpath);
 % initialise variables 
 subjects        = 2;
 params          = [.25 4];                % alpha and beta values 
-condition       = 1;                      % only stable condition for now (if 2 = stable and volatile)
+condition       = 2;                      % only stable condition for now (if 2 = stable and volatile)
 task            = 2;                      % stable without switch (if task = 2 then stable with one switch)
 
 if condition == 1
@@ -41,7 +41,7 @@ end
 labels          = {'alpha', 'beta'};      % for ploting
 trials          = 100;                    % per volatility condition
 
-%% simulate one dataset
+%% simulate dataset(s)
 
 for sub = 1:subjects
     % simulate dataset
@@ -192,8 +192,23 @@ saveas(plts, filename)
 
 %% visualise many subjects
 
+% for each subject, extract Q values, choice probabilities, actions for ploting 
+for sub = 1:subjects
 
+    allQs(sub,:,:)  = allsub_modelout{1,sub}.Qvals;
+    allPs(sub,:)    = allsub_modelout{1,sub}.allPs(:,1); % only extract choice probabilities for vertical 
+    choices(sub,:)  = 2 - allsub_modelout{1,sub}.a; % convert to 0-1 for plotting
 
+end % end of subjects loop
+
+fprob = data.feedbackprob; % needed for plotting 
+
+% plot the averaged sub model
+figh = plot_manysubs(allQs, allPs, choices, fprob, params, condition);
+
+% save the figure
+filename = fullfile(figpath, 'plot_manysubs_stable.fig');
+saveas(plts, filename)
 
 %% add the volatility component 
 
@@ -219,8 +234,9 @@ for sub = 1:subjects
     end
 end
 
-% visualise model results
-% visualise the two datasets 
+%% visualise model results for one dataset (2 conditions)
+
+% visualise the two conditions
 subfig          = nan(2,subjects); % figure handle for ploting simulated dataset for both conditions
 
 for cond = 1:condition
@@ -237,8 +253,15 @@ for cond = 1:condition
     subfig(cond)    = plot_onesub(allQs, allPs, choices, feedbackprob, subfig(cond), params); % plot data
 
     % save figures 
-    filename = fullfile(figpath, sprintf('plot_%s.fig', this_data.volatility));
+    filename = fullfile(figpath, sprintf('plot_onesub_%s.fig', this_data.volatility));
     saveas(subfig(cond),filename)
 
 end % end of condition loop
+
+%% visualie the results for many subjects (averaged - 2 conditions)
+
+% now that the volatility component is added 
+% loop over conditions 
+
+
 
