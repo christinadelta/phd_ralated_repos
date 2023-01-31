@@ -9,8 +9,8 @@ function [trlbytrl_choices] = combparams(condition,probs,trials, outpath,task)
 
 % ---------------------------------------------------
 % use different parameter values and re-run the model 
-alphas  = [0.20 0.5 0.75 1]; % use different alpha values and re-run the model 
-betas   = [3 5 9 15];
+alphas  = [0.20 0.4 0.6 0.8 1];  % use different alpha values and re-run the model
+betas   = [3 5 9 15 25];
 
 for rep = 1:1000
     for alpha = 1:length(alphas)

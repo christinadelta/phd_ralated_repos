@@ -28,8 +28,8 @@ figpath = fullfile(pwd, 'figures'); addpath(figpath);
 
 % initialise variables 
 subjects        = 1;
-params          = [.25 4];                % alpha and beta values 
-condition       = 2;                      % only stable condition for now (if 2 = stable and volatile)
+params          = [.4 5];                % alpha and beta values 
+condition       = 1;                      % only stable condition for now (if 2 = stable and volatile)
 task            = 2;                      % stable without switch (if task = 2 then stable with one switch)
 
 if condition == 1
@@ -288,8 +288,8 @@ saveas(figh,filename)
 
 % run many simulations first 
 % parameter values to be used:
-alphas  = [0.20 0.5 0.75 1];
-betas   = [3 5 9 15];
+alphas  = [0.20 0.4 0.6 0.8 1];
+betas   = [3 5 9 15 25];
 [trlbytrl_choices] = combparams(condition,probs,trials, outpath,task); % run simulations
 
 %% visualise stable and volatile condition look at trial-by-trial choices-vertical 
@@ -318,4 +318,37 @@ for cond = 1:condition
     saveas(trl_plts, filename)
 
 end
+
+%% plot heatmap 
+
+
+% plot heatmap with averaged choice-probabilities and performance of all possible combinations of beta and alpha parameter
+% values
+% parameter values to be used:
+alphas  = [0.20 0.4 0.6 0.8 1];
+betas   = [3 5 9 15 25];
+
+for i = 1:condition
+
+    hm{1,i} = zeros(5); %init matrix for heatmap plot (seperately for each condition
+end
+
+for rep = 1:10
+    rep; 
+
+    for alpha = 1:length(alphas)
+
+        for beta = 1:length(betas)
+            for cond = 1:condition
+
+                tmp_params = [alphas(alpha) betas(beta)];
+                
+
+
+            end % end of condtion loop
+        end % end of betas loop
+    end % end of alpha loop
+
+end % end of reps loop
+
 
