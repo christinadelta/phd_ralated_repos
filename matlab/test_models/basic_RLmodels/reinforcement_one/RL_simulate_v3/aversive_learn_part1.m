@@ -4,6 +4,8 @@
 % modified 1: 15/1/2023
 % modified 2: 29/1/2023 (added trial-by-trial plots, and more simulated
 % participants)
+% modified 3: 1/2/2023 (added heatmap plots to teack performance in
+% different parameter combinations)
 
 % In part 1 I only simulate data for the stable condition and let's start
 % with simulating data one participant only.
@@ -348,7 +350,10 @@ end % end of reps loop
 % for each condition, average performance over the repetitions
 for i = 1:condition
 
-    avhm{1,i} = nanmean(allperformance{1,i},3) 
+    avhm{1,i} = nanmean(allperformance{1,i},3);
 
 end
+
+% plot the heatmap 
+
 
