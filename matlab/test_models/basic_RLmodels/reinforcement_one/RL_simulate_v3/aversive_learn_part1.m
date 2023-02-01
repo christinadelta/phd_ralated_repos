@@ -319,7 +319,7 @@ for cond = 1:condition
 
 end
 
-%% plot heatmap 
+%% plot heatmap with combinations of alpha and beta parameter values 
 
 
 % plot heatmap with averaged choice-probabilities and performance of all possible combinations of beta and alpha parameter
@@ -328,22 +328,16 @@ end
 alphas  = [0.20 0.4 0.6 0.8 1];
 betas   = [3 5 9 15 25];
 
-for i = 1:condition
-
-    hm{1,i} = zeros(5); %init matrix for heatmap plot (seperately for each condition
-end
-
-for rep = 1:10
-    rep; 
+for rep = 1:10 
 
     for alpha = 1:length(alphas)
 
         for beta = 1:length(betas)
             for cond = 1:condition
 
-                tmp_params = [alphas(alpha) betas(beta)];
-                
-
+                tmp_params                              = [alphas(alpha) betas(beta)]; % combine parameter values
+                performance                             = heatmap_combparams(tmp_params,cond,probs,trials,outpath,task); % simulate data, run model
+                allperformance{1,cond}(alpha,beta,rep)  = performance;
 
             end % end of condtion loop
         end % end of betas loop
@@ -351,4 +345,10 @@ for rep = 1:10
 
 end % end of reps loop
 
+% for each condition, average performance over the repetitions
+for i = 1:condition
+
+    avhm{1,i} = nanmean(allperformance{1,i},3) 
+
+end
 
