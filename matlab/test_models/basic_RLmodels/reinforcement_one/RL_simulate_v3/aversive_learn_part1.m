@@ -31,8 +31,8 @@ figpath = fullfile(pwd, 'figures'); addpath(figpath);
 % initialise variables 
 subjects        = 1;
 params          = [.4 5];                % alpha and beta values 
-condition       = 2;                      % only stable condition for now (if 2 = stable and volatile)
-task            = 2;                      % stable without switch (if task = 2 then stable with one switch)
+condition       = 1;                      % only stable condition for now (if 2 = stable and volatile)
+task            = 1;                      % stable without switch (if task = 2 then stable with one switch)
 
 if condition == 1
     probs           = [.75 .25];          % probabilities of the stable condition
@@ -41,7 +41,7 @@ else
 end
 
 labels          = {'alpha', 'beta'};      % for ploting
-condstring      = {'stable', 'volatile'};
+condstring      = {'stable', 'volatile'}; % for ploting 
 trials          = 100;                    % per volatility condition
 
 %% simulate dataset(s)
@@ -331,7 +331,7 @@ end
 alphas  = [0.20 0.4 0.6 0.8 1];
 betas   = [3 5 9 15 25];
 
-for rep = 1:10 
+for rep = 1:1000 
 
     for alpha = 1:length(alphas)
 
@@ -360,11 +360,11 @@ for cond = 1:condition
 
     cond_hm = avhm{1,cond};
     t = plotheatmap(cond_hm);
-%     thiscond = condstring{1,cond}
+    % thiscond = condstring{1,cond}
 
     % store the figures
-%     filename = fullfile(figpath, sprintf('plot_performance_%s_heatmap.fig',thiscond));
-%     saveas(t, filename)
+    % filename = fullfile(figpath, sprintf('plot_performance_%s_heatmap.fig',thiscond));
+    % saveas(t, filename)
 
 end % end of condition loop
 

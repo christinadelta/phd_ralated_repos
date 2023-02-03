@@ -4,6 +4,7 @@ function [data] = avlearn_simulate_v1(condition, probs, trials, outpath, task)
 % modified 1: 13/1/2023
 % modified 2: 15/1/2023
 % modified 3: 25/1/2023
+% modified 4: 2/2/2023
 
 % this function runs through the aversive_learn_part1.m script.
 % It simulates data both for modelling and for visuaisation purposes 
@@ -84,12 +85,14 @@ if condition == 1 % stable condition only
     nstim           = 2;            % left and right shape
     runtrials       = trials/runs;  % trials in each run
     
-    % create feedback sequence (this will change when we'll add volatility
+    % create trials sequence (this will change when we'll add volatility
     % component)
+     probtrials  = [prob 1-prob];
+
     if runs == 1
-        probtrials  = [prob 1-prob];
+        seqtrials{1}   = trials;
     else
-        probtrials  = repmat([prob 1-prob], 1, runs/2);
+        seqtrials{1}   = [trials trials]/runs; % this wont probably be used but good to have it as an option for testing 
     
     end
 
@@ -105,6 +108,8 @@ else % if it is stable + volatile condition
 
     nstim           = 2;            % left and right shape
     probtrials      = repmat([prob 1-prob], 1, runs/2); % feedback sequence
+    seqtrials{2}    = repmat(([runtrials]), 1, runs); % trials per run for voaltile condition
+
 
 end % end of condition statement 
 
@@ -113,130 +118,43 @@ counter         = 0; % init counter
 
 for r = 1:runs
 
-    for x = 1:runtrials
+    for x = 1:seqtrials{1,condition}(r)
 
-        counter                     = counter+1; % update counter
-        feedbackprob(counter,1)     = probtrials(r);
+        counter                         = counter+1; % update counter
+        feedbackprob{1,r}(counter,1)    = probtrials(r);
         % feedback(counter,1)         = double(rand(1) <= feedbackprob(counter)); % if 1 = (high) aversive outcome, if 0 = no (for now) aversive outcome
 
     end % end of runtrials loop
 end % end of runs loop
 
+% There are two ways to generate feedback sequence: either randomly or it
+% can be fixed. 
+% If runtrials*prob(high) is  whole number, then we'll generate a fixed sequence (e.g., 75% of trials will be high rewarded-vertical and 25% low reward-vertical) 
+% If runtrials*prob(high) is NOT a whole number, then we'll use rand to
+% generate sequence of high and low rewarded options 
+
+% decide whether the sequence generation will be random or fixed:
+vtrials = runtrials*prob; % is the number of high probability-vertical trials whole?
+if rem(vtrials,1) == 0
+    rdm = 0; % don't generate random sequence
+else
+    rdm = 1; 
+end
+
+% this will be done independently for each option/column:
+for s = 1:nstim
+    
+    for run = 1:runs
+
+        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,condition}, prob, rdm, volatility, task);
+
+
+    end % end of runs loop
+end % end of stimuli loop
+
 % if feedback(:,1)--vertical column is 1, then feedback(:,2)--horizontal column is 0 
 %feedback(:,2)                       = 1 - feedback;
 
-% one way to generate feedback is the code above (in the x for loop)
-% here I will use the exact probabilities to generate feedback sequences
-% (e.g., 75% and 25%) -- don't forget that feedback determines the rewarded
-% action 
-
-if condition == 1 && task == 1
-    tmp_feedbackv       = cat(1,ones(runtrials * prob,1), zeros(runtrials * (1-prob),1));
-    shuffled            = randperm(length(tmp_feedbackv));% shuffle the feedback 
-    feedbackv           = tmp_feedbackv(shuffled);
-    
-    clear shuffled tmp_feedbackv
-    % let's create an independent column for the second stimulus (horizontal
-    % gabor) 
-    tmp_feedbackh       = cat(1,zeros(runtrials * prob,1), ones(runtrials * (1-prob),1));
-    shuffled            = randperm(length(tmp_feedbackh));% shuffle the feedback 
-    feedbackh           = tmp_feedbackh(shuffled);
-    
-    % add columns two one matrix
-    % feedback             = cat(2, feedbackv, feedbackh);
-
-elseif condition == 1 && task == 2
-
-    % generate column 1 (vertical gabor reward feedback)
-    % first create the 75% trials (for vertical gabor)
-    tmp_feedbackv1       = cat(1,ones(ceil(runtrials * prob),1), zeros(floor(runtrials * (1-prob)),1));
-    shuffled1            = randperm(length(tmp_feedbackv1));% shuffle the feedback 
-    feedbackv1           = tmp_feedbackv1(shuffled1);
-
-    % now create the 25% trials (for vertical gabor)
-    tmp_feedbackv2       = cat(1,ones(ceil(runtrials * (1-prob)),1), zeros(floor(runtrials * prob),1));
-    shuffled2            = randperm(length(tmp_feedbackv2));% shuffle the feedback 
-    feedbackv2           = tmp_feedbackv2(shuffled2);
-
-    % concatinate the two arrays
-    feedbackv            = cat(1, feedbackv1, feedbackv2);
-
-    clear shuffled1 shuffled2
-
-    % generate column 2 (horizontal gabor reward feedback)
-    % first create the 75% trials (for horizontal gabor)
-    tmp_feedbackh1       = cat(1,zeros(ceil(runtrials * prob),1), ones(floor(runtrials * (1-prob)),1));
-    shuffled1            = randperm(length(tmp_feedbackh1));% shuffle the feedback 
-    feedbackh1           = tmp_feedbackh1(shuffled1);
-
-    % now create the 25% trials (for horizontal gabor)
-    tmp_feedbackh2       = cat(1,ones(ceil(runtrials * prob),1), zeros(floor(runtrials * (1-prob)),1));
-    shuffled2            = randperm(length(tmp_feedbackh2));% shuffle the feedback 
-    feedbackh2           = tmp_feedbackh2(shuffled2);
-
-    % concatinate the two arrays
-    feedbackh            = cat(1, feedbackh1, feedbackh2);
-
-    clear shuffled1 shuffled2
-
-else % if this is volatile condition
-
-    % first generate feedback for column 1 (vertical gabor)
-    % 80% feedback probability
-    tmp_feedbackv1      = cat(1,ones(ceil(runtrials * prob),1), zeros(ceil(runtrials * (1-prob)),1));
-    shuffled1           = randperm(length(tmp_feedbackv1)); % shuffle the feedback
-    feedbackv1          = tmp_feedbackv1(shuffled1);
-
-    % 20% feedback probability
-    tmp_feedbackv2      = cat(1,zeros(ceil(runtrials * prob),1), ones(ceil(runtrials * (1-prob)),1));
-    shuffled2           = randperm(length(tmp_feedbackv2)); % shuffle the feedback
-    feedbackv2          = tmp_feedbackv2(shuffled2);
-
-    % 80% feedback probability
-    tmp_feedbackv3      = cat(1,ones(ceil(runtrials * prob),1), zeros(ceil(runtrials * (1-prob)),1));
-    shuffled3           = randperm(length(tmp_feedbackv3)); % shuffle the feedback
-    feedbackv3          = tmp_feedbackv3(shuffled3);
-
-    % 20% feedback probability
-    tmp_feedbackv4      = cat(1,zeros(ceil(runtrials * prob),1), ones(ceil(runtrials * (1-prob)),1));
-    shuffled4           = randperm(length(tmp_feedbackv4)); % shuffle the feedback
-    feedbackv4          = tmp_feedbackv4(shuffled4);
-
-    % concatinate the two arrays
-    feedbackv            = cat(1, feedbackv1, feedbackv2, feedbackv3, feedbackv4);
-
-    clear shuffled1 shuffled2 shuffled3 shuffled4
-
-    % now generate feedback for column 2 (horizontal gabor)
-    % 80% feedback probability
-    tmp_feedbackh1       = cat(1,zeros(ceil(runtrials * prob),1), ones(ceil(runtrials * (1-prob)),1));
-    shuffled1            = randperm(length(tmp_feedbackh1));% shuffle the feedback 
-    feedbackh1           = tmp_feedbackh1(shuffled1);
-
-    % 20% feedback probability
-    tmp_feedbackh2       = cat(1,ones(ceil(runtrials * prob),1), zeros(ceil(runtrials * (1-prob)),1));
-    shuffled2            = randperm(length(tmp_feedbackh2));% shuffle the feedback 
-    feedbackh2           = tmp_feedbackh2(shuffled2);
-    
-    % 80% feedback probability
-    tmp_feedbackh3       = cat(1,zeros(ceil(runtrials * prob),1), ones(ceil(runtrials * (1-prob)),1));
-    shuffled3            = randperm(length(tmp_feedbackh3));% shuffle the feedback 
-    feedbackh3           = tmp_feedbackh3(shuffled3);
-
-    % 20% feedback probability
-    tmp_feedbackh4       = cat(1,ones(ceil(runtrials * prob),1), zeros(ceil(runtrials * (1-prob)),1));
-    shuffled4            = randperm(length(tmp_feedbackh4));% shuffle the feedback 
-    feedbackh4           = tmp_feedbackh4(shuffled4);
-
-    % concatinate the two arrays
-    feedbackh            = cat(1, feedbackh1, feedbackh2, feedbackh3, feedbackh4);
-
-    clear shuffled1 shuffled2 shuffled3 shuffled4
-
-end
-
-% add columns to one matrix
-feedback             = cat(2, feedbackv, feedbackh);
 
 
 % update the data struct with the needed info
