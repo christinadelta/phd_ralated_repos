@@ -134,11 +134,12 @@ end % end of runs loop
 % generate sequence of high and low rewarded options 
 
 % decide whether the sequence generation will be random or fixed:
-vtrials = runtrials*prob; % is the number of high probability-vertical trials whole?
+vtrials     = runtrials*prob; % is the number of high probability-vertical trials whole?
+
 if rem(vtrials,1) == 0
-    rdm = 0; % don't generate random sequence
+    rdm     = 0; % don't generate random sequence
 else
-    rdm = 1; 
+    rdm     = 1; 
 end
 
 % this will be done independently for each option/column:
@@ -146,8 +147,7 @@ for s = 1:nstim
     
     for run = 1:runs
 
-        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,condition}, prob, rdm, volatility, task);
-
+        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,condition}, probs, rdm, volatility, task);
 
     end % end of runs loop
 end % end of stimuli loop
