@@ -151,17 +151,16 @@ for s = 1:nstim
 
     for run = 1:runs
 
-        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,condition}, probtrials(s,run), rdm, volatility, task);
+        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,condition}(run), probtrials(s,run), rdm, volatility, task);
 
     end % end of runs loop
 end % end of stimuli loop
 
+% add feedback for vertical and horizontal gabors in one column
+outcome(:,1) = feedback{1,1}(:);
+outcome(:,2) = feedback{1,2}(:);
 % if feedback(:,1)--vertical column is 1, then feedback(:,2)--horizontal column is 0 
 %feedback(:,2)                       = 1 - feedback;
-if condition == 1 && task == 1
-    outcome(:,1) = feedback{1,1}(:);
-    outcome(:,2) = feedback{1,2}(:);
-end
 
 
 % update the data struct with the needed info

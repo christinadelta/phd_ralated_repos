@@ -14,7 +14,7 @@ trialnum    = length(trlvec);
 
 % if rdm = 0, create fixed feedback distribution 
 if rdm == 0 % if generate fixed sequence
-    vertrials                           = trialnum*prob;
+    vertrials                           = round(trialnum*prob);
     feedback(1:vertrials,1)             = 1; % high probaility option
     feedback(vertrials+1:trialnum,1)    = 0; % low probability option
     feedback                            = shuffleseq(feedback);
