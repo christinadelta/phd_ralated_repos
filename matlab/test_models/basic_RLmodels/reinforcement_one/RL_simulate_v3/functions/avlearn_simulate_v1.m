@@ -76,18 +76,19 @@ if condition == 1 % stable condition only
 
     % is it stable with switch or without switch?
     if task == 1
-        runs        = 1;            % no switch of probabilities 
+        runs            = 1;            % no switch of probabilities 
     else
-        runs        = 2;            % probabilities switch after 50 trials
+        runs            = 2;            % probabilities switch after 50 trials
     end
 
-    prob            = probs(1);     % what is the high probability?
-    nstim           = 2;            % left and right shape
-    runtrials       = trials/runs;  % trials in each run
+    prob                = probs(1);     % what is the high probability?
+    nstim               = 2;            % left and right shape
+    runtrials           = trials/runs;  % trials in each run
     
     % create trials sequence (this will change when we'll add volatility
     % component)
-     probtrials  = [prob 1-prob];
+    probtrials(1,:)  = [prob 1-prob]; % feedback sequence (vertical gabor) probabilities
+    probtrials(2,:)  = [1-prob prob]; % feedback sequence (horizontal gabor) probabilities
 
     if runs == 1
         seqtrials{1}   = trials;
@@ -101,27 +102,30 @@ else % if it is stable + volatile condition
     % in the volatile condition the probabilities are: 80 - 20 and the
     % switch evry 25 trials (e.g., 4 times if trials = 100)
 
-    volatility      = 'volatile'; % volatile simulation!
-    runtrials       = 25; 
-    runs            = trials/runtrials;
-    prob            = probs(2); % for volatile condition the probs are .8 and .2
+    volatility          = 'volatile'; % volatile simulation!
+    runtrials           = 25; 
+    runs                = trials/runtrials;
+    prob                = probs(2); % for volatile condition the probs are .8 and .2
 
-    nstim           = 2;            % left and right shape
-    probtrials      = repmat([prob 1-prob], 1, runs/2); % feedback sequence
-    seqtrials{2}    = repmat(([runtrials]), 1, runs); % trials per run for voaltile condition
+    nstim               = 2;            % left and right shape
+
+    probtrials(1,:)     = repmat([prob 1-prob], 1, runs/2); % feedback sequence (vertical gabor) probabilities
+    probtrials(2,:)     = repmat([1-prob prob], 1, runs/2); % feedback sequence (horizontal gabor) probabilities
+
+    seqtrials{2}        = repmat(([runtrials]), 1, runs); % trials per run for voaltile condition
 
 
 end % end of condition statement 
 
-% simulate a trial list (a sequence with probabilities and outcomes)
-counter         = 0; % init counter 
-
+% simulate a trial list (a sequence with probabilities and outcomes
 for r = 1:runs
+
+    counter         = 0; % init counter 
 
     for x = 1:seqtrials{1,condition}(r)
 
         counter                         = counter+1; % update counter
-        feedbackprob{1,r}(counter,1)    = probtrials(r);
+        feedbackprob(counter,r)         = probtrials(1,r); % feedback probability for vertical gabor
         % feedback(counter,1)         = double(rand(1) <= feedbackprob(counter)); % if 1 = (high) aversive outcome, if 0 = no (for now) aversive outcome
 
     end % end of runtrials loop
@@ -143,24 +147,27 @@ else
 end
 
 % this will be done independently for each option/column:
-for s = 1:nstim
-    
+for s = 1:nstim  
+
     for run = 1:runs
 
-        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,condition}, probs, rdm, volatility, task);
+        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,condition}, probtrials(s,run), rdm, volatility, task);
 
     end % end of runs loop
 end % end of stimuli loop
 
 % if feedback(:,1)--vertical column is 1, then feedback(:,2)--horizontal column is 0 
 %feedback(:,2)                       = 1 - feedback;
-
+if condition == 1 && task == 1
+    outcome(:,1) = feedback{1,1}(:);
+    outcome(:,2) = feedback{1,2}(:);
+end
 
 
 % update the data struct with the needed info
 data.nstim          = nstim;
-data.feedbackprob   = feedbackprob;
-data.feedback       = feedback;
+data.feedbackprob   = feedbackprob(:);
+data.feedback       = outcome;
 data.trials         = trials;
 data.condition      = condition;
 data.probs          = probs;
@@ -169,8 +176,8 @@ data.volatility     = volatility;
 %% generate table for exporting 
 
 % this is not required (just for faster reading (if needed) 
-feedbackv           = feedback(:,1);
-feedbackh           = feedback(:,2);
+feedbackv           = outcome(:,1);
+feedbackh           = outcome(:,2);
 
 % create table
 simdata_onesub      = table(feedbackprob, feedbackv, feedbackh);
