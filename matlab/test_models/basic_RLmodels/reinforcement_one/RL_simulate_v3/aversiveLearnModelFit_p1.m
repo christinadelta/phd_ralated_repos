@@ -24,11 +24,6 @@ addpath(fullfile(pwd,'modelfit'))
 
 %% define parameters and init variables
 
-% % set paths
-addpath(fullfile(pwd,'functions'))
-outpath = fullfile(pwd, 'output'); addpath(outpath);
-figpath = fullfile(pwd, 'figures'); addpath(figpath);
-
 % initialise variables 
 subjects        = 1;
 params          = [.25 4];                % alpha and beta values 
