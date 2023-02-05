@@ -30,7 +30,7 @@ figpath = fullfile(pwd, 'figures'); addpath(figpath);
 
 % initialise variables 
 subjects        = 1;
-params          = [.4 5];                % alpha and beta values 
+params          = [.25 4];                % alpha and beta values 
 condition       = 2;                      % only stable condition for now (if 2 = stable and volatile)
 task            = 1;                      % stable without switch (if task = 2 then stable with one switch)
 

@@ -1,4 +1,4 @@
-function feedback = computeFeedback(trlvec, prob, rdm, volatility, task)
+function feedback = computeFeedback(trlvec, prob, rdm)
 
 % adapted from NS getOutcomeDist.m 
 % inputs: 
