@@ -1,4 +1,4 @@
-function [data] = avlearn_simulate_v1(condition, probs, trials, outpath, task)
+function [data] = avlearn_simulate_v1(cond, probs, trials, outpath, task)
 
 % Date created : 7/1/2023
 % modified 1: 13/1/2023
@@ -70,7 +70,7 @@ function [data] = avlearn_simulate_v1(condition, probs, trials, outpath, task)
 
 data            = {};           % init data structure
 
-if condition == 1 % stable condition only
+if cond == 1 % stable condition only
 
     volatility      = 'stable'; % is it volatile or stable simulation?
 
@@ -122,7 +122,7 @@ for r = 1:runs
 
     counter         = 0; % init counter 
 
-    for x = 1:seqtrials{1,condition}(r)
+    for x = 1:seqtrials{1,cond}(r)
 
         counter                         = counter+1; % update counter
         feedbackprob(counter,r)         = probtrials(1,r); % feedback probability for vertical gabor
@@ -151,7 +151,7 @@ for s = 1:nstim
 
     for run = 1:runs
 
-        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,condition}(run),probtrials(s,run),rdm);
+        feedback{1,s}(:,run) = computeFeedback(1:seqtrials{1,cond}(run),probtrials(s,run),rdm);
 
     end % end of runs loop
 end % end of stimuli loop
@@ -159,15 +159,16 @@ end % end of stimuli loop
 % add feedback for vertical and horizontal gabors in one column
 outcome(:,1)        = feedback{1,1}(:);
 outcome(:,2)        = feedback{1,2}(:);
+feedbackprob        = feedbackprob(:);
 % if feedback(:,1)--vertical column is 1, then feedback(:,2)--horizontal column is 0 
 %feedback(:,2)                       = 1 - feedback;
 
 % update the data struct with the needed info
 data.nstim          = nstim;
-data.feedbackprob   = feedbackprob(:);
+data.feedbackprob   = feedbackprob;
 data.feedback       = outcome;
 data.trials         = trials;
-data.condition      = condition;
+data.condition      = cond;
 data.probs          = probs;
 data.volatility     = volatility;
 
@@ -177,8 +178,18 @@ data.volatility     = volatility;
 feedbackv           = outcome(:,1);
 feedbackh           = outcome(:,2);
 
+% add condition
+if cond == 1
+
+    condition = ones(trials,1);
+else
+    condition = ones(trials,1)*2;
+
+end
+    
+
 % create table
-simdata_onesub      = table(feedbackprob(:), feedbackv, feedbackh);
+simdata_onesub      = table(condition, feedbackprob, feedbackv, feedbackh);
 % 
 % % store table in .xlsx format
 % filename = sprintf('simdata_onesub_%s.xlsx', volatility);

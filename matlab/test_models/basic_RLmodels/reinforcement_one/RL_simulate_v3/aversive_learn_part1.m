@@ -238,6 +238,33 @@ for sub = 1:subjects
     end
 end
 
+%% check the model tables (optional)
+
+% concatenate the tables (both for conditions and simulated data and model
+% output)
+for sub = 1:subjects
+
+    for cond = 1:condition
+
+        sub_sim             = allsub_data{1,sub}{1,cond}.datatable;
+        sub_mod             = allsub_modelout{1,sub}{1,cond}.modeltable;
+
+        condtable{1,cond}   = [sub_sim, sub_mod];
+
+    end % end of condition loop
+
+    tmptbl = [condtable{1,1}; condtable{1,2}];
+    subtables{1,sub} = [condtable{1,1}; condtable{1,2}];
+
+
+end % end of subjects loop
+
+% store sample table for visualisation
+filename            = 'sample_table.xlsx'; % save table as xlsx file
+
+writetable(tmptbl,filename, 'Sheet', 1) 
+movefile('*.xlsx', outpath) % move file to output dir 
+
 %% visualise model results for one dataset (2 conditions)
 
 % visualise the two conditions
@@ -291,8 +318,8 @@ saveas(figh,filename)
 
 % run many simulations first 
 % parameter values to be used:
-alphas  = [0.20 0.4 0.6 0.8 1];
-betas   = [3 5 9 15 25];
+alphas  = [0.25 0.5 0.75 1];
+betas   = [3 5 9 15];
 [trlbytrl_choices] = combparams(condition,probs,trials, outpath,task); % run simulations
 
 %% visualise stable and volatile condition look at trial-by-trial choices-vertical 
@@ -328,8 +355,8 @@ end
 % plot heatmap with averaged choice-probabilities and performance of all possible combinations of beta and alpha parameter
 % values
 % parameter values to be used:
-alphas  = [0.20 0.4 0.6 0.8 1];
-betas   = [3 5 9 15 25];
+alphas  = [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9];
+betas   = [1 3 5 7 9 11 13 15];
 
 for rep = 1:1000 
 
@@ -358,7 +385,7 @@ end
 % plot the heatmap 
 for cond = 1:condition
 
-    cond_hm = avhm{1,cond};
+    cond_hm = avhm{1,cond}; cond_hm = cond_hm';
     t = plotheatmap(cond_hm);
     % thiscond = condstring{1,cond}
 
@@ -367,5 +394,4 @@ for cond = 1:condition
     % saveas(t, filename)
 
 end % end of condition loop
-
 

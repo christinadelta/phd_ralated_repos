@@ -11,59 +11,38 @@ data        = avlearn_simulate_v1(cond, probs, trials, outpath, task); % data is
 % run model
 modelout    = modelRW_v1(tmp_params, data, outpath);
 
-% extract performance (% correct)
-tmpchoice       = data.feedbackprob;
-tmpchoice(:,2)  = modelout.a';
-
-% extract actions/choices for the high probability
-if cond == 1 % if stable condition
-
-    if task == 2 % if stable with one switch
-        for i = 1:trials
-
-            if tmpchoice(i,1) == probs(1,1) && tmpchoice(i,2) == 1
-
-                tmptrial(i) = 1;
-            elseif tmpchoice(i,1) == probs(1,1) && tmpchoice(i,2) == 2
-                tmptrial(i) = 0;
-                
-            elseif tmpchoice(i,1) == probs(1,2) && tmpchoice(i,2) == 2
-
-                tmptrial(i) = 1;
-            else
-                tmptrial(i) = 0;
-            end
-        end
-    else
-
-        [~, imax] = max(probs(1,:));
-        tmptrial = modelout.a == imax;
-
+if cond == 1
+    if task == 1
+        [~,imax]    = max(probs(1,:));
+        tmptrial    = modelout.a == imax;
     end
-else % if condition = 2 (volatile condition
+else % if cond == 2
 
-    for i = 1:trials
+    runs            = 4; 
+    trlruns         = trials/runs;
+    counter         = 1;
 
-        if tmpchoice(i,1) == probs(2,1) && tmpchoice(i,2) == 1
+    for run = 1:runs
 
-            tmptrial(i) = 1;
-        elseif tmpchoice(i,1) == probs(2,1) && tmpchoice(i,2) == 2
-            tmptrial(i) = 0;
-            
-        elseif tmpchoice(i,1) ~= probs(2,1) && tmpchoice(i,2) == 2
-
-            tmptrial(i) = 1;
+        % work with p(correct) for the volatile condition
+        tmp                     = modelout.a(counter:trlruns*run);
+    
+        if mod(run,2)
+            [~,imax]            = max(probs(2,:));
+            trls{run}           = tmp == imax;
         else
-            tmptrial(i) = 0;
+            [~,imin]            = min(probs(2,:));
+            trls{run}           = tmp == imin;
         end
-    end
+    
+        counter                 = counter + trlruns;
 
-end % end of if statement
-performance = nanmean(tmptrial);
+    end % end of for loop
 
-% extract choice probabilities 
-% choiceprobv = nanmean(modelout.allPs(:,1));
-% choiceprobh = nanmean(modelout.allPs(:,2));
+    tmptrial                    = [trls{1} trls{2} trls{3} trls{4}]; % concatenate
+    
+end % end of conditions loop
 
+performance                     = nanmean(tmptrial); % get mean performance
 
 end % end of function

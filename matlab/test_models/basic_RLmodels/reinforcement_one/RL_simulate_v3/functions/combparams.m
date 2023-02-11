@@ -9,8 +9,8 @@ function [trlbytrl_choices] = combparams(condition,probs,trials, outpath,task)
 
 % ---------------------------------------------------
 % use different parameter values and re-run the model 
-alphas  = [0.20 0.4 0.6 0.8 1];  % use different alpha values and re-run the model
-betas   = [3 5 9 15 25];
+alphas  = [0.25 0.5 0.75 1];
+betas   = [3 5 9 15];
 
 for rep = 1:1000
     for alpha = 1:length(alphas)
@@ -27,55 +27,35 @@ for rep = 1:1000
                 % run model
                 modelout    = modelRW_v1(temp_params, data, outpath);
                 
-                % extract feedback probabilities and actions to compute
-                % correct choices 
-                tmpchoice       = data.feedbackprob;
-                tmpchoice(:,2)  = modelout.a';
-                
-                % extract actions/choices for the high probability
-                if cond == 1 % if stable condition
-
-                    if task == 2 % if stable with one switch
-                        for i = 1:trials
-
-                            if tmpchoice(i,1) == probs(1,1) && tmpchoice(i,2) == 1
-
-                                tmptrial(i) = 1;
-                            elseif tmpchoice(i,1) == probs(1,1) && tmpchoice(i,2) == 2
-                                tmptrial(i) = 0;
-                                
-                            elseif tmpchoice(i,1) == probs(1,2) && tmpchoice(i,2) == 2
-
-                                tmptrial(i) = 1;
-                            else
-                                tmptrial(i) = 0;
-                            end
-                        end
-                    else
-
-                        [~, imax] = max(probs(1,:));
-                        tmptrial = modelout.a == imax;
-
+                if cond == 1
+                    if task == 1
+                        [~,imax]    = max(probs(1,:));
+                        tmptrial    = modelout.a == imax;
                     end
-                else % if condition = 2 (volatile condition
+                else % if condition == 2
+                    runs            = 4; 
+                    trlruns         = trials/runs;
+                    counter         = 1;
 
-                    for i = 1:trials
+                    for run = 1:runs
+                        
+                        % work with p(correct) for the volatile condition
+                        tmp                     = modelout.a(counter:trlruns*run);
 
-                        if tmpchoice(i,1) == probs(2,1) && tmpchoice(i,2) == 1
-
-                            tmptrial(i) = 1;
-                        elseif tmpchoice(i,1) == probs(2,1) && tmpchoice(i,2) == 2
-                            tmptrial(i) = 0;
-                            
-                        elseif tmpchoice(i,1) ~= probs(2,1) && tmpchoice(i,2) == 2
-
-                            tmptrial(i) = 1;
+                        if mod(run,2)
+                            [~,imax]            = max(probs(2,:));
+                            trls{run}           = tmp == imax;
                         else
-                            tmptrial(i) = 0;
+                            [~,imin]            = min(probs(2,:));
+                            trls{run}           = tmp == imin;
                         end
-                    end
-               
-                end % end of if statement
+
+                        counter                 = counter + trlruns;
+                    end % end of for loop
+                    
+                    tmptrial                    = [trls{1} trls{2} trls{3} trls{4}]; % concatenate
+
+                end
 
                 % store trial-by-trial vertical-gabor choices for ploting 
                 trlbytrl_choices{cond}{alpha}{beta}(rep,:) = tmptrial;

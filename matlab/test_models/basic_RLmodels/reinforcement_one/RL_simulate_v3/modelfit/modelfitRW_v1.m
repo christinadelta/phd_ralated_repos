@@ -1,4 +1,4 @@
-function [xfit ll]  = modelfitRW_v1(params, actions, rewards)
+function [xfit ll]  = modelfitRW_v1(tmp_params, actions, rewards)
 
 % this function runs fmincon.m to get optimal X parameter values
 % is used to compute -ll
@@ -18,7 +18,7 @@ function [xfit ll]  = modelfitRW_v1(params, actions, rewards)
 llFunc  = @(x) likRW_v1(actions, rewards, x(1), x(2));
 
 % what are the initial param values?
-x0              = params;
+x0              = tmp_params;
 lb              = [0 0];    %lower bound
 ub              = [1 inf];  % upper bound
 

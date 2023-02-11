@@ -45,8 +45,8 @@ ll              = 0; % this will be needed for model fitting mainly
 % run the model
 for trl = 1:trials
 
-    p           = exp(beta*Qvals) / sum(exp(beta*Qvals)); % compute choice probabilities using the softmax function
-    a(trl)      = max(find([-eps cumsum(p)] < rand)); % way 1 of computing choices
+    p           = exp(beta*Qvals) / sum(exp(beta*Qvals));   % compute choice probabilities using the softmax function
+    a(trl)      = max(find([-eps cumsum(p)] < rand));       % way 1 of computing choices
 
     % way 2 of computing choices:
 %     if rand(1) < p(1)
@@ -55,27 +55,18 @@ for trl = 1:trials
 %         a(trl)  = 2;
 %     end
 
-    r(trl)      = outcome(trl,a(trl));                    % generate reward based on choice made
+    r(trl)          = outcome(trl,a(trl));                  % select outcome based on choice made
 
     % store stuff
-    ll              = ll + log(p(a(trl)));                % update ll
-    allQs(trl,:)    = Qvals;                         % store all Qvalues 
-    allPs(trl,:)    = p;                             % store probabilities (for visualisation)
+    ll              = ll + log(p(a(trl)));                  % update ll
+    allQs(trl,:)    = Qvals;                                % store all Qvalues 
+    allPs(trl,:)    = p;                                    % store probabilities (for visualisation)
 
     % update stuff
-    delta           = r(trl) - Qvals(a(trl));       % compute prediction error
-    Qvals(a(trl))   = Qvals(a(trl)) + alpha * delta; % update Q values (this is what the model learns based on the feedback it receives)
+    delta           = r(trl) - Qvals(a(trl));               % compute prediction error
+    Qvals(a(trl))   = Qvals(a(trl)) + alpha * delta;        % update Q values (this is what the model learns based on the feedback it receives)
 
 end % end of trials loop
-
-%% store model stuff in table for faster reading
-
-a_tr = a'; r_tr = r'; % transpose choices and rewards
-modeltable          = table(allQs, allPs, a_tr, r_tr);
-% filename            = sprintf('model_table_%s.xlsx', data.volatility); % save table as xlsx file
-% 
-% writetable(modeltable,filename, 'Sheet', 1) 
-% movefile('*.xlsx', outpath) % move file to output dir 
 
 %% the rest from now on is for plotting 
 
@@ -91,6 +82,16 @@ modelout.allPs      = allPs;
 modelout.a          = a;
 modelout.r          = r;
 modelout.reward     = reward;
+
+%% store model stuff in table for faster reading
+
+a = a'; r = r'; % transpose choices and rewards
+modeltable          = table(a, r, allQs, allPs);
+% filename            = sprintf('model_table_%s.xlsx', data.volatility); % save table as xlsx file
+% 
+% writetable(modeltable,filename, 'Sheet', 1) 
+% movefile('*.xlsx', outpath) % move file to output dir 
+
 modelout.modeltable = modeltable;
 
 
