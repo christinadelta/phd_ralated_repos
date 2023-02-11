@@ -1,5 +1,5 @@
 % Model fitting for the simple RW model (Part of aversive-learning
-% modelling) -- PART 1
+% modelling) -- VERSION 1
 
 % Model fitting using fmincon for the computation of LOG-LIKELIHOOD (LL) 
 

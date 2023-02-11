@@ -34,6 +34,7 @@ output.Qvals        = vvals;
 output.Pvals        = pvals;
 output.actions      = actions;
 output.rewards      = rewards;
+output.ll           = negll;
 
 
 end % end of function
