@@ -1,4 +1,4 @@
-function [negll output] = likRW_v1(actions, rewards, alpha, beta)
+function [negll, output] = likRW_v1(actions, rewards, alpha, beta)
 
 % compute negative log-likelihood
 
