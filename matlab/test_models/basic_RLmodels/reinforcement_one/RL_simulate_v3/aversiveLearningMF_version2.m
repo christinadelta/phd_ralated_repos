@@ -28,7 +28,7 @@ AZblue = [12,35,75]/256;
 % initialise variables 
 subjects        = 1;
 params          = [.25 4];                % alpha and beta values 
-condition       = 1;                      % only stable condition for now (if 2 = stable and volatile)
+condition       = 2;                      % only stable condition for now (if 2 = stable and volatile)
 task            = 1;                      % stable without switch (if task = 2 then stable with one switch)
 
 if condition == 1
@@ -97,14 +97,19 @@ modelfit_data = table(fitted_alphas, fitted_betas, lls);
 % alpha and beta parameter values 
 rng(2);
 
-for i = 1:10
+for i = 1:1000
     
     % simulate alpha and beta values
-    tmp_alpha   = rand; 
-    tmp_beta    = exprnd(10);
-    tmp_params  = [tmp_alpha tmp_beta];
+%     tmp_alpha   = rand; 
+%     tmp_beta    = exprnd(10);
+%     tmp_params  = [tmp_alpha tmp_beta];
 
     for cond = 1:condition
+
+        tmp_alpha   = rand; 
+        tmp_beta    = exprnd(10);
+        tmp_params  = [tmp_alpha tmp_beta];
+
         % simulate dataset 
         data{1,cond}        = avlearn_simulate_v1(cond, probs, trials, outpath, task);
 
