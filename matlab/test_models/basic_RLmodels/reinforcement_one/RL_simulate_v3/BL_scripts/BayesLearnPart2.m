@@ -1,4 +1,4 @@
-% Bayesian Learning - Part 2 -- Bayes without volatility 
+% Bayesian Learning - Part 2 -- Bayes with & without volatility 
 
 % Created: 12/2/2023
 
@@ -26,7 +26,7 @@ figpath = fullfile(pwd, 'figures'); addpath(figpath);
 subjects            = 1;
 params              = [.25 4];                % alpha and beta values 
 condition           = 1;                      % only stable condition for now (if 2 = stable and volatile)
-task                = 1;                      % stable without switch (if task = 2 then stable with one switch)
+task                = 2;                      % stable without switch (if task = 2 then stable with one switch)
 
 if condition == 1
     probs           = [.75 .25];              % probabilities of the stable condition
@@ -56,7 +56,7 @@ prior_p_q           = NaN(length(y),length(q_space));           % initiate matri
 post_p_q            = NaN(length(y),length(q_space));           % initiate matrix for posterior probability of each value of q: size = trials x possible values
 prior_p_q(1,:)      = ones(1,length(q_space))./length(q_space); % on trial 1, prior probability for each value of q is uniform ie 1/number of possible values of q
 
-%% update probabilities trial-by-trial
+%% update probabilities trial-by-trial (first version of the model)
 
 % loop through trials
 for i = 1:length(y)
@@ -128,7 +128,7 @@ figure; hold on;
 
 for c = 1:15; subplot(3,5,c); hold on;
 
-    t = 1:15; % 30:44; % representative trials
+    t = 45:60; % 30:44; % representative trials
     plot([est_q(t(c)) est_q(t(c))],[0 1],'r-.','MarkerSize',15);
     plot(q_space,prior_p_q(t(c),:));
     
@@ -137,7 +137,7 @@ for c = 1:15; subplot(3,5,c); hold on;
     else
         title(['t' int2str(t(c)) ': horizontal']);
     end
-    
+
     xlabel('value of q'); ylabel('p(value of q)'); set(gcf,'color','w'); set(gca,'XLim',[0 1],'YLim',[0 0.05]);
 end
 
