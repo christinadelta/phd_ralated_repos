@@ -73,11 +73,11 @@ set(gcf,'Color','w');
 % observations up until the most recent ones 
 
 clear;
-% data = [1 1 0 1 0 ]; %VVHVH
+data = [1 1 0 1 0 ]; %VVHVH
 % data = [ 1 0 1 0 1 0 1 1 0 1 1 1 1 1 0 1 1 1 0 1 0 0 0 0 1 1 0 0 1 1 1 0 1 1 1 0 0 1 1 0 0 1 1 0 1 0 1 0 1 1 ];
 
-data        = [1 0 0 1 1 ]; %VHHVV
-qVals       = [0:0.01:1]'; % candidate values of q
+% data        = [1 0 0 1 1 ]; %VHHVV
+qVals       = [0:0.01:1]'; % candidate values of q (q space)
 prior(:,1)  = ones(size(qVals)); prior(:,1) = prior./sum(prior(:,1));
 
 for i = 1:length(data) % loop over trials
@@ -105,5 +105,7 @@ for i = 1:length(data) % loop over trials
     set(gcf,'Color','w');
 
 end % end of trials loop
+
+%% 
 
 
