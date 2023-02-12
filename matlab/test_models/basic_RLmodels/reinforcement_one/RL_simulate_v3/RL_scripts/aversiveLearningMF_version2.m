@@ -204,3 +204,8 @@ for cond = 1:condition
 
 end % end of cond
 
+%% include bias to improve parameter recovery
+
+% to be completed sometime later (if needed)
+
+
