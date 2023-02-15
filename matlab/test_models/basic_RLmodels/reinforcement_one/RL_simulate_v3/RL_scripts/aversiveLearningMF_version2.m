@@ -106,8 +106,8 @@ for i = 1:1000
 
     for cond = 1:condition
 
-        tmp_alpha   = rand; 
-        tmp_beta    = exprnd(10);
+        tmp_alpha   = rand;         % extract alpha from uniform distribution
+        tmp_beta    = exprnd(10);   % extract beta from exponential distribution
         tmp_params  = [tmp_alpha tmp_beta];
 
         % simulate dataset 
@@ -195,12 +195,6 @@ for cond = 1:condition
         xl = get(gca, 'xlim');
         plot(xl, xl, 'k--')
     end
-
-    %% scatter plot
-%     figure(1); clf; hold on;
-%     % plot(Xsim(1,:), Xsim(2,:),'.')
-%     plot(cond_Xfit(2,:), cond_Xfit(1,:),'.')
-%     set(gca, 'xscale', 'log')
 
 end % end of cond
 

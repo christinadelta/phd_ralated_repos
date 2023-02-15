@@ -208,10 +208,10 @@ fprob               = data.feedbackprob; % needed for plotting
 volatility          = data.volatility;
 
 % plot the averaged sub model
-figh = plot_manysubs(allQs, allPs, choices, fprob, params, condition, volatility);
+figh                = plot_manysubs(allQs, allPs, choices, fprob, params, condition, volatility);
 
 % save the figure
-filename = fullfile(figpath, 'plot_manysubs_stable.fig');
+filename            = fullfile(figpath, 'plot_manysubs_stable.fig');
 saveas(figh, filename)
 
 %% add the volatility component 
@@ -253,14 +253,14 @@ for sub = 1:subjects
 
     end % end of condition loop
 
-    tmptbl = [condtable{1,1}; condtable{1,2}];
-    subtables{1,sub} = [condtable{1,1}; condtable{1,2}];
+    tmptbl                  = [condtable{1,1}; condtable{1,2}];
+    subtables{1,sub}        = [condtable{1,1}; condtable{1,2}];
 
 
 end % end of subjects loop
 
 % store sample table for visualisation
-filename            = 'sample_table.xlsx'; % save table as xlsx file
+filename                    = 'sample_table.xlsx'; % save table as xlsx file
 
 writetable(tmptbl,filename, 'Sheet', 1) 
 movefile('*.xlsx', outpath) % move file to output dir 
@@ -268,23 +268,23 @@ movefile('*.xlsx', outpath) % move file to output dir
 %% visualise model results for one dataset (2 conditions)
 
 % visualise the two conditions
-subfig          = nan(2,subjects); % figure handle for ploting simulated dataset for both conditions
+subfig                      = nan(2,subjects); % figure handle for ploting simulated dataset for both conditions
 
 for cond = 1:condition
 
     % extract structures
-    this_data       = allsub_data{1,1}{1,cond};
-    this_modelout   = allsub_modelout{1,1}{1,cond};
+    this_data               = allsub_data{1,1}{1,cond};
+    this_modelout           = allsub_modelout{1,1}{1,cond};
 
     % extract data from structures
-    allQs           = this_modelout.Qvals;
-    allPs           = this_modelout.allPs;
-    choices         = 2 - this_modelout.a; % convert to 0/1 for ploting 
-    feedbackprob    = this_data.feedbackprob;
-    subfig(cond)    = plot_onesub(allQs, allPs, choices, feedbackprob, subfig(cond), params); % plot data
+    allQs                   = this_modelout.Qvals;
+    allPs                   = this_modelout.allPs;
+    choices                 = 2 - this_modelout.a; % convert to 0/1 for ploting 
+    feedbackprob            = this_data.feedbackprob;
+    subfig(cond)            = plot_onesub(allQs, allPs, choices, feedbackprob, subfig(cond), params); % plot data
 
     % save figures 
-    filename = fullfile(figpath, sprintf('plot_onesub_%s.fig', this_data.volatility));
+    filename                = fullfile(figpath, sprintf('plot_onesub_%s.fig', this_data.volatility));
     saveas(subfig(cond),filename)
 
 end % end of condition loop
@@ -298,29 +298,29 @@ for cond = 1:condition
     % loop over subjects 
     for sub = 1:subjects
 
-        cond_allQs{1,cond}(sub,:,:) = allsub_modelout{1,sub}{1,cond}.Qvals;
-        cond_allPs{1,cond}(sub,:)   = allsub_modelout{1,sub}{1,cond}.allPs(:,1);
-        cond_choices{1,cond}(sub,:) = 2 - allsub_modelout{1,sub}{1,cond}.a;
-        cond_fprob{1,cond}          = allsub_data{1,1}{1,cond}.feedbackprob;
-        cond_volatility{1,cond}      = allsub_data{1,1}{1,cond}.volatility;
+        cond_allQs{1,cond}(sub,:,:)     = allsub_modelout{1,sub}{1,cond}.Qvals;
+        cond_allPs{1,cond}(sub,:)       = allsub_modelout{1,sub}{1,cond}.allPs(:,1);
+        cond_choices{1,cond}(sub,:)     = 2 - allsub_modelout{1,sub}{1,cond}.a;
+        cond_fprob{1,cond}              = allsub_data{1,1}{1,cond}.feedbackprob;
+        cond_volatility{1,cond}         = allsub_data{1,1}{1,cond}.volatility;
     end
 
 end 
 
 % plot the averaged sub model
-figh = plot_manysubs(cond_allQs, cond_allPs, cond_choices, cond_fprob, params, condition, cond_volatility);
+figh                                    = plot_manysubs(cond_allQs, cond_allPs, cond_choices, cond_fprob, params, condition, cond_volatility);
 
 % save figures 
-filename = fullfile(figpath, 'plot_manysubs_allconds.fig');
+filename                                = fullfile(figpath, 'plot_manysubs_allconds.fig');
 saveas(figh,filename)
 
 %% make trial-wise plots with the two conditions (stable-volatile)
 
 % run many simulations first 
 % parameter values to be used:
-alphas  = [0.25 0.5 0.75 1];
-betas   = [3 5 9 15];
-[trlbytrl_choices] = combparams(condition,probs,trials, outpath,task); % run simulations
+alphas              = [0.25 0.5 0.75 1];
+betas               = [3 5 9 15];
+[trlbytrl_choices]  = combparams(condition,probs,trials, outpath,task); % run simulations
 
 %% visualise stable and volatile condition look at trial-by-trial choices-vertical 
 
@@ -339,12 +339,12 @@ end
 % each beta parameter value
 for cond = 1:condition
 
-    avtrl_choices = allavtrl_choices{1,cond};
+    avtrl_choices   = allavtrl_choices{1,cond};
 
-    trl_plts = trlplots(avtrl_choices,alphas,betas);
+    trl_plts        = trlplots(avtrl_choices,alphas,betas);
     
     % store the figure 
-    filename = fullfile(figpath, sprintf('trialbytrial_params_plot_%d.fig',cond));
+    filename        = fullfile(figpath, sprintf('trialbytrial_params_plot_%d.fig',cond));
     saveas(trl_plts, filename)
 
 end
@@ -386,7 +386,7 @@ end
 for cond = 1:condition
 
     cond_hm = avhm{1,cond}; cond_hm = cond_hm';
-    t = plotheatmap(cond_hm);
+    t       = plotheatmap(cond_hm);
     % thiscond = condstring{1,cond}
 
     % store the figures

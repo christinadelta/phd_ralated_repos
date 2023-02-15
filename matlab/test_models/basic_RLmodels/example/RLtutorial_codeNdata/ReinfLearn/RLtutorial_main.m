@@ -34,11 +34,13 @@ function fitted = RLtutorial_main
 %% Section 1: Preparation
 %==========================================================================
 % close all;
+clear all
+clc
 
 %%%%%%%%%%%%    MODIFY      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subjects        = 1:4; % use vector of numbers if simulating or using a subset of the data; use string 'all' if using all available real datasets
-simulate        = true;    % true if simulate, false if using real data
-fitData         = false; 	% if false, we only simulate / plot data
+subjects        = 'all'; % use vector of numbers if simulating or using a subset of the data; use string 'all' if using all available real datasets
+simulate        = false;    % true if simulate, false if using real data
+fitData         = true; 	% if false, we only simulate / plot data
 plotIndividual  = false;  % only set to to true if running a small number of individuals!
 
 % If simulating data, specify the parameters you want to use for fitting
