@@ -161,7 +161,45 @@ for s = 1:nstim
     end % end of runs loop
 end % end of stimuli loop
 
+% add feedback for vertical and horizontal gabors in one column
+outcome(:,1)        = feedback{1,1}(:);
+outcome(:,2)        = feedback{1,2}(:);
+feedbackprob        = feedbackprob(:);
+% if feedback(:,1)--vertical column is 1, then feedback(:,2)--horizontal column is 0 
+%feedback(:,2)                       = 1 - feedback;
 
+% update the data struct with the needed info
+data.nstim          = nstim;
+data.feedbackprob   = feedbackprob;
+data.feedback       = outcome;
+data.trials         = trials;
+data.condition      = cond;
+data.probs          = probs;
+data.volatility     = volatility;
 
+%% generate table for exporting 
 
+% this is not required (just for faster reading (if needed) 
+feedbackv           = outcome(:,1);
+feedbackh           = outcome(:,2);
 
+% add condition
+if cond == 1
+
+    condition = ones(trials,1);
+else
+    condition = ones(trials,1)*2;
+
+end
+
+% create table
+simdata_onesub      = table(condition, feedbackprob, feedbackv, feedbackh);
+% 
+% % store table in .xlsx format
+% filename = sprintf('simdata_onesub_%s.xlsx', volatility);
+% writetable(simdata_onesub,filename, 'Sheet', 1)
+% movefile('*.xlsx', outpath) % move file to output dir 
+
+data.datatable = simdata_onesub;
+
+end % end of fuction
