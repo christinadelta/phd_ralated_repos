@@ -1,4 +1,4 @@
-% testing vkf with simulated data
+% testing vkf (figure 2) with simulated data
 
 clc
 clear all
