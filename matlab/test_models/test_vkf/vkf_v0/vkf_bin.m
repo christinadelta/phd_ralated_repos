@@ -11,8 +11,8 @@ lr      = nan(nt,nq); % learning rate
 vol     = nan(nt,nq); % volatility 
 um      = nan(nt,nq); % not sure what that is, yet!
 
+ux = @(x)1./(1+exp(-x)); % sigmoid function
 
-ux = @(x)1./(1+exp(-x));
 for t  = 1:nt      
     dv(t,:)     = m(1,:);
     lr(t,:)     = sqrt(w+v);

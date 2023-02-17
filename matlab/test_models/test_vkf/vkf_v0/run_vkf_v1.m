@@ -1,6 +1,6 @@
 % testing vkf with simulated data
 
-[y,x]     = timeseries_bin; % simulate data (outcome [y] and feedbackprobs [x])
+[y,x1]      = timeseries_bin; % simulate data (outcome [y] and feedbackprobs [x])
 lambda      = .1; % volatility learning rate
 v0          = .1; % initial volatility 
 omega       = .1; % noise parameter 
