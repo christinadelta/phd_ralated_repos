@@ -15,7 +15,7 @@ lcol = [.8 .8 .8];
 
 if isrow(x)
     dx = [0 diff(x)~=0];
-else
+else % this is the correct 
     dx = [0; diff(x)~=0];
 end
 ix = (find(dx))-1;

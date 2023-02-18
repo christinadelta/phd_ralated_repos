@@ -9,7 +9,7 @@ n  = 20;
 fname = 'bin.mat';
 
 pipedir = getdefaults('pipedir');
-fdir = fullfile(pipedir,simcat); makedir(fdir);
+fdir = fullfile(pipedir,simcat); %makedir(fdir);
 fname = fullfile(fdir,fname);
 
 if ~exist(fname,'file')
