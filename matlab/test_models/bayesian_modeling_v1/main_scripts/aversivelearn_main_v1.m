@@ -65,7 +65,6 @@ for sub = 1:subjects
     feedback{sub}           = cat(1,cond_data{1,1}.feedback, cond_data{1,2}.feedback);
     feedbackprob{sub}       = cat(1,cond_data{1,1}.feedbackprob, cond_data{1,2}.feedbackprob); % for ploting
 end
-
  
 %% model the dataset(s)
 
@@ -78,17 +77,18 @@ for sub = 1:subjects
 end % end of subjects loop
 
 % look at model output in table
-probability             = feedbackprob{1};
-outc                    = feedback{1};
-predicted_state         = signals.predictions;
-volatility              = signals.volatility;
-PE                      = signals.prediction_error;
-learning_rate           = signals.learning_rate;
+probability                 = feedbackprob{1};
+outc                        = feedback{1};
+predicted_state             = signals.predictions;
+volatility                  = signals.volatility;
+PE                          = signals.prediction_error;
+learning_rate               = signals.learning_rate;
+m1                          = 1./(1+exp(-predictions(:,1))); % bound predicted state between 0-1
 
-signals_table           = table(probability,outc, predicted_state,volatility,learning_rate,PE); % 
+signals_table               = table(probability,outc, predicted_state,volatility,learning_rate,PE); % 
 
-%% plot VKF results 
+%% plot VKF bin results 
 
-
+h = plotVFK_bin(volatility(:,1),learning_rate(:,1),m1,probability,outc(:,1));
 
 
