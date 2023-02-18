@@ -22,8 +22,8 @@ clc
 % set paths
 addpath(fullfile(pwd,'functions'))
 addpath(fullfile(pwd,'main_scripts'))
-outpath = fullfile(pwd, 'output'); addpath(outpath);
-figpath = fullfile(pwd, 'figures'); addpath(figpath);
+outpath         = fullfile(pwd, 'output'); addpath(outpath);
+figpath         = fullfile(pwd, 'figures'); addpath(figpath);
 
 % initialise variables 
 subjects        = 1;
@@ -90,5 +90,9 @@ signals_table               = table(probability,outc, predicted_state,volatility
 %% plot VKF bin results 
 
 h = plotVFK_bin(volatility(:,1),learning_rate(:,1),m1,probability,outc(:,1));
+
+% save figure
+filename = fullfile(figpath, 'averslearn_VFKbin_plot.fig');
+saveas(h, filename)
 
 
