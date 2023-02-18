@@ -87,6 +87,11 @@ m1                          = 1./(1+exp(-predictions(:,1))); % bound predicted s
 
 signals_table               = table(probability,outc, predicted_state,volatility,learning_rate,PE); % 
 
+% store table in .xlsx format
+% filename = 'VKFbin_modelout%s.xlsx';
+% writetable(signals_table,filename, 'Sheet', 1)
+% movefile('*.xlsx', outpath) % move file to output dir 
+
 %% plot VKF bin results 
 
 h = plotVFK_bin(volatility(:,1),learning_rate(:,1),m1,probability,outc(:,1));
