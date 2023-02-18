@@ -34,7 +34,7 @@ function data = aversivelearn_sim_v2(cond, probs, trials, outpath, task)
 % condition. As I learn the model, I will continue adding complexity to the
 % simulation process and to the model. 
 
-% NEW CHANGE (15/1/2023) included in version 2:
+% NEW CHANGE (15/1/2023) included in Version 2:
 % I have now added the volatile version too
 
 % NEW CHANGE (25/1/2023):

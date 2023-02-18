@@ -27,7 +27,7 @@ figpath = fullfile(pwd, 'figures'); addpath(figpath);
 
 % initialise variables 
 subjects        = 1;
-condition       = 1;                      % only stable condition for now (if 2 = stable and volatile)
+condition       = 2;                      % only stable condition for now (if 2 = stable and volatile)
 task            = 1;                      % stable without switch (if task = 2 then stable with one switch)
 
 if condition == 1
@@ -53,23 +53,41 @@ trials                          = 100;                      % per volatility con
 %% simulate dataset 
 
 for sub = 1:subjects
-    % simulate dataset
-    data                = aversivelearn_sim_v2(condition, probs, trials, outpath, task); % data is a structure containaining the simulation output
-    allsub_data{1,sub}  = data; % if many subjects add them to cell
 
+    for cond = 1:condition
+    % simulate dataset
+        data                = aversivelearn_sim_v2(cond, probs, trials, outpath, task); % data is a structure containaining the simulation output
+        cond_data{1,cond}   = data; % if many subjects add them to cell
+    end
+
+    % for modelling with VKF we only need the outcomes for both conditions, so, concatinate the
+    % trials of the two conditions
+    feedback{sub}           = cat(1,cond_data{1,1}.feedback, cond_data{1,2}.feedback);
+    feedbackprob{sub}       = cat(1,cond_data{1,1}.feedbackprob, cond_data{1,2}.feedbackprob); % for ploting
 end
-    
+
+ 
 %% model the dataset(s)
 
 for sub = 1:subjects
-
-    this_data               = allsub_data{1,sub};
     
-
+    % run vkf model with init parameters
+    [predictions, signals]  = vkf_v1(feedback{sub},model_params);
+    allsubs_signals{1,sub}  = signals; % all model output
 
 end % end of subjects loop
 
+% look at model output in table
+probability             = feedbackprob{1};
+outc                    = feedback{1};
+predicted_state         = signals.predictions;
+volatility              = signals.volatility;
+PE                      = signals.prediction_error;
+learning_rate           = signals.learning_rate;
 
+signals_table           = table(probability,outc, predicted_state,volatility,learning_rate,PE); % 
+
+%% plot VKF results 
 
 
 
