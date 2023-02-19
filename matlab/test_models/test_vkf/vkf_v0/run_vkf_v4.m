@@ -29,4 +29,4 @@ for j = 1:size(tx,1)
 end
 
 % plot figure 
-fig_plot(x,vol,val,tx);
+fig_plot4(x,vol,val,tx);

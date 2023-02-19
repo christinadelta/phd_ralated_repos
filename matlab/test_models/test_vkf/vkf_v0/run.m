@@ -21,13 +21,14 @@ ffit  = fullfile(pipedir,simcat, sprintf('fit_%s.mat',modelname) );
 makedir(fullfile(pipedir,simcat));
 
 rng(0);
-Ys = sim_gen(fsim1,nsim);
-sim_gen(fsim2,nsim);
+Ys = sim_gen(fsim1,nsim); % running this is not really required!!!!!
+sim_gen(fsim2,nsim); % not sure what this is used for
 
 do_fit = ~exist(ffit,'file');
 
 
-vfit = 15.23;
+vfit = 15.23; % variance 
+% if fit file is not there, define prior and variance  (this is for me)
 if do_fit
     config = struct('range',[-5*ones(1,d);5*ones(1,d)],'numinit',7*d,'prior_for_bads',1);
     prior = struct('mean',zeros(d,1),'variance',vfit);
