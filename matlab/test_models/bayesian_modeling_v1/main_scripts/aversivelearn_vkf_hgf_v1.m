@@ -78,7 +78,40 @@ end
 %% run the two models 
 
 % fit models through main.m function to get optimal parameter values 
-[mc nc tx] = mainf(xs,ys);
+[mc nc tx]  = mainf(xs,ys);
 
+% extract parameter for vkf and hgf models
+tx_vkf      = tx(2,:);
+tx_hgf      = tx(1,:);
+
+% RUN VKF MODEL
+% get params for model
+model_params.lambda             = tx_vkf(1,1);
+model_params.init_vol           = tx_vkf(1,2);
+model_params.omega              = tx_vkf(1,3);
+
+
+[predictions, signals]          = vkf_v1(feedback(:,1),model_params);
+
+
+predicted_state     = signals.predictions(:,1); % extract only predicted-state only for probability of vertical 
+volatility          = signals.volatility(:,1);
+learning_rate       = signals.learning_rate(:,1);
+
+% RUN HGF MODEL
+% get hgf parameters
+nu                  = tx_hgf(1);
+kappa               = tx_hgf(2);
+omega               = tx_hgf(3);
+
+% run hgf model
+[~, ~, mu2, mu3, sigma2] = hgf_bin(feedback(:,1),nu,kappa,omega);  
+
+m                   = mu2(1:end-1);
+v                   = (mu3(1:end-1));
+sigma2              = sigma2(2:end);    
+predicted_state2    = m;
+volatility2         = v;
+learning_rate2      = sigma2;
 
 

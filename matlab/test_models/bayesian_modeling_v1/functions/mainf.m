@@ -29,7 +29,7 @@ for i = 1:length(models)
     cbm             = cbm_lap({ys}, model, prior, [], config); %#ok<NASGU>
     
     % run model evaluation to get parameter values
-    [ckv(:,i), tx(:,i)]       = eval_model(ys, model, cbm);
+    [ckv(:,i), tx(i,:)]       = eval_model(ys, model, cbm);
 
 
 end % end of models loop
