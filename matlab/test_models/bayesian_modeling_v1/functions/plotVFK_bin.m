@@ -1,12 +1,15 @@
 function h = plotVFK_bin(volatility,learning_rate,m1,probability,outc)
+% function h = plotVFK_bin(volatility,learning_rate,m1,probability,outc)
+
+% Date created: 17/02/2023
 
 % plot stuff:
 % volatility(:,1)
 % learning rate(:,1)
 % predected state(:,1) -- m1
 
-% -----
-% plotting parameters, plotting font-size, font types, etc..
+%% ----- 
+% define plotting parameters, plotting font-size, font types, etc..
 fnt         = 'Helvetica';
 fn          = 'Arial';
 abc         = 'ABC';
@@ -17,7 +20,8 @@ ysA         = 1.1;
 yst         = 1.15; %0.15;
 fst         = 18;
 fsy         = 14;
-colours     = [1 .4 0;0 .4 1];
+% colours     = [1 .4 0;0 .4 1]; % orange and blue 
+colours     = [0.6350 0.0780 0.1840; 0 0.4470 0.7410]; % red blue 
 lcol        = [.8 .8 .8];
 
 figure;

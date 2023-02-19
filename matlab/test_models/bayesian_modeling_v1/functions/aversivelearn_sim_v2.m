@@ -115,8 +115,8 @@ else % if it is volatile condition
 
     nstim               = 2;            % left and right shape
 
-    probtrials(1,:)     = repmat([prob 1-prob], 1, runs/2); % feedback sequence (vertical gabor) probabilities
-    probtrials(2,:)     = repmat([1-prob prob], 1, runs/2); % feedback sequence (horizontal gabor) probabilities
+    probtrials(1,:)     = repmat([1-prob prob], 1, runs/2); % feedback sequence (vertical gabor) probabilities
+    probtrials(2,:)     = repmat([prob 1-prob], 1, runs/2); % feedback sequence (horizontal gabor) probabilities
 
     seqtrials{2}        = repmat(([runtrials]), 1, runs);   % trials per run for voaltile condition
 
