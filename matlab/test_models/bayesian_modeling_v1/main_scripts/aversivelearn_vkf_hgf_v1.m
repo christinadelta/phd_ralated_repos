@@ -53,5 +53,32 @@ end
 feedback          = cat(1,cond_data{1,1}.feedback, cond_data{1,2}.feedback);
 feedbackprob      = cat(1,cond_data{1,1}.feedbackprob, cond_data{1,2}.feedbackprob); % for ploting
 
+%% simulate datasets for fitting and comparison
+simulations = 500;
+
+for sim = 1:simulations
+
+    for cond = 1:condition
+    % simulate dataset
+        data                = aversivelearn_sim_v2(cond, probs, trials, outpath, task); % data is a structure containaining the simulation output
+        cond_data{1,cond}   = data; % if many subjects add them to cell
+    end
+
+    % for modelling with VKF we only need the outcomes for both conditions, so, concatinate the
+    % trials of the two conditions
+    f           = cat(1,cond_data{1,1}.feedback, cond_data{1,2}.feedback); % outcomes
+    p           = cat(1,cond_data{1,1}.feedbackprob, cond_data{1,2}.feedbackprob); % true probabilities
+
+    % only keep outcomes for vertical shape
+    ys(:,sim) = f(:,1);
+    xs(:,sim) = p;
+
+end
+
+%% run the two models 
+
+% fit models through main.m function to get optimal parameter values 
+[mc nc tx] = mainf(xs,ys);
+
 
 
