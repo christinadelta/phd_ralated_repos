@@ -54,7 +54,7 @@ feedback          = cat(1,cond_data{1,1}.feedback, cond_data{1,2}.feedback);
 feedbackprob      = cat(1,cond_data{1,1}.feedbackprob, cond_data{1,2}.feedbackprob); % for ploting
 
 %% simulate datasets for fitting and comparison
-simulations = 500;
+simulations      = 500;
 
 for sim = 1:simulations
 
@@ -66,18 +66,18 @@ for sim = 1:simulations
 
     % for modelling with VKF we only need the outcomes for both conditions, so, concatinate the
     % trials of the two conditions
-    f           = cat(1,cond_data{1,1}.feedback, cond_data{1,2}.feedback); % outcomes
-    p           = cat(1,cond_data{1,1}.feedbackprob, cond_data{1,2}.feedbackprob); % true probabilities
+    f                       = cat(1,cond_data{1,1}.feedback, cond_data{1,2}.feedback); % outcomes
+    p                       = cat(1,cond_data{1,1}.feedbackprob, cond_data{1,2}.feedbackprob); % true probabilities
 
     % only keep outcomes for vertical shape
-    ys(:,sim) = f(:,1);
-    xs(:,sim) = p;
+    ys(:,sim)               = f(:,1);
+    xs(:,sim)               = p;
 
 end
 
 %% run the two models 
 
-% fit models through main.m function to get optimal parameter values 
+% fit models through main.m function to get parameter values 
 [mc nc tx]  = mainf(xs,ys);
 
 % extract parameter for vkf and hgf models
@@ -114,4 +114,20 @@ predicted_state2    = m;
 volatility2         = v;
 learning_rate2      = sigma2;
 
+%% plot VKF and HGF bin results 
+
+% get all params in a struct
+allsignals.m1       = predicted_state;
+allsignals.m2       = predicted_state2;
+allsignals.v1       = volatility;
+allsignals.v2       = volatility2;
+allsignals.lr1      = learning_rate;
+allsignals.lr2      = learning_rate2;
+
+% prepare true probability and outcomes for plotting 
+probability         = feedbackprob;
+outc                = feedback(:,1); % plot outcomes for probability of vertical shapes only 
+
+% plot results
+plotVFK_HGF(probability,outc,allsignals);
 
