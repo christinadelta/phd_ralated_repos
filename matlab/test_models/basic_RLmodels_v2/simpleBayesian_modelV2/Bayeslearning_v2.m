@@ -126,12 +126,47 @@ end
 % make the plot
 h = plot_SimpleBayes_V2(q,Eq,y,H,EH);
 
-% save the plot
 % store the plot
 filename = fullfile(figpath, 'SimpleBayes_singlesubPlot.fig');
 saveas(h, filename)
 
-%% plot 
+%% plot the model's beliefs about q (p(vertical rewarded)) in 20 trials
 
+% first set the q space 
+q_space             = [0.01:0.01:0.99];                         % possible values for q - don't allow 0 or 1, as model may explode!
+prior_p_q           = NaN(length(y),length(q_space));           % initiate matrix for prior probability of each value of q: size = trials x possible values
+post_p_q            = NaN(length(y),length(q_space));           % initiate matrix for posterior probability of each value of q: size = trials x possible values
+prior_p_q(1,:)      = ones(1,length(q_space))./length(q_space); % on trial 1, prior probability for each value of q is uniform ie 1/number of possible values of q
+
+
+% run model (simple version)
+% loop through trials
+for i = 1:length(y)
+    
+    if y(i) == 1  % if target was vertical gabor
+          p_q_given_yi(i,:)     = q_space;
+    else
+          p_q_given_yi(i,:)     = 1-q_space;
+    end
+    
+    post_p_q(i,:)               = p_q_given_yi(i,:) .* prior_p_q(i,:);
+    post_p_q(i,:)               = post_p_q(i,:)./sum(post_p_q(i,:),2); % normalise the posterior
+    
+    % set up the prior for next trial - there is a chance of (1-H) that 
+    % q is the same on the next trial as on the current trial, 
+    % and a chance of H that it now has a random value between 0 and 1
+    prior_p_q(i+1,:)            = post_p_q(i,:)*(1-H) + H*ones(1,length(q_space))./length(q_space);
+    
+end
+
+% Work out the model's best guess of pL on each trial by finding the expected value of q
+est_q                           = sum(prior_p_q*q_space',2);
+
+% plot the results
+hprior                          = plot_modelBeliefBL_v1(est_q,q_space,prior_p_q,y);
+
+% store the plot
+filename                        = fullfile(figpath, 'modelBeliefs_Plot.fig');
+saveas(hprior, filename)
 
 
