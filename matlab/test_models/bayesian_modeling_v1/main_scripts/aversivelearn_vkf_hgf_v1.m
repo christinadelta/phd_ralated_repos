@@ -70,33 +70,29 @@ for sim = 1:simulations
     p                       = cat(1,cond_data{1,1}.feedbackprob, cond_data{1,2}.feedbackprob); % true probabilities
 
     % only keep outcomes for vertical shape
-    ys(:,sim)               = f(:,1);
-    xs(:,sim)               = p;
+    simy(:,sim)             = f(:,1);
+    simx(:,sim)             = p;
 
 end
 
 %% run the two models 
 
-% fit models through main.m function to get parameter values 
-[mc nc tx]  = mainf(xs,ys);
-
-% extract parameter for vkf and hgf models
-tx_vkf      = tx(2,:);
-tx_hgf      = tx(1,:);
+% simulate learning rate and volatility values for the two models 
+[tx_vkf, tx_hgf] = sim_params(simy,simx,feedback(:,1));
+%[mc nc tx]  = mainf(xs,ys);
 
 % RUN VKF MODEL
 % get params for model
-model_params.lambda             = tx_vkf(1,1);
-model_params.init_vol           = tx_vkf(1,2);
-model_params.omega              = tx_vkf(1,3);
+lambda              = tx_vkf(1);
+v0                  = tx_vkf(2);
+omega               = tx_vkf(3);
 
+% run vkf model
+[m, k, v]   = vkf_bin(feedback(:,1),lambda,v0,omega);
 
-[predictions, signals]          = vkf_v1(feedback(:,1),model_params);
-
-
-predicted_state     = signals.predictions(:,1); % extract only predicted-state only for probability of vertical 
-volatility          = signals.volatility(:,1);
-learning_rate       = signals.learning_rate(:,1);
+val1        = m;
+vol1        = v;
+lr1         = k;
 
 % RUN HGF MODEL
 % get hgf parameters
@@ -110,24 +106,31 @@ omega               = tx_hgf(3);
 m                   = mu2(1:end-1);
 v                   = (mu3(1:end-1));
 sigma2              = sigma2(2:end);    
-predicted_state2    = m;
-volatility2         = v;
-learning_rate2      = sigma2;
+val2                = m;
+vol2                = v;
+lr2                 = sigma2;
 
 %% plot VKF and HGF bin results 
 
 % get all params in a struct
-allsignals.m1       = predicted_state;
-allsignals.m2       = predicted_state2;
-allsignals.v1       = volatility;
-allsignals.v2       = volatility2;
-allsignals.lr1      = learning_rate;
-allsignals.lr2      = learning_rate2;
+allsignals.m1       = val1;
+allsignals.m2       = val2;
+allsignals.v1       = vol1;
+allsignals.v2       = vol2;
+allsignals.lr1      = lr1;
+allsignals.lr2      = lr2;
 
 % prepare true probability and outcomes for plotting 
 probability         = feedbackprob;
 outc                = feedback(:,1); % plot outcomes for probability of vertical shapes only 
 
 % plot results
-plotVFK_HGF(probability,outc,allsignals);
+plotVFK_HGF(probability,outc,val1,vol1,lr1,val2,vol2,lr2);
 
+%% make table with the results
+results_table = table(predicted_state, predicted_state2, volatility, volatility2, learning_rate, learning_rate2);
+
+% store table in .xlsx format
+filename = 'VKF_HGFbin_modelout.xlsx';
+writetable(results_table,filename, 'Sheet', 1)
+movefile('*.xlsx', outpath) % move file to output dir 

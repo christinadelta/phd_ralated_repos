@@ -1,16 +1,7 @@
-function plotVFK_HGF(probability,outc,allsignals)
+function plotVFK_HGF(x,y,val1,vol1,lr1,val2,vol2,lr2)
 
 % Date created: 19/02/2023
 
-% unpack params
-m1      = allsignals.m1;
-v1      = allsignals.v1;
-lr1     = allsignals.lr1;
-m2      = allsignals.m2;
-v2      = allsignals.v2;
-lr2     = allsignals.lr2;
-
-%% ----- 
 % define plotting parameters, plotting font-size, font types, etc..
 fnt         = 'Helvetica';
 fn          = 'Arial';
@@ -38,7 +29,7 @@ set(gcf,'position',fpos0);
 
 yl          = [0 1.5; .2 1.2;-2.5 2.5];
 sub_plts    = [1 3 5];
-hl          = sim_plot(nr,nc,sub_plts,probability,outc,v1,lr1,m1,yl);
+hl          = sim_plot(nr,nc,sub_plts,x,y,vol1,lr1,val1,yl);
 
 text(.5,yst,'VKF','fontsize',fst,'Unit','normalized','fontname',fnt,'parent',hl(1),'HorizontalAlignment','Center','fontweight','bold');
 
@@ -48,7 +39,7 @@ end
 
 %---------
 sub_plts    = [2 4 6];
-hr          = sim_plot(nr,nc,sub_plts,probability,outc,v2,lr2,m2,yl);
+hr          = sim_plot(nr,nc,sub_plts,x,y,vol2,lr2,val2,yl);
 
 text(.5,yst,'HGF','fontsize',fst,'Unit','normalized','fontname',fnt,'parent',hr(1),'HorizontalAlignment','Center','fontweight','bold');
 

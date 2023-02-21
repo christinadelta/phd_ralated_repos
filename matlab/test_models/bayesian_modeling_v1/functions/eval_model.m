@@ -1,16 +1,16 @@
-function [ckv, tx] = eval_model(Ys, model, cbm)
-% function [ckv, tx] = eval_model(fsim, model, cbm)
+function [ckv, tx] = eval_model(fsim, model, cbm)
 
-% -----------
+Ys      = fsim;
+
 nsim = size(Ys,2);
 
 fx = cbm.output.parameters;
 
 ckv = nan(nsim,1);
-for n = 1:nsim
-    y           = Ys(:,n);
-    [~, tx, cc] = model(fx,y);   % model_hgf.m and model_vkf.m                   
-    ckv(n)      = cc;        
+for n=1:nsim
+    y = Ys(:,n);
+    [~, tx, cc]= model(fx,y);   % model_hgf.m and model_vkf.m                   
+    ckv(n) = cc;        
 end
 
 end
