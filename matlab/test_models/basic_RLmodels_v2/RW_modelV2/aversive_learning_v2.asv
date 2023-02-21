@@ -14,7 +14,8 @@
 % The steps are:
 % 1. simulate dataset(s)
 % 2. model simulated dataset(s)
-% 3. visualise simulation
+% 3. visualise simulation:
+
 
 % Information about the task: Aversive learning task Version 2:
 % A simple 2-armed bandit choice task setting is used. More details in the simulation function:
@@ -103,4 +104,7 @@ h = plotRW_V2(probability,choiceProb,Vvals,actions);
 % store the plot
 filename = fullfile(figpath, 'RW_singlesubPlot.fig');
 saveas(h, filename)
+
+
+
 
