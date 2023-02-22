@@ -9,6 +9,31 @@
 % Now let's start building a simple Bayesian model for the aversive
 % learning task.
 
+% Bayes theorem is used to model observer's evolving beliefs:
+%           p(q|y1:i) ∝ p(yi|q) * p(q|y1:i-1)
+
+% where:
+
+% p(q|y1:i) -- is the posterior probability of some value of q given all the observations on trials 1 to i
+% p(yi|q) --  is the likelihood function for some value of q given the most recent event
+% p(q|y1:i-1) -- is the prior probability of some value of q given all the coin tosses up until the most recent 
+% one (but not including the most recent one)
+
+% what is the role of uncertainty? --> uncertainty tells us how much the
+% observer should alter their beliefs on each trial
+
+% In the aversive learning version:
+% q = probability that the vertical shape is the most rewarded one -- p(vertical rewarded)
+
+% what parameter is used for modelling?
+% *Hazard rate (H) -- the model believes that there is a constant probability for switching and on each trial 
+% this "probability of a switch is H". 
+% Hazard rate = switch rate -- estimate of volatility/uncertainty 
+
+% using this H parameter is considered as a leaky transition function. It represents some amount of uncertainty about 
+% the value of q on each trial. Without the leak (H = 0) uncertainty goes down and down as the trials/events 
+% progress and learning stops.  
+
 % This version includes:
 % 1. simulating datasets for volatile/stable conditions
 % 2. Running simple Bayesian model where the main goal is to estimate the
@@ -28,7 +53,7 @@ figpath = fullfile(pwd, 'figures'); addpath(figpath);
 
 % initialise variables 
 subjects            = 1;
-params              = [.25 4];                % alpha and beta values 
+% params              = [.25 4];                % alpha and beta values 
 condition           = 2;                      % only stable condition for now (if 2 = stable and volatile)
 task                = 1;                      % stable without switch (if task = 2 then stable with one switch)
 
@@ -42,7 +67,7 @@ labels              = {'alpha', 'beta'};      % for ploting
 condstring          = {'stable', 'volatile'}; % for ploting 
 trials              = 100;                    % per volatility condition
 
-H                   = 1/25;                   % used to calculate the prior (changing the value affects model predictions)
+H                   = 1/25;                   % hazard rate - used to calculate the prior (changing the value affects model predictions)
 
 %% simulate dataset(s)
 
@@ -129,6 +154,14 @@ h = plot_SimpleBayes_V2(q,Eq,y,H,EH);
 % store the plot
 filename = fullfile(figpath, 'SimpleBayes_singlesubPlot.fig');
 saveas(h, filename)
+
+%% plot joint probability distribution over q and H
+
+hdist = plot_hqdist_v1(H_candidates,q_candidates,prior_p_qH);
+
+% store the plot
+filename = fullfile(figpath, 'HQdistrib_singlesubPlot.fig');
+saveas(hdist, filename)
 
 %% plot the model's beliefs about q (p(vertical rewarded)) in 20 trials
 

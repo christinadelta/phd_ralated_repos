@@ -62,7 +62,7 @@ plot([0 length(y)],[1/25 1/25],'color',colours(1,:),'linewidth',2); hold on;
 plot(EH,':','color',colours(2,:),'linewidth',2); hold on;
 set(gca,'fontname',fn); 
 
-ylabel('H and Expected H','fontsize',fsy);
+ylabel('Hazard rate (H)','fontsize',fsy);
 set(gca,'ticklength', [0 0]);
 
 % plot q and predicted q
@@ -90,7 +90,7 @@ for i=1:2
 end
 
 % add legend to plot A
-hlg = legend(h(1),{'H value','estimated H values'},'fontsize',fsl,'location','east');
+hlg = legend(h(1),{'true H','estimated H'},'fontsize',fsl,'location','east');
 pos = get(hlg,'Position');
 pos(2) = 1.2*pos(2);
 set(hlg,'Position',pos);

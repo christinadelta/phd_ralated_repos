@@ -15,7 +15,7 @@ fsl         = 14;
 fsA         = 18;
 xsA         = -.15;
 ysA         = 1.1;
-yst         = 1.15; %0.15;
+yst         = 1.05; %0.15;
 fst         = 18;
 fsy         = 14;
 fsy2        = 10;
@@ -61,8 +61,9 @@ plot(Vvals(:,1),':','color',colours(1,:),'linewidth',2); hold on;
 plot(Vvals(:,2),':','color',colours(2,:),'linewidth',2); hold on;
 set(gca,'fontname',fn); 
 
-ylabel('Expected Values','fontsize',fsy);
+ylabel('Expected Values','fontsize',fsy); hold on;
 set(gca,'ticklength', [0 0]);
+xlabel('Trial','fontsize',fsl);
 
 % plot choice probabilities
 h(2) = subplot(nr,nc,sub_plts(2)); 
@@ -100,8 +101,8 @@ pos2 = get(hlg2,'Position');
 pos2(2) = 1.2*pos2(2);
 set(hlg2,'Position',pos2);
 
-% i =1;
-% text(0.5,yst,'Binary','fontsize',fst,'Unit','normalized','fontname',fnt,'parent',h(i),'HorizontalAlignment','Center','fontweight','bold');
+i =1;
+text(0.5,yst,'alpha = 0.25, beta = 4','fontsize',fst,'Unit','normalized','fontname',fnt,'parent',h(i),'HorizontalAlignment','Center','fontweight','bold');
 
 
 end % end of function 
