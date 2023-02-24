@@ -202,4 +202,3 @@ hprior                          = plot_modelBeliefBL_v1(est_q,q_space,prior_p_q,
 filename                        = fullfile(figpath, 'modelBeliefs_Plot.fig');
 saveas(hprior, filename)
 
-

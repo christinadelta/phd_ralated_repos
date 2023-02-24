@@ -25,7 +25,7 @@ figpath = fullfile(pwd, 'figures'); addpath(figpath);
 % initialise variables 
 subjects            = 1;
 params              = [.25 4];                % alpha and beta values 
-condition           = 1;                      % only stable condition for now (if 2 = stable and volatile)
+condition           = 2;                      % only stable condition for now (if 2 = stable and volatile)
 task                = 2;                      % stable without switch (if task = 2 then stable with one switch)
 
 if condition == 1
@@ -38,12 +38,12 @@ labels              = {'alpha', 'beta'};      % for ploting
 condstring          = {'stable', 'volatile'}; % for ploting 
 trials              = 100;                    % per volatility condition
 
-H                   = 1/25;                   % still not 100% sure what that does
+H                   = 1/25;                   % used to calculate the prior (changing the value affects the the model predictions)
 
 %% simulate dataset(s)
 
 % for now simulate one dataset only
-data                = avlearn_simulate_v1(condition, probs, trials, outpath, task); % data is a structure containaining the simulation output
+data                = aversivelearn_sim_v2(condition, probs, trials, outpath, task); % data is a structure containaining the simulation output
 
 % what data do we need?
 q                   = data.feedbackprob;    % true underlying probabilities
@@ -78,7 +78,7 @@ for i = 1:length(y)
 end
 
 % Work out the model's best guess of pL on each trial by finding the expected value of q
-est_q                           = sum(prior_p_q*q_space',2);
+est_q                           = sum(prior_p_q*q_space',2); 
 
 %% plot the model's beliefs about q (p(orange rewarded)) on the first few trials
 
@@ -104,7 +104,7 @@ end
 
 %% plot the true value of q (p(orange rewarded)) and the model's estimate
 
-figure; plot(q); hold on; plot(est_q,'r');  % plot the true values of s against the model's estimate
+figure; plot(q); hold on; plot(est_q,'r');  % plot the true values of q against the model's estimate
 
 plot(y,'k.','MarkerSize',8);                % plot the individual data points (left and right targets)
 set(gca,'YLim',[-0.2 1.2]); legend('true value of q','model estimate','Data points (1=orange, 0=blue)');
