@@ -5,6 +5,7 @@
         <title> Lexical Decision </title>
         <script src="jspsych/jspsych.js"></script>
         <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="jspsych/plugins/jspsych-instructions.js"></script>
         <link href="jspsych/css/jspsych.css" rel="stylesheet">
 
     </head>
@@ -13,6 +14,17 @@
     <!-- start with experimental parameters -->
     <script>
         var timeline = []; // create empty object list that will be filled with data in loop, later 
+
+        // start with adding instructions object
+        var instructions = {
+            type: 'instructions', // what is thr type of the plugin?
+            pages: ['welcome!', 'Press the f key when you see a non-word. </p><p>Press the j key when you see a word.', 'Click the NEXT button to start.'], // text seperated with coma denotes different page
+            show_clickable_nav: true, // an option taht allows participants to navigate through pages when reading instructions
+            
+        };
+
+        // add instructions to the timeline 
+        timeline.push(instructions);
 
         // add a fixation object
         var fixation = {
@@ -31,9 +43,10 @@
             type: 'html-keyboard-response',  // type of plugin
             stimulus: '<span style="font-size:40px;">apple</span>', // change format (fontsize) using html command <span>
             choices: ['f', 'j'],  // response choices
-            prompt: 'f = not word, j = word',
+            prompt: 'f = not word, j = word', // if also added in the instructions (not needed)
             stimulus_duration: 2000,  // stimulus presentation time
-            data: {condition: 'word', correct_response: 'j'} // define a condition (a way to make sure that participant responded corretly)
+            data: {condition: 'word', correct_response: 'j'}, // define a condition (a way to make sure that participant responded corretly)
+            post_trial_gap: 1000 // ITI
 
         }; // trials
 
@@ -48,14 +61,15 @@
             type: 'html-keyboard-response',  // type of plugin (you can use parameters specific in this plugin or global ones)
             stimulus: '<span style="font-size:40px;">moxidjeda</span>',
             choices: ['f', 'j'],  // response choices
-            prompt: 'f = not word, j = word',
+            prompt: 'f = not word, j = word', // if also added in the instructions (not needed)
             stimulus_duration: 2000,  // stimulus presentation time
-            data: {condition: 'nonword', correct_response:'f'} // 
+            data: {condition: 'nonword', correct_response:'f'}, // ITI
+            post_trial_gap: 1000 // ITI
 
         }; // trials
 
 
-        // add the trial to the timeline 
+        // add the trial to the timeline and actually call the experiment
         timeline.push(nonword_trial);
 
         jsPsych.init({
