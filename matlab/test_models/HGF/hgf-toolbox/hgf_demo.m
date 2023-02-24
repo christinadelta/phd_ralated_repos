@@ -3,6 +3,7 @@
 % First, we will load the example binary inputs $u$ provided in the file example_binary_input.txt:
 
 u = load('example_binary_input.txt');
+
 %% 
 % The inputs are simply a time series of 320 0s and 1s. This is the input sequence 
 % used in the task of Iglesias et al. (2013), _Neuron_, *80*(2), 519-530.
@@ -45,9 +46,10 @@ axis([1, 320, -0.1, 1.1])
 
 bopars = tapas_fitModel([],...
                          u,...
-                         'tapas_hgf_binary_config',...
+                         'tapas_hgf_binary_config',...   % perceptual model
                          'tapas_bayes_optimal_binary_config',...
                          'tapas_quasinewton_optim_config');
+
 %% 
 % The only parameter whose Bayes optimal values we've estimated is $\omega$. 
 % This is the tonic volatility in the HGF. At the first level, $\omega_1$ is undefined 
@@ -101,8 +103,8 @@ tapas_hgf_binary_plotTraj(sim)
 % These priors are defined in a configuration file for each model, which returns 
 % a configuration structure when we run it.
 
-hgf_binary_config = tapas_hgf_binary_config()
-unitsq_sgm_config = tapas_unitsq_sgm_config()
+hgf_binary_config = tapas_hgf_binary_config();
+unitsq_sgm_config = tapas_unitsq_sgm_config();
 %% 
 % In addition to the configurations for the perceptual and observation models, 
 % we can also explicitly configure the optimization algorithm.
