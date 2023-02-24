@@ -5,11 +5,66 @@
         <title> Lexical Decision </title>
         <script src="jspsych/jspsych.js"></script>
         <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
-        <link href="=jspsych/css/jspsych.css" rel="stylesheet">
+        <link href="jspsych/css/jspsych.css" rel="stylesheet">
 
     </head>
     <body></body>
+
+    <!-- start with experimental parameters -->
     <script>
+        var timeline = []; // create empty object list that will be filled with data in loop, later 
+
+        // add a fixation object
+        var fixation = {
+            type: 'html-keyboard-response',  // type of plugin
+            stimulus: '<span style="font-size:40px;">+</span>', // change format (fontsize) using html command <span>
+            choices: jsPsych.NO_KEYS, // spcial case because we don't want a respnse in the fixation
+            trial_duration: 1000
+
+        };
+
+        // add the fixation to the timeline object
+        timeline.push(fixation);
+
+        // create a word trial (valid trial)
+        var word_trial = {
+            type: 'html-keyboard-response',  // type of plugin
+            stimulus: '<span style="font-size:40px;">apple</span>', // change format (fontsize) using html command <span>
+            choices: ['f', 'j'],  // response choices
+            prompt: 'f = not word, j = word',
+            stimulus_duration: 2000,  // stimulus presentation time
+            data: {condition: 'word', correct_response: 'j'} // define a condition (a way to make sure that participant responded corretly)
+
+        }; // trials
+
+        // add the trial to the timeline 
+        timeline.push(word_trial);
+
+        // show fixation again
+        timeline.push(fixation);
+
+        // create a non-word trial (invalid)
+        var nonword_trial = {
+            type: 'html-keyboard-response',  // type of plugin (you can use parameters specific in this plugin or global ones)
+            stimulus: '<span style="font-size:40px;">moxidjeda</span>',
+            choices: ['f', 'j'],  // response choices
+            prompt: 'f = not word, j = word',
+            stimulus_duration: 2000,  // stimulus presentation time
+            data: {condition: 'nonword', correct_response:'f'} // 
+
+        }; // trials
+
+
+        // add the trial to the timeline 
+        timeline.push(nonword_trial);
+
+        jsPsych.init({
+            timeline: timeline,
+            on_finish: function(){
+                jsPsych.data.displayData(); // display output at the end 
+            }
+        })
+
 
     </script>
 </html>
