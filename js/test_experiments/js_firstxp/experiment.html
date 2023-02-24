@@ -9,21 +9,48 @@
         <!-- init javascript-->
         <script src="jspsych/jspsych.js"></script>
         <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="jspsych/plugins/jspsych-image-button-response.js"></script>
         <link href="jspsych/css/jspsych.css" rel="stylesheet">
     </head>
 
     <!-- the body of the experimnt starts here -->
     <body></body>
     <script>
+
+        var timeline = []; // empty list
+        var words = ['welcome', 'to', 'my', 'experiment']; // the words/stimuli that will be presented
+
+        //iterate through the list and add trials for each item on the list
+        for (var i = 0; i<words.length; i++){ // go through every element in this list
+            var welcome_trial = {
+                type: 'html-keyboard-response', 
+                stimulus: words[i] // extract 'ith' item from the words list
+
+            }
+
+            // add the welcome trial to the timeline:
+            timeline.push(welcome_trial);
+
+        }
+
+        /*
         // create an object for welcoming screen ( think of this as a trial)
         var welcome_trial = {
             type: 'html-keyboard-response', 
             stimulus: 'welcome to my experiment.'
         }
 
+   
+        // create an object trial where we show an imageand someone has to press a button 
+        var image_button_trial = {
+            type: 'image-button-response', // type of trial
+            stimulus: 'jspsych/examples/img/happy_face_1.jpg', // path to the stimulus that we are going to show
+            choices: ['happy', 'sad'] // labels for choices/options
+        } */
+
         //now to run the experiment: provide order and sequence of trials you want to run
         jsPsych.init({
-            timeline: [welcome_trial],
+            timeline: timeline, // use the timeline object created on top
 
             // let's do something when the experiment is complete 
             on_finish: function(){
