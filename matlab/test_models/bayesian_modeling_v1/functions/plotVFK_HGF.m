@@ -27,7 +27,7 @@ figure;
 set(gcf,'units','normalized');
 set(gcf,'position',fpos0);
 
-yl          = [0 1.5; .2 1.2;-2.5 2.5];
+yl          = [0 2; 0 0.5; .2 1.2; -2.5 2.5];
 sub_plts    = [1 3 5];
 hl          = sim_plot(nr,nc,sub_plts,x,y,vol1,lr1,val1,yl);
 
