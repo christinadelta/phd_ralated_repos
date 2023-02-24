@@ -41,3 +41,9 @@ lr2         = sigma2;
 % plot results
 fig_plot3(x,o,val1,vol1,lr1,val2,vol2,lr2);
 
+results_table = table(val1,val2,vol1,vol2,lr1,lr2);
+
+% store table in .xlsx format
+filename = 'VKF_HGF_paper_modelout.xlsx';
+writetable(results_table,filename, 'Sheet', 1)
+movefile('*.xlsx', pwd) % move file to output dir 
