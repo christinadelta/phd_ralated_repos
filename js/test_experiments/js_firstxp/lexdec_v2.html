@@ -38,15 +38,15 @@ trials -->
 
         // create a trial example
         var lexdec_trial = {
-            type: 'html-keyboard-response',  // type of plugin
+            type: 'html-keyboard-response',                     // type of plugin
             stimulus: jsPsych.timelineVariable('stimulus'),
-            choices: ['f', 'j'],  // response choices
-            prompt: 'f = not word, j = word', // if also added in the instructions (not needed)
-            stimulus_duration: 2000,  // stimulus presentation time
+            choices: ['f', 'j'],                             // response choices
+            prompt: 'f = not word, j = word',               // if also added in the instructions (not needed)
+            stimulus_duration: 2000,                       // stimulus presentation time
             data: {
                 condition: jsPsych.timelineVariable('condition'), 
                 correct_response: jsPsych.timelineVariable('correct_response')
-            }, // define a condition (a way to make sure that participant responded corretly)
+            },                                          // define a condition (a way to make sure that participant responded corretly)
             
             post_trial_gap: 1000, // ITI
             
@@ -79,8 +79,7 @@ trials -->
             {stimulus: '<span style="font-size:40px;">apple</span>', condition: 'word', correct_response: 'j'},
             {stimulus: '<span style="font-size:40px;">tree</span>', condition: 'word', correct_response: 'j'},
             {stimulus: '<span style="font-size:40px;">moxid</span>', condition: 'nonword', correct_response: 'f'},
-            {stimulus: '<span style="font-size:40px;">orap</span>', condition: 'nonword', correct_response: 'f'}
-            
+            {stimulus: '<span style="font-size:40px;">orap</span>', condition: 'nonword', correct_response: 'f'}       
         ];
 
         // create a new object for the trials procedure 
