@@ -10,7 +10,6 @@ trials -->
         <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
         <script src="jspsych/plugins/jspsych-instructions.js"></script>
         <link href="jspsych/css/jspsych.css" rel="stylesheet">
-
     </head>
     <body></body>
 
@@ -24,7 +23,6 @@ trials -->
             type: 'instructions', // what is thr type of the plugin?
             pages: ['welcome!', 'Press the f key when you see a non-word. </p><p>Press the j key when you see a word.', 'Click the NEXT button to start.'], // text seperated with coma denotes different page
             show_clickable_nav: true, // an option taht allows participants to navigate through pages when reading instructions
-            
         };
 
         // add instructions to the timeline 
@@ -36,7 +34,6 @@ trials -->
             stimulus: '<span style="font-size:40px;">+</span>', // change format (fontsize) using html command <span>
             choices: jsPsych.NO_KEYS, // spcial case because we don't want a respnse in the fixation
             trial_duration: 1000
-
         };
 
         // create a trial example
@@ -46,8 +43,13 @@ trials -->
             choices: ['f', 'j'],  // response choices
             prompt: 'f = not word, j = word', // if also added in the instructions (not needed)
             stimulus_duration: 2000,  // stimulus presentation time
-            data: {condition: jsPsych.timelineVariable('condition'), correct_response: jsPsych.timelineVariable('correct_response')}, // define a condition (a way to make sure that participant responded corretly)
+            data: {
+                condition: jsPsych.timelineVariable('condition'), 
+                correct_response: jsPsych.timelineVariable('correct_response')
+            }, // define a condition (a way to make sure that participant responded corretly)
+            
             post_trial_gap: 1000, // ITI
+            
             // compute correct responses 
             on_finish: function(data) {
                 if(jsPsych.pluginAPI.compareKeys(data.correct_response, data.key_press)){
@@ -56,8 +58,21 @@ trials -->
                     data.correct = false; 
                 }
             }
-
         }; // trials
+
+        var feedback = {
+            type: 'html-keyboard-response',  // type of plugin
+            stimulus: function() {
+                var feedback_text = '<span style="font-size:30px;color:red;">Oh no! Incorrect</span>';
+                var last_trial_accuracy = jsPsych.data.getLastTrialData().values()[0].correct; // get data from last trial
+                if (last_trial_accuracy == true) {
+                    feedback_text = '<span style="font-size:30px;color:green;">Correct! Well done!</span>' // if participant responded correctly congratulate
+                }
+                return feedback_text
+            },
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 3000
+        }
 
         // create timeline variables with information for each trial
         var trial_info = [
@@ -70,8 +85,10 @@ trials -->
 
         // create a new object for the trials procedure 
         var lexdec_procedure = {
-            timeline: [fixation, lexdec_trial], // define the trial types (e.g., fixation and stim presentation)
-            timeline_variables: trial_info
+            timeline: [fixation, lexdec_trial, feedback], // define the trial types (e.g., fixation and stim presentation)
+            timeline_variables: trial_info,
+            randomize_order: true, // randomise trials
+            repetitions: 2 // repetitions of conditions/stimuli
         }
 
         timeline.push(lexdec_procedure);
@@ -82,7 +99,6 @@ trials -->
                 jsPsych.data.displayData(); // display output at the end 
             }
         })
-
 
     </script>
 </html>
