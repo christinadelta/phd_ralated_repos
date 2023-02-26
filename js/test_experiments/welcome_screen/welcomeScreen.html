@@ -1,0 +1,47 @@
+<!Doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WelcomeScreen</title>
+
+    <script src="./main_script.js" type="module"></script>
+    <script src="jspsych/jspsych.js"></script>
+    <script src="jspsych/plugins/jspsych-html-button-response.js"></script>
+    <link href="jspsych/css/jspsych.css" rel="stylesheet">
+
+    <script></script>
+</head>
+<body></body>
+<script>
+    /*
+    welcome
+    instructions
+    practice trials
+    experimental trials
+    debrief
+     */
+
+    var welcome_block = {
+        data: {
+            screen_id: "welcome",
+        },
+        type: "html-button-response",
+        stimulus: "welcome to the experiment!",
+        choices: "Click here to continue"
+    };
+
+    // init timeline
+    timeline = [];
+    timeline.push(welcome_block);
+
+    //start experiment
+    jsPsych.init({
+        timeline: timeline,
+        on_finish: function() {
+            jsPsych.data.displayData()
+        }
+    }) 
+
+</script>
+</html>
+
