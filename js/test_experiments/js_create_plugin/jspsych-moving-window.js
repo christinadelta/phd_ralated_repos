@@ -6,7 +6,6 @@ jsPsych.plugins["moving-window"] = (function() {
 
   var plugin = {};
 
-  // parameters used in the plugin
   plugin.info = {
     name: "moving-window",
     parameters: {
@@ -16,62 +15,67 @@ jsPsych.plugins["moving-window"] = (function() {
       },
       key: {
         type: jsPsych.plugins.parameterType.KEYCODE,
-        default: 32 // use spacebar to advance
+        default: 32
       }
     }
   }
 
-  // function trial that runs when you call in the plugin
   plugin.trial = function(display_element, trial) {
 
-    // data saving
-    var trial_data = {words: trial.words};
-    var rt = [];
-    var current_word = 0;
+    // initalize some variables
+    var trial_data = { words: trial.words }; // data object for the trial
+    var n_words = trial.words.split(' ').length; // number of words in the trial
+    var rt = []; // empty array for collecting RTs
+    var current_word = 0; // current word
 
+    // create a function for generating the stimulus with moving window
     function create_moving_window(words, position){
-      //convert the words string into an array with single words in a sentence
       var word_list = words.split(' ');
-      var stimulus = word_list.map(function(word, index) {
-        if(index==position) {
+      var stimulus = word_list.map(function(word, index){
+        if(index==position){
           return word;
         } else {
           return "-".repeat(word.length);
-
         }
-      }).join(' '); // join all the elements of the array back into a string
-      return stimulus
+      }).join(' ')
+      return stimulus;
     }
 
-    function show_stimulus(){
-      display_element.innerHTML = "<p>" + create_moving_window(trial.words, current_word) + "</p>";
+    // create a function for showing the stimulus and collecting the response
+    function show_stimulus(position){
+      display_element.innerHTML = '<p style="font-size: 24px; font-family:monospace;">' + create_moving_window(trial.words, position) + '</p>';
 
       jsPsych.pluginAPI.getKeyboardResponse({
-        callback_function: after_response, //function that is being executed when subject presses a key
-        valid_responses: [trial.key], // what keys are allowed to be pressed?
+        callback_function: after_response,
+        valid_responses: [trial.key],
         rt_method: 'performance',
         persist: false,
         allow_held_key: false
       });
-
     }
 
+    // create a function for handling a response
     function after_response(response_info){
       rt.push(response_info.rt);
-      end_trial();
+      current_word++;
+      if(current_word == n_words){
+        end_trial();
+      } else {
+        show_stimulus(current_word);
+      }
     }
-
-    // function 
-    function end_trial(){
-
-      trial_data.rt = JSON.stringify(rt);
-      // end trial
-      jsPsych.finishTrial(trial_data);
-
-    }
-
-    show_stimulus(); // to start the experiment
     
+    // create a function to handle ending the trial
+    function end_trial(){
+      trial_data.rt = JSON.stringify(rt);
+
+      display_element.innerHTML = "";
+
+      jsPsych.finishTrial(trial_data)
+    }
+
+    // show the first stimulus
+    show_stimulus(current_word);
     
   };
 
