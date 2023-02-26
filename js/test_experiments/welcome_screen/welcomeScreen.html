@@ -8,9 +8,9 @@
     <script src="jspsych/jspsych.js"></script>
     <script src="jspsych/plugins/jspsych-html-button-response.js"></script>
     <script src="jspsych/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych/plugins/jspsych-image-keyboard-response.js"></script>
     <link href="jspsych/css/jspsych.css" rel="stylesheet">
 
-    <script></script>
 </head>
 <body></body>
 <script>
@@ -34,7 +34,6 @@
 
     // init timeline
     timeline = [];
-    timeline.push(welcome_block);
 
     // 2. instructions
     var instructions_block = {
@@ -58,7 +57,57 @@
         show_clickable_nav: true
     };
 
-    timeline.push(instructions_block);
+    // set trials -- put all stimuli into an array and obtain the stimuli from that array
+    var all_trial_stimuli = [
+        {stimulus: "jspsych/examples/img/blue.png", data:{screen_id: "trial", correct_response: 37}},
+        {stimulus: "jspsych/examples/img/orange.png", data:{screen_id: "trial", correct_response: 39}}
+    ];
+
+    // 3. set of practice trials
+    /*
+    var blue_trial = {
+        type: 'image-keyboard-response',
+        stimulus: "jspsych/examples/img/blue.png",
+        choices: [37,39],
+        trial_duration: null
+    };
+
+    var orange_trial = {
+        type: 'image-keyboard-response',
+        stimulus: "jspsych/examples/img/orange.png",
+        choices: [37,39],
+        trial_duration: null
+    }; */
+
+    // create the trial variable
+    var trial = {
+        data: jsPsych.timelineVariable("data"),
+        type: 'image-keyboard-response',
+        stimulus: jsPsych.timelineVariable("stimulus"),
+        choices: [37,39],
+        trial_duration: null,
+        on_finish: function(data) {
+            //define correct or incorrect (match coorect response with key_press)
+            if (data.correct_response == data.key_press) {
+                data.accuracy = 1
+            } else {
+                data.accuracy = 0
+            }
+        }
+    };
+
+    // create the order of stimulus presentation:
+    var procedure = {
+        timeline: [trial],
+        timeline_variables: all_trial_stimuli
+    };
+
+    // push to timeline
+    //timeline.push(welcome_block);
+    //timeline.push(instructions_block);
+    // timeline.push(blue_trial);
+    // timeline.push(orange_trial);
+    timeline.push(procedure)
 
     //start experiment
     jsPsych.init({
