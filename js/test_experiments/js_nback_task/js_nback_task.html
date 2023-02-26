@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- load paths -->
+        <script src="jspsych/jspsych.js"></script>
+        <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
+        <link rel="stylesheet" href="jspsych/css/jspsych.css">
+    </head>
+    <body></body>
+    <script>
+        var timeline = []; // init timeline 
+        var nback_trial = {
+            type: 'html-keyboard-response',
+            stimulus: '<span style="font-size:90px;">x</span>',
+            choices: ['M'],
+            trial_duration: 1500,
+            post_trial_gap: 500
+        }
+
+        var nback_trials = [
+            {match: true},
+            {match: false}
+        ]
+
+        var nback_sequence = {
+            timeline: [nback_trial]
+        }
+
+        timeline.push(nback_trial); // add trial to the timeline 
+
+        // now show the stimulus
+        jsPsych.init({
+            timeline: timeline
+        })
+
+
+    </script>
+</html>
