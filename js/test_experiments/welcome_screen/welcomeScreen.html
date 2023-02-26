@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>WelcomeScreen</title>
 
-    <script src="./main_script.js" type="module"></script>
+    <!-- load stuff -->
     <script src="jspsych/jspsych.js"></script>
     <script src="jspsych/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych/plugins/jspsych-instructions.js"></script>
     <link href="jspsych/css/jspsych.css" rel="stylesheet">
 
     <script></script>
@@ -14,16 +15,17 @@
 <body></body>
 <script>
     /*
-    welcome
-    instructions
-    practice trials
-    experimental trials
-    debrief
+    1. welcome
+    2. instructions
+    3. practice trials
+    4. experimental trials
+    5. debrief
      */
 
+    // 1. welcome screen
     var welcome_block = {
         data: {
-            screen_id: "welcome",
+            screen_id: "html-button-response",
         },
         type: "html-button-response",
         stimulus: "welcome to the experiment!",
@@ -34,14 +36,37 @@
     timeline = [];
     timeline.push(welcome_block);
 
+    // 2. instructions
+    var instructions_block = {
+        data: {
+            screen_id: "instructions"
+        },
+        type: "instructions",
+        pages: [
+            // page 1
+            "<p>In this experiment a circle will appear in the middle of the screen.</p>" +
+            "<p>If the colour of the circle is <b>blue</b> press <b>left</b> key. </p>" +
+            "<p>If the colour of the circle is <b>orange</b> press the <b>right</b> key. </p>" +
+            "<div style='float: left';> <img src='jspsych/examples/img/blue.png'/>" +
+            "<p><b>Press the left key</b></p></div>" +
+            "<div style='float: right';> <img src='jspsych/examples/img/orange.png'/>" +
+            "<p><b>Press the right key<b></b></p></div>",
+
+            // page 2
+            "We will begin with some practice trials."
+        ],
+        show_clickable_nav: true
+    };
+
+    timeline.push(instructions_block);
+
     //start experiment
     jsPsych.init({
         timeline: timeline,
         on_finish: function() {
             jsPsych.data.displayData()
         }
-    }) 
+    })
 
 </script>
 </html>
-
