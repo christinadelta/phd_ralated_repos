@@ -9,6 +9,7 @@
     <script src="jspsych/plugins/jspsych-html-button-response.js"></script>
     <script src="jspsych/plugins/jspsych-instructions.js"></script>
     <script src="jspsych/plugins/jspsych-image-keyboard-response.js"></script>
+    <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
     <link href="jspsych/css/jspsych.css" rel="stylesheet">
 
 </head>
@@ -63,6 +64,15 @@
         {stimulus: "jspsych/examples/img/orange.png", data:{screen_id: "trial", correct_response: 39}}
     ];
 
+    // add a fixation point
+    var fixation = {
+        data: {screen_id: "fixation"},
+        type: "html-keyboard-response",
+        stimulus: "<div style='font-size:60px'><b>+</b></div>",
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 1000 // one second
+    };
+
     // 3. set of practice trials
     /*
     var blue_trial = {
@@ -79,13 +89,13 @@
         trial_duration: null
     }; */
 
-    // create the trial variable
+    // create the trial variable (includes both blue and orange trials
     var trial = {
         data: jsPsych.timelineVariable("data"),
         type: 'image-keyboard-response',
         stimulus: jsPsych.timelineVariable("stimulus"),
         choices: [37,39],
-        trial_duration: null,
+        trial_duration: 2000,
         on_finish: function(data) {
             //define correct or incorrect (match coorect response with key_press)
             if (data.correct_response == data.key_press) {
@@ -96,18 +106,35 @@
         }
     };
 
+    // create feedback screen
+    var feedback_trial = {
+        data:{screen_id: "feedback"},
+        type: "html-keyboard-response",
+        stimulus: function(){
+            //get response info from last trial:
+            var last_trial = jsPsych.data.get().last(1).values()[0].accuracy
+            if (last_trial == 1) { // if accuracy is 1, response was correct -- congratulate participant
+                feedback_text = '<span style="font-size:30px;color:green;">Correct! Well done!</span>'
+            } else {  // if accuracy is 0, response was incorrect -- show incorrect screen
+                feedback_text = '<span style="font-size:30px;color:red;">Oh no! Incorrect</span>';
+            }
+            return feedback_text
+        },
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 5000  // 5 seconds
+    };
     // create the order of stimulus presentation:
     var procedure = {
-        timeline: [trial],
+        timeline: [fixation, trial, feedback_trial],
         timeline_variables: all_trial_stimuli
     };
 
     // push to timeline
     //timeline.push(welcome_block);
     //timeline.push(instructions_block);
-    // timeline.push(blue_trial);
-    // timeline.push(orange_trial);
+    timeline.push(fixation)
     timeline.push(procedure)
+    timeline.push(feedback_trial)
 
     //start experiment
     jsPsych.init({
