@@ -7,6 +7,7 @@
     <!-- load stuff -->
     <script src="jspsych/jspsych.js"></script>
     <script src="jspsych/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych/plugins/jspsych-survey-html-form.js"></script>
     <script src="jspsych/plugins/jspsych-instructions.js"></script>
     <script src="jspsych/plugins/jspsych-image-keyboard-response.js"></script>
     <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
@@ -27,11 +28,16 @@
     // 1. welcome screen
     var welcome_block = {
         data: {
-            screen_id: "html-button-response",
+            screen_id: "survey-html-form",
         },
-        type: "html-button-response",
-        stimulus: "welcome to the experiment!",
-        choices: "Click here to continue"
+        type: "survey-html-form",
+        preamble: "<p>Welcome to the experiment!</p>" +
+            "Please complete the form",
+        html: "<p>Participant ID: <input name='Part_ID' type='text' /></p>",
+        on_finish: function (data) {
+            data.responses = JSON.parse(data.responses);
+            jsPsych.data.addProperties({Part_ID: data.responses.Part_ID})
+        }
     };
 
     // init timeline
@@ -181,22 +187,20 @@
     };
 
     // push to timeline
-    // timeline.push(fixation);
     timeline.push(welcome_block);
-    timeline.push(instructions_block);
-    timeline.push(procedure);
-    // timeline.push(feedback_trial);
-    timeline.push(exp_instructions);
-    timeline.push(exp_procedure);
-    timeline.push(debrief);
+   // timeline.push(instructions_block);
+    //timeline.push(procedure);
+    //timeline.push(exp_instructions);
+    //timeline.push(exp_procedure);
+    //timeline.push(debrief);
 
     //start experiment
     jsPsych.init({
         timeline: timeline,
         on_finish: function() {
-            var csv = jsPsych.data.get().csv();
-            var filename = "simpleRT.csv";
-            downloadCSV(csv, filename);
+            //var csv = jsPsych.data.get().csv();
+            //var filename = "simpleRT.csv";
+            //downloadCSV(csv, filename);
             jsPsych.data.displayData()
         }
     })
