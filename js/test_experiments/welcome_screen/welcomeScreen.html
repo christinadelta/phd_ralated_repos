@@ -106,6 +106,9 @@
         }
     };
 
+    // create a variable for jittered ITI duration
+    var ITI_jitt = [500, 750, 1000];
+
     // create feedback screen
     var feedback_trial = {
         data:{screen_id: "feedback"},
@@ -121,12 +124,15 @@
             return feedback_text
         },
         choices: jsPsych.NO_KEYS,
-        trial_duration: 5000  // 5 seconds
+        trial_duration: 1000,  // 5 seconds
+        post_trial_gap: jsPsych.randomization.sampleWithoutReplacement(ITI_jitt, 1) // it will choose one of the values of the ITI_jitt variable
     };
     // create the order of stimulus presentation:
     var procedure = {
         timeline: [fixation, trial, feedback_trial],
-        timeline_variables: all_trial_stimuli
+        timeline_variables: all_trial_stimuli,
+        randomize_order: true, // randomise trials
+        repetitions: 5 // this should be 5 repetition of each colour/condition
     };
 
     // push to timeline
