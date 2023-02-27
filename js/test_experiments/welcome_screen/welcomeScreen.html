@@ -36,7 +36,7 @@
     // init timeline
     timeline = [];
 
-    // 2. instructions
+    // 2. instructions for practice trials
     var instructions_block = {
         data: {
             screen_id: "instructions"
@@ -132,15 +132,62 @@
         timeline: [fixation, trial, feedback_trial],
         timeline_variables: all_trial_stimuli,
         randomize_order: true, // randomise trials
+        repetitions: 1 // this should be 5 repetition of each colour/condition
+    };
+
+    // experimental instructions ( this is very similar to practice instructions)
+    var exp_instructions = {
+        data: {
+            screen_id: "exp_instructions"
+        },
+        type: "instructions",
+        pages: [
+            // page 1
+            "<p>We have completed our practice trials. Remember,</p>" +
+            "<p>If the colour of the circle is <b>blue</b> press <b>left</b> key. </p>" +
+            "<p>If the colour of the circle is <b>orange</b> press the <b>right</b> key. </p>" +
+            "<div style='float: left';> <img src='jspsych/examples/img/blue.png'/>" +
+            "<p><b>Press the left key</b></p></div>" +
+            "<div style='float: right';> <img src='jspsych/examples/img/orange.png'/>" +
+            "<p><b>Press the right key<b></b></p></div>",
+
+            // page 2
+            "We will begin experiment soon."
+        ],
+        show_clickable_nav: true
+    };
+
+    // create experimental pocedure and trials
+    var exp_procedure = {
+        timeline: [fixation, trial],
+        timeline_variables: all_trial_stimuli,
+        randomize_order: true, // randomise trials
         repetitions: 5 // this should be 5 repetition of each colour/condition
+    };
+
+    // give debriefing
+    var debrief = {
+        data: {
+            screen_id: "debrief"
+        },
+        type: "instructions",
+        pages: [
+            // page 1
+            "<p>We have completed the experiment. Remember,</p>" +
+            "<p>you need to close the screen. You can now contact the experimenter. </p>"
+        ],
+        show_clickable_nav: true
     };
 
     // push to timeline
     //timeline.push(welcome_block);
     //timeline.push(instructions_block);
-    timeline.push(fixation)
-    timeline.push(procedure)
-    timeline.push(feedback_trial)
+    // timeline.push(fixation);
+    // timeline.push(procedure);
+   //  timeline.push(feedback_trial);
+    timeline.push(exp_instructions);
+    timeline.push(exp_procedure);
+    timeline.push(debrief);
 
     //start experiment
     jsPsych.init({
