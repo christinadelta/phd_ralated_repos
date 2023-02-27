@@ -10,6 +10,7 @@
     <script src="jspsych/plugins/jspsych-instructions.js"></script>
     <script src="jspsych/plugins/jspsych-image-keyboard-response.js"></script>
     <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych/utils/utilities.js"></script>
     <link href="jspsych/css/jspsych.css" rel="stylesheet">
 
 </head>
@@ -180,11 +181,11 @@
     };
 
     // push to timeline
-    //timeline.push(welcome_block);
-    //timeline.push(instructions_block);
     // timeline.push(fixation);
-    // timeline.push(procedure);
-   //  timeline.push(feedback_trial);
+    timeline.push(welcome_block);
+    timeline.push(instructions_block);
+    timeline.push(procedure);
+    // timeline.push(feedback_trial);
     timeline.push(exp_instructions);
     timeline.push(exp_procedure);
     timeline.push(debrief);
@@ -193,6 +194,9 @@
     jsPsych.init({
         timeline: timeline,
         on_finish: function() {
+            var csv = jsPsych.data.get().csv();
+            var filename = "simpleRT.csv";
+            downloadCSV(csv, filename);
             jsPsych.data.displayData()
         }
     })
