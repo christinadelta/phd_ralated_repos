@@ -1,3 +1,5 @@
+// Experimental parameters are defined here
+
 // CONSTANTS
 var TODAY = new Date();
 var DD = String(TODAY.getDate()).padStart(2, '0');
@@ -6,8 +8,8 @@ var YYYY = TODAY.getFullYear();
 const DATE = DD + MM + YYYY;
 
 //experimental params
-PRACT_REP = 1;
-EXP_REP = 5;
+PRACT_REP = 2;
+EXP_REP = 2;
 
 // 1. welcome screen
 var welcome_block = {
@@ -51,8 +53,8 @@ var instructions_block = {
 
 // set trials -- put all stimuli into an array and obtain the stimuli from that array
 var all_trial_stimuli = [
-    {stimulus: "jspsych/examples/img/blue.png", data:{screen_id: "trial", correct_response: 37}},
-    {stimulus: "jspsych/examples/img/orange.png", data:{screen_id: "trial", correct_response: 39}}
+    {stimulus: "jspsych/examples/img/blue.png", data:{screen_id: "trial", stimulus: "blue", correct_response: 37}},
+    {stimulus: "jspsych/examples/img/orange.png", data:{screen_id: "trial", stimulus: "orange", correct_response: 39}}
 ];
 
 // add a fixation point
@@ -61,7 +63,7 @@ var fixation = {
     type: "html-keyboard-response",
     stimulus: "<div style='font-size:60px'><b>+</b></div>",
     choices: jsPsych.NO_KEYS,
-    trial_duration: 1000 // one second
+    trial_duration: 500 // one second
 };
 
 // 3. set of practice trials
@@ -102,18 +104,23 @@ var ITI_jitt = [500, 750, 1000];
 
 // create feedback screen
 var feedback_trial = {
-    data:{screen_id: "feedback"},
-    type: "html-keyboard-response",
-    stimulus: function(){
+    on_start: function(trial) {
         //get response info from last trial:
         var last_trial = jsPsych.data.get().last(1).values()[0].accuracy
         if (last_trial == 1) { // if accuracy is 1, response was correct -- congratulate participant
-            feedback_text = '<span style="font-size:30px;color:green;">Correct! Well done!</span>'
+            var feedback_text = "Correct!"
         } else {  // if accuracy is 0, response was incorrect -- show incorrect screen
-            feedback_text = '<span style="font-size:30px;color:red;">Oh no! Incorrect</span>';
+            var feedback_text = "Incorrect!"
         }
-        return feedback_text
+
+        var fback_trial = "<div style='font'size: 90px;'><b>" + feedback_text + "</b></div>";
+
+        trial.data = {screen_id: "feedback", stimulus: feedback_text};
+        trial.stimulus = fback_trial;
     },
+    data: "",
+    type: "html-keyboard-response",
+    stimulus: "",
     choices: jsPsych.NO_KEYS,
     trial_duration: 1000,  // 5 seconds
     post_trial_gap: jsPsych.randomization.sampleWithoutReplacement(ITI_jitt, 1) // it will choose one of the values of the ITI_jitt variable
