@@ -29,6 +29,13 @@
     //start experiment
     jsPsych.init({
         timeline: timeline,
+
+        // make sure that participants are not being lazy!!!!!
+        on_interaction_data_update: function(data){
+            // get main trial data
+            var trial = jsPsych.currentTrial();
+            trial.data.screen_focus = data.event;
+        },
         on_finish: function() {
             var csv = jsPsych.data.get().csv();
             var filename = jsPsych.data.get().values()[0].Part_ID + "_" + DATE;
