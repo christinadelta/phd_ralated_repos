@@ -21,6 +21,7 @@ var welcome_block = {
         "Please complete the form",
     html: "<p>Participant ID: <input name='Part_ID' type='text' /></p>",
     on_finish: function (data) {
+        console.log(full_design);
         data.responses = JSON.parse(data.responses);
         jsPsych.data.addProperties({Part_ID: data.responses.Part_ID})
     }
@@ -52,10 +53,35 @@ var instructions_block = {
 };
 
 // set trials -- put all stimuli into an array and obtain the stimuli from that array
-var all_trial_stimuli = [
+/* var all_trial_stimuli = [
     {stimulus: "jspsych/examples/img/blue.png", data:{screen_id: "trial", stimulus: "blue", correct_response: 37}},
+    {stimulus: "jspsych/examples/img/blue.png", data:{screen_id: "trial", stimulus: "blue", correct_response: 37}},
+    {stimulus: "jspsych/examples/img/orange.png", data:{screen_id: "trial", stimulus: "orange", correct_response: 39}},
     {stimulus: "jspsych/examples/img/orange.png", data:{screen_id: "trial", stimulus: "orange", correct_response: 39}}
-];
+]; */
+
+// set factorial design
+factors = {
+    stimulus: ["jspsych/examples/img/blue.png", "jspsych/examples/img/orange.png"], // factor 1
+    trial_duration: [400, 1000], // factor 2
+    // fixation_duration: [400, 1000], // factor 3
+
+};
+
+// full design
+var full_design = jsPsych.randomization.factorial(factors, 1);
+
+// loop through trials
+var i;
+for(i = 0; i < full_design.length; i++) {
+    // if blue then data.stimulus: blue, correct responce: 37
+    if (full_design[i].stimulus == "jspsych/examples/img/blue.png"){
+        full_design[i].data = {screen_id: "trial", stimulus: "blue", correct_response: 37};
+    } else { // if blue then data.stimulus: orange, correct responce: 39
+        full_design[i].data = {screen_id: "trial", stimulus: "orange", correct_response: 39};
+    }
+}
+
 
 // add a fixation point
 var fixation = {
@@ -88,7 +114,7 @@ var trial = {
     type: 'image-keyboard-response',
     stimulus: jsPsych.timelineVariable("stimulus"),
     choices: [37,39],
-    trial_duration: 2000,
+    trial_duration: jsPsych.timelineVariable("trial_duration"),
     on_finish: function(data) {
         //define correct or incorrect (match coorect response with key_press)
         if (data.correct_response == data.key_press) {
@@ -128,7 +154,7 @@ var feedback_trial = {
 // create the order of stimulus presentation:
 var procedure = {
     timeline: [fixation, trial, feedback_trial],
-    timeline_variables: all_trial_stimuli,
+    timeline_variables: full_design,
     randomize_order: true, // randomise trials
     repetitions: PRACT_REP // this should be 5 repetition of each colour/condition
 };
@@ -158,7 +184,7 @@ var exp_instructions = {
 // create experimental pocedure and trials
 var exp_procedure = {
     timeline: [fixation, trial],
-    timeline_variables: all_trial_stimuli,
+    timeline_variables: full_design,
     randomize_order: true, // randomise trials
     repetitions: EXP_REP // this should be 5 repetition of each colour/condition
 };
