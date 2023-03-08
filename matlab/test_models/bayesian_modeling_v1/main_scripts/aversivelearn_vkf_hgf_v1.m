@@ -1,4 +1,4 @@
-%  AVERSIVE LEARNING MODELING USING THE VOLATILE KALMAN FILTER & HIERARCHICAL GAUSSIAN FILTERING -- VERSION 1. 
+% AVERSIVE LEARNING MODELING USING THE VOLATILE KALMAN FILTER & HIERARCHICAL GAUSSIAN FILTERING -- VERSION 1. 
 
 % Date created: 19/02/2023 --- adapted from Piray & Daw (2020). 
 
@@ -38,7 +38,6 @@ labels                          = {'lambda', 'initial volatility'...
     'variance', 'omega'};                                   % for ploting
 condstring                      = {'stable', 'volatile'};   % for ploting 
 trials                          = 100;                      % per volatility condition
-
 
 %% simulate one dataset
 
