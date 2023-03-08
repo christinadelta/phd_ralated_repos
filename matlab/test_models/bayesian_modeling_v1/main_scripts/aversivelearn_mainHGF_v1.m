@@ -61,7 +61,7 @@ for sub = 1:subjects
 end
 
 
-% extract feedback/outcome for vertical gabor (for simulated sub 1) for
+% extract feedback/outcome for vertical gabor (for one simulated agent) for
 % modelling:
 u                           = feedback{1,1}(:,1);
 
@@ -71,6 +71,11 @@ u                           = feedback{1,1}(:,1);
 % 1. a perceptual model (e.g., hgf_binary)
 % 2. a response model (e.g., hgf_softmax)
 % 3. and an optimisation algorithm 
+
+% for the perceptual state, initial values are mu_0 and sigma_0
+% here, we only get tonic volatility (omega) estimates (go to outp.p_prc.om), because the other
+% parameters are fixed to a specific value and their prior variance is set
+% to zero
 outp = tapas_fitModel([],...
                          u,...
                          'tapas_hgf_binary_config',...
@@ -84,5 +89,23 @@ tapas_hgf_binary_plotTraj(outp)
 % and comparing with VKF we need volatility -- mu(:,3), state predictions --
 % mu(:,2) and dynamic learning rate estimates -- wt(:,1). 
 
-%% 
+%% simulate responses and re-run HGF to get z estimates as well
+
+% now I'll simulate agant's responses too --> by choosing values for omega
+% when specifying the response model. The response model used is the 
+% unit square sigmoid model (but will test it with the softmax as well).
+% For this model we need to give an initial value for zeta (zeta=5). 
+sim = tapas_simModel(u,...
+                     'tapas_hgf_binary',...
+                     [NaN 0 1 NaN 1 1 NaN 0 0 1 1 NaN -2.5 -6],...
+                     'tapas_unitsq_sgm',...
+                     5);
+
+%%
+
+
+
+
+
+
 
