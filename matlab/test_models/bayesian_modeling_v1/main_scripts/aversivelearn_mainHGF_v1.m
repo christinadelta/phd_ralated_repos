@@ -129,6 +129,11 @@ plt_vars.omega          = sim.p_prc.om(2:end);  % volatility parameter
 plt_vars.lr             = lr;
 plt_vars.sp             = state_predictions;
 plt_vars.volatility     = volatility;
+plt_vars.mu_0           = sim.p_prc.mu_0(2);
+
+% plot 
+h = plotHGF_bin(plt_vars);
+
 
 %% recover parameters (one sim agent) -- this is the estimation part
 
