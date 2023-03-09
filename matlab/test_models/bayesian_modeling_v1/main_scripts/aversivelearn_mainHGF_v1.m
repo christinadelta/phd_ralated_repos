@@ -89,7 +89,7 @@ tapas_hgf_binary_plotTraj(outp)
 % and comparing with VKF we need volatility -- mu(:,3), state predictions --
 % mu(:,2) and dynamic learning rate estimates -- wt(:,1). 
 
-%% simulate responses and re-run HGF to get z estimates as well
+%% simulate responses and re-run HGF to get z estimates as well -- simulation part
 
 % now I'll simulate agant's responses too --> by choosing values for omega
 % when specifying the response model. The response model used is the 
@@ -101,7 +101,46 @@ sim = tapas_simModel(u,...
                      'tapas_unitsq_sgm',...
                      5);
 
-%%
+%% extract the needed parameters and store them in a table 
+
+fp                  = feedbackprob{1,1};
+state_predictions   = sim.traj.mu(:,2); 
+lr                  = sim.traj.wt(:,1); % first column is implied learning rate
+volatility          = sim.traj.mu(:,3); % 3rd column of mu is tonic volatility?
+
+% generate table
+sim_table           = table(fp,u,state_predictions,lr,volatility);
+
+
+%% plot simulated trajectories using the hgf toolbox
+
+tapas_hgf_binary_plotTraj(sim);
+
+%% plot simulated trajectories similarly to VKF and other models 
+
+% what parameters and variables do we need for plotting?
+plt_vars.fp             = fp;                   % true underlying probabilities
+plt_vars.u              = u;                    % outcomes 
+plt_vars.y              = sim.y;                % actions 
+plt_vars.rho            = sim.p_prc.rho(2:end); % drift parameter 
+plt_vars.kappa          = sim.p_prc.ka(2:end);  % describes coupling between the different levels of the filter 
+plt_vars.omega          = sim.p_prc.om(2:end);  % volatility parameter
+
+plt_vars.lr             = lr;
+plt_vars.sp             = state_predictions;
+plt_vars.volatility     = volatility;
+
+%% recover parameters (one sim agent) -- this is the estimation part
+
+
+
+%% recover parameters with (1000 sims)
+
+%% Inferred belief trajectories -- plot estimated trajectories (similarly to the simulated) 
+
+%% check posterior means 
+
+%% 
 
 
 
