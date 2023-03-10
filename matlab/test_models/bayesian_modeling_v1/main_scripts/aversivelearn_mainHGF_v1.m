@@ -132,8 +132,11 @@ plt_vars.volatility     = volatility;
 plt_vars.mu_0           = sim.p_prc.mu_0(2);
 
 % plot 
-h = plotHGF_bin(plt_vars);
+h                       = plotHGF_bin(plt_vars);
 
+% save
+filename    = fullfile(figpath, 'averslearn_HGFbin_plot.fig');
+saveas(h, filename)
 
 %% recover parameters (one sim agent) -- this is the estimation part
 
