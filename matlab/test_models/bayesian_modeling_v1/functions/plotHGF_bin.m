@@ -5,7 +5,7 @@ function h = plotHGF_bin(plt_vars)
 % plot stuff:
 % volatility(:,1)
 % learning rate(:,1)
-% predected state(:,1) -- m1
+% predected state(:,1)
 
 %% ----------
 % define plotting parameters, plotting font-size, font types, etc..

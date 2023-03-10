@@ -147,9 +147,10 @@ saveas(h, filename)
 % Since we have two models (perceptual and response) we define the priors
 % in the configuration file for each model:
 
-HGFbin_config   = tapas_hgf_binary_config();        % define prirors for perceptual model (here I use HGF)
-unitsq_config   = tapas_unitsq_sgm_config();        % define priors for response model (here I use the unit square sigmoid obs model)
-optim_config    = tapas_quasinewton_optim_config(); % also configure optimazation alg
+HGFbin_config = tapas_hgf_binary_config(); % define prirors for perceptual model (here I use HGF)
+unitsq_config = tapas_unitsq_sgm_config(); % define priors for response model (here I use the unit square sigmoid obs model)
+
+
 
 %% recover parameters with (1000 sims)
 
