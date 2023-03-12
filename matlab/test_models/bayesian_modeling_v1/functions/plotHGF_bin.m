@@ -1,4 +1,4 @@
-function h = plotHGF_bin(plt_vars)
+function h = plotHGF_bin(vars)
 
 % Date created: 9/03/2023
 
@@ -25,16 +25,16 @@ lcol        = [.8 .8 .8];
 
 %% unpack structure
 
-fp                  = plt_vars.fp;
-u                   = plt_vars.u;
-actions             = plt_vars.y;
-rho                 = plt_vars.rho;
-kappa               = plt_vars.kappa;
-omega               = plt_vars.omega;
-lr                  = plt_vars.lr;
-state_predictions   = plt_vars.sp;
-vol                 = plt_vars.volatility;
-mu_0                = plt_vars.mu_0;
+fp                  = vars.fp;
+u                   = vars.u;
+actions             = vars.y;
+rho                 = vars.rho;
+kappa               = vars.kappa;
+omega               = vars.omega;
+lr                  = vars.lr;
+state_predictions   = vars.sp;
+vol                 = vars.volatility;
+mu_0                = vars.mu_0;
 
 %% define some more parameters
 
