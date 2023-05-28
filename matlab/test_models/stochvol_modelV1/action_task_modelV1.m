@@ -20,7 +20,7 @@ subjects        = 1;
 condition       = 4;                        % stable & volatile / small & large stochasticity
 % task            = 1;                        % stable without switch (if task = 2 then stable with one switch)
 probabilities   = [.88 .12;                 % small stochasticity probabilities
-    .62 .38];                               % large stochasticity probabilities
+    .60 .40];                               % large stochasticity probabilities (either 60:40 or 64:36)
 trials          = 200;                      % total trials
 condtrials      = [100 25];                 % 100 per stochasticity condition in stable env and 25 trials in volatile condition;
 
