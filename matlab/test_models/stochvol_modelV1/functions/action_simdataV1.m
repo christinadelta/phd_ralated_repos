@@ -76,25 +76,42 @@ for j = 1:NumStoch
 
             for run = 1:NumSwitch
 
-                feedback{i,cue}(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
+                % feedback{i,cue}(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
+                feedback(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
 
             end % end of run loop
 
+            outcome{i,cue} = feedback(:);
+
+            clear feedback
 
         end % end of cues loop
         
         clear ProbSeq
-    
+        
     end % end of volatility loop 
 
-    stochFeedback{1,j} = feedback;
+    % add feedback for blue and red circles for low (stable-volatile) and high
+    % (stable-volatile) stochasticity
+    stochFeedback{1,j} = outcome;
 
-    clear feedback
+    clear outcome
 
 end % end of stochasticity loop
 
+% store simulations to data struct
+data.nCues      = nCues;
+data.ProbRel    = ProbRel;
+data.outcome    = stochFeedback;
 
+% make tables to easily visualise the simulated data
+[lowStochTable highStochTable] = makeTables(stochFeedback, ProbRel);
 
+% store tables in data structure
+data.lowTable   = lowStochTable;
+data.highTable  = highStochTable;
+
+% save tables 
 
 
 
