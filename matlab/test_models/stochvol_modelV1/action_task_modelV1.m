@@ -1,6 +1,8 @@
 % first version of the aversive learning task with the
 % stochasticity-volatility model 
 
+% STEPS:
+
 % created May 2023 
 
 clear all
@@ -24,14 +26,21 @@ probabilities   = [.88 .12;                 % small stochasticity probabilities
 trials          = 200;                      % total trials
 condtrials      = [100 25];                 % 100 per stochasticity condition in stable env and 25 trials in volatile condition;
 
+% define initial learning rate inverse temperature parameters 
+params = [.2 .6;
+    3 6]; %alpha and beta parameteres 
+
 %% simulate dataset
 
 for sub = 1:subjects
 
-    % simulate dataset
-    data = action_simdataV1(condition, probabilities, trials,condtrials, outpath);
-    
+    % simulate dataset(s)
+    data            = action_simdataV1(condition, probabilities, trials,condtrials, outpath);
+    alldata{sub,1}  = data;
 
+    % Simulate responses using the softmax function.
+    % Im still a bit sceptic about whether I should use this one or not. 
+    softmaxOutput   = responseModel_v1(params, data, outpath);
 
 end % end of subjects loop
 
