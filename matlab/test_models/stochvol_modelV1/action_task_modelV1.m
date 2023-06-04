@@ -25,9 +25,10 @@ probabilities   = [.88 .12;                 % small stochasticity probabilities
     .60 .40];                               % large stochasticity probabilities (either 60:40 or 64:36)
 trials          = 200;                      % total trials
 condtrials      = [100 25];                 % 100 per stochasticity condition in stable env and 25 trials in volatile condition;
+outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
 
 % define initial learning rate inverse temperature parameters 
-params = [.2 .6;
+params          = [.2 .6;
     3 6]; %alpha and beta parameteres 
 
 %% simulate dataset
@@ -35,7 +36,7 @@ params = [.2 .6;
 for sub = 1:subjects
 
     % simulate dataset(s)
-    data            = action_simdataV1(condition, probabilities, trials,condtrials, outpath);
+    data            = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
     alldata{sub,1}  = data;
 
     % Simulate responses using the softmax function.
