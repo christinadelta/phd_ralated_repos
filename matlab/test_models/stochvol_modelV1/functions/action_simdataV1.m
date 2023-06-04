@@ -32,7 +32,7 @@ NumStoch            = 2;    % how many stochasticity conditions?
 nCues               = 2;    % blue and red circles
 
 if outtype == 2
-    outVar          = .01;  % outcome variance (pay around with the value)
+    outVar          = .01;  % outcome variance (play around with the value)
 end
 
 % create the four blocks (stable - low stoch, volatile - low stoch, stable
@@ -41,7 +41,7 @@ end
 % loop over stochasticity conditions 
 for j = 1:NumStoch
 
-    thisProbs = probabilities(j, :); % is it small or large stochasticity block?
+    thisProbs       = probabilities(j, :); % is it small or large stochasticity block?
     
     % loop over volatility conditions
     for i = 1:NumVol
@@ -140,7 +140,26 @@ data.highTable  = highStochTable;
 
 % save tables 
 
+% index stable and volatile trials for each stochasticity level
+for j = 1:NumStoch
 
+    tstable                 = zeros(trials,1);
+    tvolatile               = zeros(trials,1);
+    tstable(1:100)          = 1;
+    tvolatile(101:trials)   = 1;
 
+    tstable                 = tstable == 1;
+    tvolatile               = tvolatile == 1;
+
+    % store in cell
+    stableIndex{1,j}        = tstable;
+    volIndex{1,j}           = tvolatile;
+
+    clear tstable tvolatile
+
+end
+
+data.stableTrials           = stableIndex;
+data.volTrials              = volIndex;
 
 end % end of function 
