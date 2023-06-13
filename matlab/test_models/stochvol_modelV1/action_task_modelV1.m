@@ -27,7 +27,8 @@ trials          = 200;                      % total trials
 condtrials      = [100 25];                 % 100 per stochasticity condition in stable env and 25 trials in volatile condition;
 outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
 
-% define initial learning rate inverse temperature parameters 
+% define initial learning rate inverse temperature parameters (don't think
+% that this will be used)
 params          = [.2 .6;
     3 6]; %alpha and beta parameteres 
 
@@ -41,7 +42,7 @@ for sub = 1:subjects
 
     % Simulate responses using the softmax function.
     % Im still a bit sceptic about whether I should use this one or not. 
-    softmaxOutput   = responseModel_v1(params, data, outpath);
+   % softmaxOutput   = responseModel_v1(params, data, outpath);
 
 end % end of subjects loop
 

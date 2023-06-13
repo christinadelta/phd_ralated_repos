@@ -47,96 +47,104 @@ for j = 1:NumStoch
     for i = 1:NumVol
     
         if i == 1 % if this is a stable environment
-            NumSwitch   = 1; % no switch of the probabilistic relationships
+
+            NumSwitch       = 1;            % no switch of the probabilistic relationships
+            ProbSeq(1,:)    = thisProbs(1); % high probability of losing
+            ProbSeq(2,:)    = thisProbs(2); % low probability of losing
+
         else % if this is a volatile environment 
-            NumSwitch   = condition; % 4 switches of the prob relationships
+
+            NumSwitch       = condition; % 4 switches of the prob relationships
+            ProbSeq(1,:)    = repmat(thisProbs,1,NumSwitch/2); 
+            ProbSeq(2,:)    = repmat([thisProbs(2) thisProbs(1)],1,NumSwitch/2); % feedback/loss probabilities for 
+
         end
 
         runTrials       = condtrials(i); 
         
         % create a sequence of the probabilistic relationships (at a trial
         % basis)
-        if i == 1 % if stable
+        for run = 1:NumSwitch
 
-            stateENV{j,i}(1:runTrials,1)         = thisProbs(1); % sequence of probabilities for that block
-            ProbSeq(1,:)                        = thisProbs(1); % high probability of losing
-            ProbSeq(2,:)                        = thisProbs(2); % low probability of losing
+            counter = 0; % init counter 
 
-        else
-        
-            % create a sequence with the probabilities
-            ProbSeq(1,:)                        = repmat(thisProbs,1,NumSwitch/2); 
-            ProbSeq(2,:)                        = repmat([thisProbs(2) thisProbs(1)],1,NumSwitch/2); % feedback/loss probabilities for 
+            for trl = 1:runTrials
 
-            for k = 1:NumSwitch
-                stateENV{j,i}(1:runTrials,k)     = ProbSeq(1,k);
+                counter             = counter + 1; % update counter 
+                tmp(counter,run)    = ProbSeq(1,run);
             end
 
-            stateENV{j,i}                        = stateENV{j,i}(:); % will see if this will be used 
-
-        end % end of volatility if condition
+        end % end of runs loop
+       
+        % update state
+        tmp                         = tmp(:);
+        x(:,i)                      = tmp;
+        clear tmp
 
         %% generate feedback sequences (outcome sequences) 
 
-        if outtype == 1 
+        % There are two ways to generate feedback sequence (outcomes): either randomly or it
+        % can be fixed. 
+        % If runTrials*thisProbs(1) is  whole number, then we'll generate a fixed sequence (e.g., 88% of trials will results in monetary loss and 12% will be neutral-no loss) 
+        % If runTrials*thisProbs(1) is NOT a whole number, then we'll use
+        % rand to generate sequence of loss/no-loss options.
+        stateTrials        = runTrials*thisProbs(1); 
 
-            % There are two ways to generate feedback sequence (outcomes): either randomly or it
-            % can be fixed. 
-            % If runTrials*thisProbs(1) is  whole number, then we'll generate a fixed sequence (e.g., 88% of trials will results in monetary loss and 12% will be neutral-no loss) 
-            % If runTrials*thisProbs(1) is NOT a whole number, then we'll use
-            % rand to generate sequence of loss/no-loss options.
-            stateTrials        = runTrials*thisProbs(1); 
-    
-            if rem(stateTrials,1) == 0
-                rdm     = 0; % generate fixed sequence
-            else
-                rdm     = 1; % generate random sequence
-            end
-    
-            % compute feedback (independently for each cue) 
-            for cue = 1:nCues
-    
-                for run = 1:NumSwitch
-    
-                    % feedback{i,cue}(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
-                    feedback(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
-    
-                end % end of run loop
-    
-                outcome{i,cue} = feedback(:);
-    
-                clear feedback
-    
-            end % end of cues loop
-    
-            clear ProbSeq
+        if rem(stateTrials,1) == 0
+            rdm     = 0; % generate fixed sequence
+        else
+            rdm     = 1; % generate random sequence
+        end
 
-        else % if outtype == 2
+        % compute feedback (independently for each cue) 
+        for cue = 1:nCues
 
+            for run = 1:NumSwitch
 
-        end % end of outcome type statememnt 
-        
+                % feedback{i,cue}(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
+                feedback(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
+
+            end % end of run loop
+
+            outcome(:,cue) = feedback(:);
+
+            clear feedback
+
+        end % end of cues loop
+
+        clear ProbSeq
+
+        alloutcomes{1,i} = outcome;
+        clear outcome
+
     end % end of volatility loop 
 
-    % add feedback for blue and red circles for low (stable-volatile) and high
-    % (stable-volatile) stochasticity
-    stochFeedback{1,j} = outcome;
+    % update state for stochasticity conditions
+    x                   = x(:);
+    state(:,j)          = x;
+    
+    % update outcomes 
+    stochoutcomes{1,j} = [alloutcomes{1,1}; alloutcomes{1,2}];
 
-    clear outcome
+    clear x alloutcomes
 
 end % end of stochasticity loop
 
+% update state and feedback/outcome
+state           = state(:);
+feedbck         = [stochoutcomes{1,1}; stochoutcomes{1,2}];
+
 % store simulations to data struct
 data.nCues      = nCues;
-data.state      = stateENV;
-data.outcome    = stochFeedback;
+data.state      = state;
+data.feedback   = feedbck;
 
 % make tables to easily visualise the simulated data
-[lowStochTable highStochTable] = makeTables(stochFeedback, stateENV);
+%[lowStochTable highStochTable] = makeTables(stochFeedback, stateENV);
 
 % store tables in data structure
-data.lowTable   = lowStochTable;
-data.highTable  = highStochTable;
+%data.lowTable   = lowStochTable;
+%data.highTable  = highStochTable;
 
 % save tables 
 
@@ -151,15 +159,38 @@ for j = 1:NumStoch
     tstable                 = tstable == 1;
     tvolatile               = tvolatile == 1;
 
-    % store in cell
-    stableIndex{1,j}        = tstable;
-    volIndex{1,j}           = tvolatile;
+    tStoch{1,j}             = [tstable tvolatile];
+
 
     clear tstable tvolatile
 
 end
 
+%% Now let's make outcomes that are linear and not binary to test the model with both?
+
+% simulate outcomes with added variance noise
+totalTrials                 = length(state);
+o                           = state + sqrt(outVar)*randn(totalTrials,1); % outcomes (generated based on reward rates and stochasticity??)
+t                           = [tStoch{1,1}; tStoch{1,2}]; % index for volatile/stable trials
+
+% index stochasticity trials
+slow                        = zeros(trials*2,1);
+shigh                       = zeros(trials*2,1);
+slow(1:200)                 = 1;
+shigh(201:end)              = 1;
+
+slow                        = slow == 1;
+shigh                       = shigh == 1;
+s                           = [slow shigh];
+
+
+
+% update data structure
 data.stableTrials           = stableIndex;
 data.volTrials              = volIndex;
+data.outcome                = o;
+data.t                      = t;
+data.s                      = s;
+
 
 end % end of function 
