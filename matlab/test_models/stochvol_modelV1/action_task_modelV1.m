@@ -15,7 +15,8 @@ addpath(fullfile(pwd,'functions'))
 
 outpath         = fullfile(pwd, 'output');      addpath(outpath);
 figpath         = fullfile(pwd, 'figures');     addpath(figpath);
-modelpath       = fullfile(pwd, 'volstoch');   addpath(modelpath);
+modelpath       = fullfile(pwd, 'volstoch');    addpath(modelpath);
+plotpath        = fullfile(pwd, 'plotting');    addpath(plotpath);
 
 % initialise variables 
 subjects        = 1;
@@ -40,9 +41,45 @@ for sub = 1:subjects
     data            = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
     alldata{sub,1}  = data;
 
-    % Simulate responses using the softmax function.
-    % Im still a bit sceptic about whether I should use this one or not. 
-   % softmaxOutput   = responseModel_v1(params, data, outpath);
 
 end % end of subjects loop
 
+%% run particle filter 
+
+% unpack data struct 
+o           = data.outcome; 
+x           = data.state;
+tvolatile   = data.t(:,2);
+tstable     = data.t(:,1);
+
+% define parameters and config for the particle filter 
+params      = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
+config      = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',2,'model_parameters',params);
+
+rng(config.rng_id); 
+nsim = config.nsim;
+
+% init params to be estimated 
+N           = length(o);
+outcome     = nan(N,nsim);
+vol         = nan(N,nsim);
+stc         = nan(N,nsim);
+lr          = nan(N,nsim);
+val         = nan(N,nsim);  
+
+% init cells to store the above parameters
+outcomes    = cell(1,2);
+vols        = cell(1,2); % stable, volatile
+stcs        = cell(1,2); % small, large
+lrs         = cell(1,2); % 
+vals        = cell(1,2); % vals --> action values? 
+v_example   = nan(N,2);
+glabels     = {'Control','Anxious'};
+lnames      = {'Healthy', sprintf('%s lesion',def_actions('stc'))};      
+
+
+
+
+%% generate responses
+
+%% plot results

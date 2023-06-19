@@ -132,7 +132,7 @@ end % end of stochasticity loop
 
 % update state and feedback/outcome
 state           = state(:);
-feedbck         = [stochoutcomes{1,1}; stochoutcomes{1,2}];
+feedbck         = [stochoutcomes{1,1}; stochoutcomes{1,2}]; % outcomes for option 1 and option 2
 
 % store simulations to data struct
 data.nCues      = nCues;
@@ -166,12 +166,12 @@ for j = 1:NumStoch
 
 end
 
-%% Now let's make outcomes that are linear and not binary to test the model with both?
+%% Now let's make outcomes linear and not binary to test the model with both?
 
 % simulate outcomes with added variance noise
 totalTrials                 = length(state);
 o                           = state + sqrt(outVar)*randn(totalTrials,1); % outcomes (generated based on reward rates and stochasticity??)
-t                           = [tStoch{1,1}; tStoch{1,2}]; % index for volatile/stable trials
+t                           = [tStoch{1,1}; tStoch{1,2}]; % column 1 is stable, column 2 is volatile
 
 % index stochasticity trials
 slow                        = zeros(trials*2,1);
@@ -181,16 +181,16 @@ shigh(201:end)              = 1;
 
 slow                        = slow == 1;
 shigh                       = shigh == 1;
-s                           = [slow shigh];
+s                           = [slow shigh]; % column 1 = low stochasticity, column 2 = high stochasticity
 
 
 
 % update data structure
-data.stableTrials           = stableIndex;
-data.volTrials              = volIndex;
-data.outcome                = o;
-data.t                      = t;
-data.s                      = s;
+% data.stableTrials           = stableIndex;
+% data.volTrials              = volIndex;
+data.outcome                = o; % linear outcomes 
+data.t                      = t; % index volatility condition
+data.s                      = s; % index stochasticity condtion
 
 
 end % end of function 
