@@ -55,8 +55,12 @@ for j = 1:NumStoch
         else % if this is a volatile environment 
 
             NumSwitch       = condition; % 4 switches of the prob relationships
-            ProbSeq(1,:)    = repmat(thisProbs,1,NumSwitch/2); 
-            ProbSeq(2,:)    = repmat([thisProbs(2) thisProbs(1)],1,NumSwitch/2); % feedback/loss probabilities for 
+            
+            % change thisProbs so that when voaltile trials start the prob
+            % are [0.12 0.88 0.12 0.88]
+            ProbSeq(1,:)    = repmat([thisProbs(2) thisProbs(1)],1,NumSwitch/2); % feedback/loss probabilities for 
+            ProbSeq(2,:)    = repmat(thisProbs,1,NumSwitch/2); 
+            
 
         end
 
