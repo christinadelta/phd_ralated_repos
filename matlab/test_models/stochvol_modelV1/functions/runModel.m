@@ -61,17 +61,66 @@ for j=1:g % this loop is for the group (control, anxiety)
     vals{j}             = val;
 end
 
+% specs(1,:)              = glabels;
+t                       = [config.tstable config.tvolatile]; % all trials
+strcols                 = {'Stable','Volatile'};
+ncond                   = 4;
 
+% define empty arrays for volatility, stochasticity and learning rates
+m_vol       = nan(N,2);
+m_stc       = nan(N,2);
+m_lr        = nan(N,2);
+e_vol       = nan(N,2);
+e_stc       = nan(N,2);
+e_lr        = nan(N,2);
 
+all_vols    = cell(ncond,2);
+all_stcs    = cell(ncond,2);
+all_lrs     = cell(ncond,4);
 
+%% loop over groups and compute means and SEs for stochasticity, volatility and learning rates 
 
+for j=1:g
 
+    % compute means and SEs
+    m_vol(:,j)      = mean(vols{j},2);
+    m_stc(:,j)      = mean(stcs{j},2);
+    m_lr(:,j)       = mean(lrs{j},2);
+    e_vol(:,j)      = serr(vols{j},2);
+    e_stc(:,j)      = serr(stcs{j},2);
+    e_lr(:,j)       = serr(lrs{j},2);   
 
+    for k = 1:2
+        l           = (j-1)*2 + k; % have no idea what that does
 
+        all_vols{l} = vols{j}(t(:,k),:);
+        all_stcs{l} = stcs{j}(t(:,k),:);
+        all_lrs{l}  = lrs{j}(t(:,k),:);
 
+        all_vals{l} =  vals{j}(t(:,k),:);
 
+        specs{1,l}  = glabels{j};
+        specs{2,l}  = strcols{k};            
+        specs{3,l}  = sprintf('%s-%s',glabels{j},strcols{k});            
+    end
+end 
 
+% compute mean learning rate
+ma          = nan(1,ncond);
+ea          = nan(1,ncond);
 
+for j = 1:ncond
+    a       = mean(all_lrs{j},1)';    
+
+    ma(j)   = mean(a);
+    ea(j)   = serr(a);
+end
+
+vval        = v_example; % estimated reward
+
+% store output from PF simulations 
+stochVolSim = struct('config', config, 'v_example', vval, 'specs',{specs}, 'm_vol', m_vol, 'm_stc', m_stc, 'm_lr', m_lr,...
+    'e_vol', e_vol, 'e_stc', e_stc, 'e_lr', e_lr, 'ma', ma, 'ea', ea);
 
 
 end % end of function 

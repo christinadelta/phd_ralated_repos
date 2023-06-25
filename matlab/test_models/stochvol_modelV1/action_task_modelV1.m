@@ -54,7 +54,7 @@ end % end of subjects loop
 model = 1;
 
 % define parameters and config for the particle filter 
-nsim        = 10;
+nsim        = 1000;
 x           = data.state;
 tvolatile   = data.t(:,2);
 tstable     = data.t(:,1);
@@ -62,9 +62,24 @@ tstable     = data.t(:,1);
 params      = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
 config      = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
 
+% RUN PF (firts the healthy and then the lesioned) with the parameters
+% defined above
 stochVolSim = runModel(data, params, config, model, condition,...
     probabilities, trials,condtrials, outpath, outtype);
 
+% plot the results 
+
+fsiz        = [0 0 .45 1];
+
+figure; 
+
+nr          = 2;
+nc          = 2;
+subplots    = 1:4;
+
+% plot estimated reward, learning rates, estimated volatility and estimated
+% stochasticity 
+h = plotPF(nr,nc,subplots,stochVolSim,x);
 
 
 
