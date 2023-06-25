@@ -68,7 +68,6 @@ stochVolSim = runModel(data, params, config, model, condition,...
     probabilities, trials,condtrials, outpath, outtype);
 
 % plot the results 
-
 fsiz        = [0 0 .45 1];
 
 figure; 
@@ -92,7 +91,7 @@ allvols     = 0.1:0.2:1.5; %
 allstc      = 0.1:0.4:3;
 
 % define parameters and config for the particle filter 
-nsim        = 10;
+nsim        = 100;
 
 for i = 1:length(allvols)
 
@@ -125,8 +124,72 @@ for i = 1:length(allvols)
     end % end of stochasticities loop
 end % end of volatilities loop
 
+%% plot learning rates for different parameter values 
 
-%% run the stochasticity lesion model with different parameters 
+fsiz        = [0 0 .45 1];
+nr          = 1;
+nc          = 2;
+subplots    = 1:2;
+
+hf = plotLR(nr, nc, subplots, ma_stable, ma_vol);
 
 
+%% run the healthy and stochasticity lesion model with different parameters 
+
+% this will be used to define parameter values etc..
+model       = 1;
+
+% define a range of parameter values:
+allvols     = 0.1:0.2:1.5; % 
+allstc      = 0.1:0.4:3;
+
+% define parameters and config for the particle filter 
+nsim        = 100;
+
+for i = 1:length(allvols)
+
+    v0 = allvols(i);
+
+    for j = 1:length(allstc)
+
+        s0 = allstc(j);
+
+        % simulate dataset first
+        data            = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
+
+        x               = data.state;
+        tvolatile       = data.t(:,2);
+        tstable         = data.t(:,1);
+
+        params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',v0,'s0',s0,'s0_lesioned',0.001);
+        config          = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
+        
+        % RUN PF -- the healthy model only
+        stochVolSim     = runModel(data, params, config, model, condition,...
+            probabilities, trials,condtrials, outpath, outtype);
+
+        % extract learning rates for each combination of vol and stoch
+        % healthy model 
+        hma_stable(i,j)  = stochVolSim.ma(1);
+        hea_stable(i,j)  = stochVolSim.ea(1);
+        hma_vol(i,j)     = stochVolSim.ma(2);
+        hea_vol(i,j)     = stochVolSim.ea(2);
+
+        % stc lesion model
+        lma_stable(i,j)  = stochVolSim.ma(3);
+        lea_stable(i,j)  = stochVolSim.ea(3);
+        lma_vol(i,j)     = stochVolSim.ma(4);
+        lea_vol(i,j)     = stochVolSim.ea(4);
+
+    end % end of stochasticities loop
+end % end of volatilities loop
+
+%% plot learning rates for different parameter values (healthy and lesioned)
+
+fsiz        = [0 0 .45 1];
+nr          = 1;
+nc          = 2;
+subplots    = 1:2;
+
+hf = plotLR_v2(nr, nc, subplots, hma_stable, hma_vol, lma_stable, lma_vol);
 
