@@ -33,6 +33,9 @@ outtype         = 2;                        % if 1 = outcomes are binary [0,1], 
 params          = [.2 .6;
     3 6]; %alpha and beta parameteres 
 
+% models to run:
+mtorun = 3; % (first test the PF using the exact same params as Piray (2021), then run healthy model and stochasticity model
+
 %% simulate dataset
 
 for sub = 1:subjects
@@ -47,7 +50,22 @@ end % end of subjects loop
 
 %% run stoch-vol model with the Piray params 
 
-stochVolSim = runModel(data);
+% this will be used to define parameter values etc..
+model = 1;
+
+% define parameters and config for the particle filter 
+nsim        = 10;
+x           = data.state;
+tvolatile   = data.t(:,2);
+tstable     = data.t(:,1);
+
+params      = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
+config      = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
+
+stochVolSim = runModel(data, params, config, model, condition,...
+    probabilities, trials,condtrials, outpath, outtype);
+
+
 
 
 %% run healthy model only - with different parameter values
