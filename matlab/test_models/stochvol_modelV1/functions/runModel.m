@@ -23,10 +23,17 @@ if model == 1 % run the simulations using the Piray 2021 parameter values
     g           = 2; % 2 groups --> healthy, ASD
     glabels     = {'Control','ASD'};
     lnames      = {'Healthy', sprintf('%s lesion',def_actions('stc'))};      
-else
+elseif model == 2
     g = 1;
     glabels     = {'Control'};
-    lnames      = {'Healthy'};   
+    lnames      = {'Healthy'};  
+
+elseif model == 3
+
+    g = 3;
+    glabels     = {'ASD'};
+    lnames      = {sprintf('%s lesion',def_actions('stc'))};  
+
 
 end
 
@@ -64,19 +71,32 @@ end
 % specs(1,:)              = glabels;
 t                       = [config.tstable config.tvolatile]; % all trials
 strcols                 = {'Stable','Volatile'};
-ncond                   = 4;
+
+if model == 1
+    ncond                   = 4;
+else
+    ncond                   = 2;
+end
+
 
 % define empty arrays for volatility, stochasticity and learning rates
-m_vol       = nan(N,2);
-m_stc       = nan(N,2);
-m_lr        = nan(N,2);
-e_vol       = nan(N,2);
-e_stc       = nan(N,2);
-e_lr        = nan(N,2);
+m_vol       = nan(N,g);
+m_stc       = nan(N,g);
+m_lr        = nan(N,g);
+e_vol       = nan(N,g);
+e_stc       = nan(N,g);
+e_lr        = nan(N,g);
 
-all_vols    = cell(ncond,2);
-all_stcs    = cell(ncond,2);
-all_lrs     = cell(ncond,4);
+if model == 1
+    all_vols    = cell(ncond,2);
+    all_stcs    = cell(ncond,2);
+    all_lrs     = cell(ncond,4);
+else
+    all_vols    = cell(ncond,1);
+    all_stcs    = cell(ncond,1);
+    all_lrs     = cell(ncond,2);
+
+end
 
 %% loop over groups and compute means and SEs for stochasticity, volatility and learning rates 
 
@@ -108,6 +128,7 @@ end
 % compute mean learning rate
 ma          = nan(1,ncond);
 ea          = nan(1,ncond);
+
 
 for j = 1:ncond
     a       = mean(all_lrs{j},1)';    

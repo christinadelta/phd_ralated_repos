@@ -82,8 +82,49 @@ subplots    = 1:4;
 h = plotPF(nr,nc,subplots,stochVolSim,x);
 
 
-
 %% run healthy model only - with different parameter values
+
+% this will be used to define parameter values etc..
+model       = 2;
+
+% define a range of parameter values:
+allvols     = 0.1:0.2:1.5; % 
+allstc      = 0.1:0.4:3;
+
+% define parameters and config for the particle filter 
+nsim        = 10;
+
+for i = 1:length(allvols)
+
+    v0 = allvols(i);
+
+    for j = 1:length(allstc)
+
+        s0 = allstc(j);
+
+        % simulate dataset first
+        data            = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
+
+        x               = data.state;
+        tvolatile       = data.t(:,2);
+        tstable         = data.t(:,1);
+
+        params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',v0,'s0',s0,'s0_lesioned',0.001);
+        config          = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
+        
+        % RUN PF -- the healthy model only
+        stochVolSim     = runModel(data, params, config, model, condition,...
+            probabilities, trials,condtrials, outpath, outtype);
+
+        % extract learning rates for each combination of vol and stoch
+        ma_stable(i,j)  = stochVolSim.ma(1);
+        ea_stable(i,j)  = stochVolSim.ea(1);
+        ma_vol(i,j)     = stochVolSim.ma(2);
+        ea_vol(i,j)     = stochVolSim.ea(2);
+
+    end % end of stochasticities loop
+end % end of volatilities loop
+
 
 %% run the stochasticity lesion model with different parameters 
 
