@@ -1,4 +1,4 @@
-function [xx, dp, trialstable, trialvolatile] = responseModel_v1(xstate, val)
+function [xx, dp, trialstable, trialvolatile,p] = responseModel_v1(xstate, val,tvolatile, tstable)
 
 % Created May 2023
 % The function generates responses for the action-learning simulated data 
@@ -6,27 +6,25 @@ function [xx, dp, trialstable, trialvolatile] = responseModel_v1(xstate, val)
 
 % ---------------
 
-ii50 = xstate==0.5; 
-xstate(ii50) = [];
-dv = [0; val(1:end-1)]-.5;
-p = 1./(1+exp(-dv));
-p(ii50) = [];
+% remove trials of 50% prob (if there are any)!!
+% ii50 = xstate==0.5; 
+% xstate(ii50) = [];
 
-N = length(p);
-n = 10;
+% compute choice probability using softmax 
+dv  = [0; val(1:end - 1)]-.5;
+p   = 1./(1+exp(-dv));
+% p(ii50) = [];
 
-change_points = find(diff(xstate)~=0);
-trialvolatile = false(N,1);
-for i=1:length(change_points)
-    trialvolatile(change_points(i) + (1:n)) = 1;    
-end
-trialstable = ~trialvolatile;
-trialstable(1:n) = 0;
+% define which are the stable and the volatile trials
+trialstable     = tstable; 
+trialvolatile   = tvolatile;
 
-corr_action = xstate>=.5;
+% need to work on this part as it seems that it is not working for our
+% design
+corr_action     = xstate>=.5;
 
-choice = p>=.5;
-perf = choice==corr_action;
+choice          = p>=.5;
+perf            = choice==corr_action;
 
 
 mpvol = mean(perf(trialvolatile,:));

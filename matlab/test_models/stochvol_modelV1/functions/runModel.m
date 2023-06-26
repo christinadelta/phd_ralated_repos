@@ -1,4 +1,4 @@
-function stochVolSim = runModel(data, params, config, model, condition, probabilities, trials,condtrials, outpath, outtype)
+function [stochVolSim, vals] = runModel(data, params, config, model, condition, probabilities, trials,condtrials, outpath, outtype)
 
 % runs stochasticity-volatility model (main, lesioned)
 % Created in June 2023
@@ -87,37 +87,40 @@ e_vol       = nan(N,g);
 e_stc       = nan(N,g);
 e_lr        = nan(N,g);
 
-if model == 1
-    all_vols    = cell(ncond,2);
-    all_stcs    = cell(ncond,2);
-    all_lrs     = cell(ncond,4);
-else
-    all_vols    = cell(ncond,1);
-    all_stcs    = cell(ncond,1);
-    all_lrs     = cell(ncond,2);
-
-end
-
+% this is not needed for now
+% if model == 1
+%     all_vols    = cell(ncond,2);
+%     all_stcs    = cell(ncond,2);
+%     all_lrs     = cell(ncond,4);
+% else
+%     all_vols    = cell(ncond,1);
+%     all_stcs    = cell(ncond,1);
+%     all_lrs     = cell(ncond,2);
+% 
+% end
+% 
 %% loop over groups and compute means and SEs for stochasticity, volatility and learning rates 
 
 for j=1:g
 
-    % compute means and SEs
+    % compute means and SEs over simulations 
     m_vol(:,j)      = mean(vols{j},2);
     m_stc(:,j)      = mean(stcs{j},2);
     m_lr(:,j)       = mean(lrs{j},2);
     e_vol(:,j)      = serr(vols{j},2);
     e_stc(:,j)      = serr(stcs{j},2);
     e_lr(:,j)       = serr(lrs{j},2);   
-
+    
+    % split the trials based on low-high volatility and low-high
+    % stochasticity
     for k = 1:2
         l           = (j-1)*2 + k; % have no idea what that does
 
-        all_vols{l} = vols{j}(t(:,k),:);
-        all_stcs{l} = stcs{j}(t(:,k),:);
-        all_lrs{l}  = lrs{j}(t(:,k),:);
+        all_vols{l,1} = vols{j}(t(:,k),:);
+        all_stcs{l,1} = stcs{j}(t(:,k),:);
+        all_lrs{l,1}  = lrs{j}(t(:,k),:);
 
-        all_vals{l} =  vals{j}(t(:,k),:);
+        all_vals{l,1} =  vals{j}(t(:,k),:);
 
         specs{1,l}  = glabels{j};
         specs{2,l}  = strcols{k};            
@@ -140,8 +143,8 @@ end
 vval        = v_example; % estimated reward
 
 % store output from PF simulations 
-stochVolSim = struct('config', config, 'v_example', vval, 'specs',{specs}, 'm_vol', m_vol, 'm_stc', m_stc, 'm_lr', m_lr,...
-    'e_vol', e_vol, 'e_stc', e_stc, 'e_lr', e_lr, 'ma', ma, 'ea', ea);
+stochVolSim = struct('v_example', vval, 'specs',{specs}, 'm_vol', m_vol, 'm_stc',...
+    m_stc, 'm_lr', m_lr,'e_vol', e_vol, 'e_stc', e_stc, 'e_lr', e_lr, 'ma', ma, 'ea', ea);
 
 
 end % end of function 

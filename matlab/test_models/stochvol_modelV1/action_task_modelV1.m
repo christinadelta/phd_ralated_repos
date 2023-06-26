@@ -54,7 +54,7 @@ end % end of subjects loop
 model = 1;
 
 % define parameters and config for the particle filter 
-nsim        = 1000;
+nsim        = 10;
 x           = data.state;
 tvolatile   = data.t(:,2);
 tstable     = data.t(:,1);
@@ -64,8 +64,35 @@ config      = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',
 
 % RUN PF (firts the healthy and then the lesioned) with the parameters
 % defined above
-stochVolSim = runModel(data, params, config, model, condition,...
+[stochVolSim, vals] = runModel(data, params, config, model, condition,...
     probabilities, trials,condtrials, outpath, outtype);
+
+% extract arrays 
+nconds = 2;
+
+xstate      = x;
+xx          = nan(nsim, nconds); % I guess I wont include volatility for now 
+mxx         = nan(nconds, 2); % mean correct 
+exx         = nan(nconds, 2); % se correct 
+
+% use softmax function to simulate responses for binary choices
+% loop over (volatility) conditions 
+for j = 1:nconds
+
+    % loop over simulations
+    for i = 1:nsim
+
+        val = vals{j}(:,i);
+
+        % generate responses for control and clinical simulated groups using the softmax function 
+        [xx(i,:),p(:,i)] = responseModel_v1(xstate, val,tvolatile, tstable);
+
+    end % end of simulations loop
+
+    mxx(j,:) = median(xx);
+    exx(j,:) = se_median(xx);
+end % end of volatility condition
+
 
 % plot the results 
 fsiz        = [0 0 .45 1];
@@ -79,6 +106,19 @@ subplots    = 1:4;
 % plot estimated reward, learning rates, estimated volatility and estimated
 % stochasticity 
 h = plotPF(nr,nc,subplots,stochVolSim,x);
+
+% plot performance 
+
+col = def_actions('col');
+fsy = def_actions('fsy');
+subplots = 1;
+
+labels = {'Stable','Volatile'};
+
+h = plot_bar(1,1,subplots(1),{mxx},{exx},{'control','ASD'},{'Performance','Performance'},'',col);
+set(h,'ylim',[0 1]);
+legend(h,labels,'fontsize',fsy,'location','north','box','off');
+title(h,'Model');
 
 
 %% run healthy model only - with different parameter values
@@ -124,7 +164,7 @@ for i = 1:length(allvols)
     end % end of stochasticities loop
 end % end of volatilities loop
 
-%% plot learning rates for different parameter values 
+% plot learning rates for different parameter values 
 
 fsiz        = [0 0 .45 1];
 nr          = 1;
@@ -144,7 +184,7 @@ allvols     = 0.1:0.2:1.5; %
 allstc      = 0.1:0.4:3;
 
 % define parameters and config for the particle filter 
-nsim        = 100;
+nsim        = 10;
 
 for i = 1:length(allvols)
 
@@ -184,7 +224,7 @@ for i = 1:length(allvols)
     end % end of stochasticities loop
 end % end of volatilities loop
 
-%% plot learning rates for different parameter values (healthy and lesioned)
+%%plot learning rates for different parameter values (healthy and lesioned)
 
 fsiz        = [0 0 .45 1];
 nr          = 1;
@@ -192,4 +232,7 @@ nc          = 2;
 subplots    = 1:2;
 
 hf = plotLR_v2(nr, nc, subplots, hma_stable, hma_vol, lma_stable, lma_vol);
+
+%% run healthy and stochasticity models with different lambda values 
+
 
