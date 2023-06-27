@@ -8,7 +8,6 @@
 clear all
 clc
  
-
 %% set paths and init variables
 
 % set paths
@@ -186,16 +185,15 @@ for i = 1:length(allvols)
                 val = allvals{i,j}{g,1}(:,k);
 
                 % generate responses for control and clinical simulated groups using the softmax function 
-                [xx(k,:),p(k,1),ps(k,:),pv(k,:)] = responseModel_v1(xstate, val,tvolatile, tstable);
+                [xx(k,:)] = responseModel_v1(xstate, val,tvolatile, tstable);
 
             end % end of simulations loop
             
             % compute mean performance and mean choice-probability (across simulations) for each group
             mxx(g,:)        = mean(xx);
             exx(g,:)        = serr(xx);
-            mp(i,j,g)       = mean(p);
-            mps(i,j,g)       = mean(ps); % mean choice probabilties (stable trials)
-            mpv(i,j,g)       = mean(pv); % mean choice probabilties (volatile trials)
+            mps(i,j,g)       = mxx(1); % mean choice probabilties (stable trials)
+            mpv(i,j,g)       = mxx(2); % mean choice probabilties (volatile trials)
     
         end % end of groups loop
 
@@ -229,7 +227,7 @@ allvols     = 0.1:0.2:1.5; %
 allstc      = 0.1:0.4:3;
 
 % define parameters and config for the particle filter 
-nsim        = 10;
+nsim        = 100;
 
 for i = 1:length(allvols)
 
@@ -271,10 +269,11 @@ for i = 1:length(allvols)
     end % end of stochasticities loop
 end % end of volatilities loop
 
+%%
 ngroups         = 2;
 xstate          = x;
 
-%%% get response and store choice probabilities 
+%get response and store choice probabilities 
 for i = 1:length(allvols)
 
     for j = 1:length(allstc)
@@ -296,24 +295,22 @@ for i = 1:length(allvols)
                 end
              
                 % generate responses for control and clinical simulated groups using the softmax function 
-                [xx(k,:),p(k,1),ps(k,1),pv(k,1)] = responseModel_v1(xstate, val, tvolatile, tstable);
+                [xx(k,:)] = responseModel_v1(xstate, val, tvolatile, tstable);
 
             end % end of simulations loop
             
             % compute mean performance and mean choice-probability (across simulations) for each group
             mxx(g,:)            = mean(xx);
             exx(g,:)            = serr(xx);
-            mp(i,j,g)           = mean(p);
-            mps(i,j,g)          = mean(ps); % mean choice probabilties (stable trials)
-            mpv(i,j,g)          = mean(pv); % mean choice probabilties (volatile trials)
+            mps(i,j,g)          = mxx(g,1); % mean choices (stable trials)
+            mpv(i,j,g)          = mxx(g,2); % mean choices (volatile trials)
+    
     
         end % end of groups loop
-
     end % end of stochasticities loop
+end % end of volatilities loop 
 
-end% end of volatilities loop 
-
-%%plot learning rates for different parameter values (healthy and lesioned)
+%% plot learning rates for different parameter values (healthy and lesioned)
 
 fsiz        = [0 0 .45 1];
 nr          = 1;
@@ -335,14 +332,14 @@ hf = plotCP_v2(nr, nc, subplots, h_mps, h_mpv, l_mps, l_mpv);
 %% run healthy and stochasticity models with different lambda values 
 
 % this will be used to define parameter values etc..
-model       = 2;
+model       = 1;
 
 % define a range of parameter values:
 allv_lambda      = 0.1:0.2:1; % 
 alls_lambda      = 0.1:0.2:1; % 
 
 % define parameters and config for the particle filter 
-nsim        = 10;
+nsim        = 100;
 
 for i = 1:length(allv_lambda)
 
@@ -367,19 +364,29 @@ for i = 1:length(allv_lambda)
             probabilities, trials,condtrials, outpath, outtype);
 
         % extract learning rates for each combination of vol and stoch
-        ma_stable(i,j)  = stochVolSim.ma(1);
-        ea_stable(i,j)  = stochVolSim.ea(1);
-        ma_vol(i,j)     = stochVolSim.ma(2);
-        ea_vol(i,j)     = stochVolSim.ea(2);
-        allvals{i,j}    = vals; %(vols x stochs)
+        % healthy model 
+        hma_stable(i,j)  = stochVolSim.ma(1);
+        hea_stable(i,j)  = stochVolSim.ea(1);
+        hma_vol(i,j)     = stochVolSim.ma(2);
+        hea_vol(i,j)     = stochVolSim.ea(2);
+        hvals{i,j}       = vals{1,1};
+
+        % stc lesion model
+        lma_stable(i,j)  = stochVolSim.ma(3);
+        lea_stable(i,j)  = stochVolSim.ea(3);
+        lma_vol(i,j)     = stochVolSim.ma(4);
+        lea_vol(i,j)     = stochVolSim.ea(4);
+        lvals{i,j}       = vals{1,2};
+
 
     end % end of stochasticities loop
 end % end of volatilities loop
 
-ngroups         = 1;
+%%
+ngroups         = 2;
 xstate          = x;
 
-%%% get response and store choice probabilities 
+% get response and store choice probabilities 
 for i = 1:length(allv_lambda)
 
     for j = 1:length(alls_lambda)
@@ -392,20 +399,25 @@ for i = 1:length(allv_lambda)
 
             % loop over simulations
             for k = 1:nsim
+                
+                if g == 1
+                    val = hvals{i,j}(:,k);
+                else
+                    val = lvals{i,j}(:,k);
 
-                val = allvals{i,j}{g,1}(:,k);
-
+                end
+             
                 % generate responses for control and clinical simulated groups using the softmax function 
-                [xx(k,:),p(k,1),ps(k,:),pv(k,:)] = responseModel_v1(xstate, val,tvolatile, tstable);
+                [xx(k,:)] = responseModel_v1(xstate, val, tvolatile, tstable);
 
             end % end of simulations loop
             
             % compute mean performance and mean choice-probability (across simulations) for each group
             mxx(g,:)            = mean(xx);
             exx(g,:)            = serr(xx);
-            mp(i,j,g)           = mean(p);
-            mps(i,j,g)          = mean(ps); % mean choice probabilties (stable trials)
-            mpv(i,j,g)          = mean(pv); % mean choice probabilties (volatile trials)
+            mps(i,j,g)          = mxx(g,1); % mean choices (stable trials)
+            mpv(i,j,g)          = mxx(g,2); % mean choices (volatile trials)
+    
     
         end % end of groups loop
 
@@ -413,7 +425,7 @@ for i = 1:length(allv_lambda)
 
 end% end of volatilities loop
 
-%%%% plot learning rates for different parameter values 
+%% plot learning rates for different parameter values 
 
 fsiz        = [0 0 .45 1];
 nr          = 1;
@@ -423,8 +435,13 @@ subplots    = 1:2;
 % plot learning rates
 hf = plotLR(nr, nc, subplots, ma_stable, ma_vol);
 
-% plot choice probabilities
-hf = plotCP(nr, nc, subplots, mps, mpv);
+% extract response data
+h_mps = mps(:,:,1);
+l_mps = mps(:,:,2);
 
+h_mpv = mpv(:,:,1);
+l_mpv = mpv(:,:,2);
+
+hf = plotCP_v2(nr, nc, subplots, h_mps, h_mpv, l_mps, l_mpv);
 
 
