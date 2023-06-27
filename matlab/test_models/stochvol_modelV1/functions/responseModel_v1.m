@@ -13,7 +13,7 @@ function [xx,mp,mp_stable,mp_volatile, dp, trialstable, trialvolatile] = respons
 % compute choice probability using softmax 
 dv  = [0; val(1:end - 1)]-.5;
 p   = 1./(1+exp(-dv));
-% p(ii50) = [];
+
 
 % define which are the stable and the volatile trials
 trialstable     = tstable; 
