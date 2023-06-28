@@ -59,7 +59,7 @@ x           = data.state;
 tvolatile   = data.t(:,2);
 tstable     = data.t(:,1);
 
-params      = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
+params      = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.05);
 config      = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
 
 % RUN PF (firts the healthy and then the lesioned) with the parameters
@@ -67,6 +67,7 @@ config      = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',
 [stochVolSim, vals] = runModel(data, params, config, model, condition,...
     probabilities, trials,condtrials, outpath, outtype);
 
+%% simulate responses and compute performance
 % compute responses using vals
 ngroups = 2;
 
@@ -85,7 +86,7 @@ for j = 1:ngroups
         val = vals{j}(:,i);
 
         % generate responses for control and clinical simulated groups using the softmax function 
-        [xx(i,:),p(:,i)] = responseModel_v1(xstate, val,tvolatile, tstable);
+        [xx(i,:)] = responseModel_v1(xstate, val,tvolatile, tstable);
 
     end % end of simulations loop
 
@@ -94,7 +95,7 @@ for j = 1:ngroups
 end % end of volatility condition
 
 
-% plot the results 
+%% plot particle filter results 
 fsiz        = [0 0 .45 1];
 
 figure; 
@@ -107,13 +108,16 @@ subplots    = 1:4;
 % stochasticity 
 h = plotPF(nr,nc,subplots,stochVolSim,x);
 
-% plot performance 
 
+%% plot performance 
+
+% plot performance 
 col = def_actions('col');
 fsy = def_actions('fsy');
 subplots = 1;
 
 labels = {'Stable','Volatile'};
+
 
 h = plot_bar(1,1,subplots(1),{mxx},{exx},{'control','ASD'},{'Performance','Performance'},'',col);
 set(h,'ylim',[0 1]);
@@ -148,7 +152,7 @@ for i = 1:length(allvols)
         tvolatile       = data.t(:,2);
         tstable         = data.t(:,1);
 
-        params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',v0,'s0',s0,'s0_lesioned',0.001);
+        params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',v0,'s0',s0,'s0_lesioned',0.02);
         config          = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
         
         % RUN PF -- the healthy model only
@@ -156,15 +160,49 @@ for i = 1:length(allvols)
             probabilities, trials,condtrials, outpath, outtype);
 
         % extract learning rates for each combination of vol and stoch
-        ma_stable(i,j)  = stochVolSim.ma(1);
-        ea_stable(i,j)  = stochVolSim.ea(1);
-        ma_vol(i,j)     = stochVolSim.ma(2);
-        ea_vol(i,j)     = stochVolSim.ea(2);
-        allvals{i,j}    = vals; %(vols x stochs)
+        ma_stable(i,j)      = stochVolSim.ma(1);
+        ea_stable(i,j)      = stochVolSim.ea(1);
+        ma_vol(i,j)         = stochVolSim.ma(2);
+        ea_vol(i,j)         = stochVolSim.ea(2);
+        allvals{i,j}        = vals; %(vols x stochs)
+
+        % store estimated volatility and stochasticity for each combination
+        hvols{1,i}(:,j)     = stochVolSim.m_vol;
+        hevols{1,i}(:,j)    = stochVolSim.e_vol;
+        hstcs{1,i}(:,j)     = stochVolSim.m_stc;
+        hestcs{1,i}(:,j)    = stochVolSim.e_stc;
 
     end % end of stochasticities loop
 end % end of volatilities loop
 
+%% plot estimated volatility and stochasticity for the different combinations 
+
+fsiz        = [0 0 .45 1];
+
+figure; 
+
+nr          = 1;
+nc          = 2;
+subplots    = 1:2;
+
+for i = 1:length(allvosl)
+
+    mvol = hvols{1,i};
+    evol = hevols{1,i};
+    mstc = hstcs{1,i};
+    estc = hestcs{1,i};
+
+    % plot the volatilties and stochastciities
+    h = plotHealthyPF(nr,nc,subplots,mvol,evol,mstc,estc,x);
+
+
+
+
+end % end of volatilities loop
+
+
+
+%% 
 ngroups         = 1;
 xstate          = x;
 
