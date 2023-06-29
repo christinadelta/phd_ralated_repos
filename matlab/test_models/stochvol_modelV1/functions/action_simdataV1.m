@@ -76,14 +76,17 @@ for j = 1:NumStoch
 
                 counter             = counter + 1; % update counter 
                 tmp(counter,run)    = ProbSeq(1,run);
+                tmp2(counter,run)   = ProbSeq(2,run);
             end
 
         end % end of runs loop
        
-        % update state
+        % update state(s)
         tmp                         = tmp(:);
         x(:,i)                      = tmp;
-        clear tmp
+        tmp2                        = tmp2(:);
+        xx(:,i)                     = tmp2;
+        clear tmp tmp2
 
         %% generate feedback sequences (outcome sequences) 
 
@@ -125,17 +128,20 @@ for j = 1:NumStoch
 
     % update state for stochasticity conditions
     x                   = x(:);
+    xx                  = xx(:);
     state(:,j)          = x;
+    state2(:,j)         = xx;
     
     % update outcomes 
     stochoutcomes{1,j} = [alloutcomes{1,1}; alloutcomes{1,2}];
 
-    clear x alloutcomes
+    clear x xx alloutcomes
 
 end % end of stochasticity loop
 
 % update state and feedback/outcome
 state           = state(:);
+state(:,2)      = state2(:);
 feedbck         = [stochoutcomes{1,1}; stochoutcomes{1,2}]; % outcomes for option 1 and option 2
 
 % store simulations to data struct
@@ -174,7 +180,8 @@ end
 
 % simulate outcomes with added variance noise
 totalTrials                 = length(state);
-o                           = state + sqrt(outVar)*randn(totalTrials,1); % outcomes (generated based on reward rates and stochasticity??)
+o                           = state(:,1) + sqrt(outVar)*randn(totalTrials,1); % outcomes for option A(generated based on reward rates and stochasticity??)
+oo                          = state(:,2) + sqrt(outVar)*randn(totalTrials,1); % outcomes for option B(generated based on reward rates and stochasticity??)
 t                           = [tStoch{1,1}; tStoch{1,2}]; % column 1 is stable, column 2 is volatile
 
 % index stochasticity trials
@@ -192,7 +199,8 @@ s                           = [slow shigh]; % column 1 = low stochasticity, colu
 % update data structure
 % data.stableTrials           = stableIndex;
 % data.volTrials              = volIndex;
-data.outcome                = o; % linear outcomes 
+data.outcome(:,1)           = o; % linear outcomes 
+data.outcome(:,2)           = oo; % linear outcomes 
 data.t                      = t; % index volatility condition
 data.s                      = s; % index stochasticity condtion
 

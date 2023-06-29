@@ -1,54 +1,93 @@
-function [xx, dp, trialstable, trialvolatile] = responseModel_v1(xstate, val,tvolatile, tstable)
+function [xx, mR, dp, simResp] = responseModel_v1(xstate, val,tvolatile, tstable, beta)
 
 % Created May 2023
 % The function generates responses for the action-learning simulated data 
 % to be used for modelling 
 
+% inputs are: Qvals , beta (used in the softmax function) the true reward
+% rate and indexes for stable and volatile trials to be used to compute
+% performance for each condition seperately 
+
 % ---------------
 
-% remove trials of 50% prob (if there are any)!!
-% ii50 = xstate==0.5; 
-% xstate(ii50) = [];
-
-% compute choice probability using softmax 
-dv  = [0; val(1:end - 1)]-.5;
-p   = 1./(1+exp(-dv));
+N = size(xstate,1);
+cp = find(diff(xstate(:,1))~=0);
 
 
-% define which are the stable and the volatile trials
-trialstable     = tstable; 
-trialvolatile   = tvolatile;
+% loop over trials 
+for t = 1:size(xstate,1)
 
-% N = length(p);
-% n = 10;
-% change_points = find(diff(xstate)~=0);
-% tvolatile = false(N,1);
+    mu      = xstate(t,:);
+    Qval    = val(t,:);
+    
+    % compute choice probabilities (i.e., convert Qs into choice
+    % probabiltiies)
+    p       = exp(beta*Qval) / sum(exp(beta*Qval));
+    a(t)    = mkchoice(p);      % make choice according to the choice probabilities
+    r(t)    = rand < mu(a(t));  % generate reward based based on action
 
-% volatile trials are the trials with no probabilitiys witch in the preceding 10 trials
-% for i=1:length(change_points)
-%     tvolatile(change_points(i) + (1:n)) = 1;    
-% end
+    [~,imax]    = max(mu); % what is the contigency of this trial?
+    corr(t)     = a(t)==imax;
+    
+%     % is the choice correct?
+%     if t < cp(1)+1
+%         [~,imax]    = max(mu); % what is the contigency of this trial?
+%         corr(t)     = a(t)==imax;
+% 
+%     elseif t > cp(5) && t < cp(6)+1
+%         [~,imax]    = max(mu); % what is the contigency of this trial?
+%         corr(t)     = a(t)==imax;
+% 
+%     elseif t > cp(1) && t < cp(2)+1
+%         [~,imin]    = min(mu);
+%         corr(t)     = a(t)==imin;
+% 
+%     elseif t > cp(3) && t < cp(4)+1
+% 
+%         [~,imin]    = min(mu);
+%         corr(t)     = a(t)==imin;
+% 
+%     elseif t > cp(6) && t < cp(7)+1
+% 
+%         [~,imin]    = min(mu);
+%         corr(t)     = a(t)==imin;
+% 
+%     elseif t > cp(8) && t < cp(9)+1
+% 
+%         [~,imin]    = min(mu);
+%         corr(t)     = a(t)==imin;
+% 
+%     else 
+% 
+%         [~,imax]    = max(mu); % what is the contigency of this trial?
+%         corr(t)     = a(t)==imax;
+%     end
 
+   
+end % end of trials loop
 
-% tstable = ~tvolatile;
-% % tstable(1:n) = 0;
+% transpose
+r               = r'; 
+a               = a'; 
+corr            = corr';
 
+% compute p(correct) for all trials
+mPerf           = mean(corr);
+sPerf           = mean(corr(tstable,:));
+vPerf           = mean(corr(tvolatile,:));
 
-% need to work on this part as it seems that it is not working for our
-% design
-corr_action     = xstate>=.5;
+% difference in performance between conditions
+dp              = sPerf - vPerf;
+xx              = [sPerf vPerf];
 
-choice          = p>=.5;
-perf            = choice==corr_action;
+% compute mean reward for each of the conditions
+sR              = mean(r(tstable,:));
+vR              = mean(r(tvolatile,:));
 
-mpvol           = mean(perf(trialvolatile,:));
-mpstab          = mean(perf(trialstable,:));
+mR              = [sR vR];
 
-mpvol           = mean(mpvol);
-mpstab          = mean(mpstab);
+simResp.r       = r;
+simResp.a       = a;
+simResp.corr    = corr;
 
-dp              = mpstab - mpvol;
-xx              = [mpstab mpvol];
-
-
-end % end of function
+end

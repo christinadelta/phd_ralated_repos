@@ -1,4 +1,4 @@
-function [stochVolSim, vals] = runModel(data, params, config, model, condition, probabilities, trials,condtrials, outpath, outtype)
+function [stochVolSim, vals] = runModel(cue, config, model, condition, probabilities, trials,condtrials, outpath, outtype)
 
 % runs stochasticity-volatility model (main, lesioned)
 % Created in June 2023
@@ -7,10 +7,9 @@ function [stochVolSim, vals] = runModel(data, params, config, model, condition, 
 
 rng(config.rng_id); 
 nsim        = config.nsim;
-o           = data.outcome; 
 
 % init params to be estimated 
-N           = length(o);
+N           = length(config.state);
 outcome     = nan(N,nsim);
 vol         = nan(N,nsim);
 stc         = nan(N,nsim);
@@ -32,8 +31,7 @@ elseif model == 3
 
     g = 3;
     glabels     = {'ASD'};
-    lnames      = {sprintf('%s lesion',def_actions('stc'))};  
-
+    lnames      = {sprintf('%s lesion',def_actions('stc'))};
 
 end
 
@@ -52,7 +50,7 @@ for j=1:g % this loop is for the group (control, anxiety)
         % [o] = timeseries;
         % simulate dataset(s)
         d                                       = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
-        o                                       = d.outcome;
+        o                                       = d.outcome(:,cue);
         [vol(:,i),stc(:,i),lr(:,i),val(:,i)]    = model_parfilter(o,config.model_parameters,lnames{j});   % is that the inference model?       
     end 
 
