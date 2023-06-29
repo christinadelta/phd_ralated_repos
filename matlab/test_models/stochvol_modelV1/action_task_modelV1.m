@@ -54,44 +54,65 @@ end % end of subjects loop
 model = 1;
 
 % define parameters and config for the particle filter 
-nsim        = 10;
-x           = data.state;
+nsim        = 50;
 tvolatile   = data.t(:,2);
 tstable     = data.t(:,1);
 
-params      = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.05);
-config      = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
+for cue = 1:data.nCues
 
-% RUN PF (firts the healthy and then the lesioned) with the parameters
-% defined above
-[stochVolSim, vals] = runModel(data, params, config, model, condition,...
-    probabilities, trials,condtrials, outpath, outtype);
+    x               = data.state(:,1); % 
+    o               = data.outcome(:,cue);
+
+    params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.05);
+    config          = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
+
+    % RUN PF (firts the healthy and then the lesioned) with the parameters
+    % defined above
+    [stochVolSim, vals] = runModel(cue, config, model, condition,...
+        probabilities, trials,condtrials, outpath, outtype);
+    
+    % store estimated values for each option/cue
+    vvals{1,cue}        = vals;         % values for both options are required to simulate responses 
+    allSVsims{1,cue}    = stochVolSim;  % only estimated values for option A are needed for now
+
+end
 
 %% simulate responses and compute performance
 % compute responses using vals
-ngroups = 2;
+ngroups     = 2;
 
-xstate      = x;
+xstate      = data.state;
 xx          = nan(nsim, ngroups); % I guess I wont include volatility for now 
+mR          = nan(nsim, ngroups); 
 mxx         = nan(ngroups, 2); % mean correct 
 exx         = nan(ngroups, 2); % se correct 
+beta        = 5;
+
 
 % use softmax function to simulate responses for binary choices
 % loop over (volatility) conditions 
 for j = 1:ngroups
+    
+    % extract vals for group j and each option/cue
+    valA = vvals{1,1}{1,j};
+    valB = vvals{1,2}{1,j};
 
     % loop over simulations
     for i = 1:nsim
 
-        val = vals{j}(:,i);
+        val(:,1) = valA(:,i);
+        val(:,2) = valB(:,i);
 
         % generate responses for control and clinical simulated groups using the softmax function 
-        [xx(i,:)] = responseModel_v1(xstate, val,tvolatile, tstable);
+        [xx(i,:),mR(i,:),~,~] = responseModel_v1(xstate, val,tvolatile, tstable, beta);
 
     end % end of simulations loop
 
     mxx(j,:) = median(xx);
     exx(j,:) = se_median(xx);
+    mRR(j,:) = median(mR);
+    eRR(j,:) = se_median(mR);
+    
 end % end of volatility condition
 
 
