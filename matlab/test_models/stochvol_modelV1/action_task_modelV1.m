@@ -27,6 +27,7 @@ probabilities   = [.88 .10;                 % small stochasticity probabilities
 trials          = 200;                      % total trials
 condtrials      = [100 25];                 % 100 per stochasticity condition in stable env and 25 trials in volatile condition;
 outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
+nCues =          2;
 
 % define initial learning rate inverse temperature parameters (don't think
 % that this will be used)
@@ -54,16 +55,16 @@ end % end of subjects loop
 model = 1;
 
 % define parameters and config for the particle filter 
-nsim        = 50;
+nsim        = 100;
 tvolatile   = data.t(:,2);
 tstable     = data.t(:,1);
 
-for cue = 1:data.nCues
+for cue = 1:nCues
 
     x               = data.state(:,1); % 
     o               = data.outcome(:,cue);
 
-    params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.05);
+    params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
     config          = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
 
     % RUN PF (firts the healthy and then the lesioned) with the parameters
@@ -140,7 +141,7 @@ subplots = 1;
 labels = {'Stable','Volatile'};
 
 
-h = plot_bar(1,1,subplots(1),{mxx},{exx},{'control','ASD'},{'Performance','Performance'},'',col);
+h = plot_bar(1,1,subplots(1),{mRR},{eRR},{'control','ASD'},{'Reward','Performance'},'',col);
 set(h,'ylim',[0 1]);
 legend(h,labels,'fontsize',fsy,'location','north','box','off');
 title(h,'Model');
@@ -152,11 +153,11 @@ title(h,'Model');
 model       = 2;
 
 % define a range of parameter values:
-allvols     = 0.1:0.2:1.5; % 
-allstc      = 0.1:0.4:3;
+allvols     = 0.1:0.3:1.5; % 
+allstc      = 0.1:0.6:3;
 
 % define parameters and config for the particle filter 
-nsim        = 10;
+nsim        = 100;
 
 for i = 1:length(allvols)
 
@@ -166,62 +167,53 @@ for i = 1:length(allvols)
 
         s0 = allstc(j);
 
-        % simulate dataset first
-        data            = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
+        for cue = 1:nCues
 
-        x               = data.state;
-        tvolatile       = data.t(:,2);
-        tstable         = data.t(:,1);
+            % simulate dataset first
+            data            = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
+    
+            x               = data.state(:,1); % true reward rate for option A
+            tvolatile       = data.t(:,2);
+            tstable         = data.t(:,1);
+    
+            params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',v0,'s0',s0,'s0_lesioned',0.001);
+            config          = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
+            
+            % RUN PF -- the healthy model only
+            [stochVolSim, vals]     = runModel(cue, config, model, condition,...
+                probabilities, trials,condtrials, outpath, outtype);
 
-        params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',v0,'s0',s0,'s0_lesioned',0.02);
-        config          = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
-        
-        % RUN PF -- the healthy model only
-        [stochVolSim, vals]     = runModel(data, params, config, model, condition,...
-            probabilities, trials,condtrials, outpath, outtype);
+            % extract learning rates for each combination of vol and stoch
+            ma_stable{1,cue}(i,j)      = stochVolSim.ma(1);
+            ea_stable{1,cue}(i,j)      = stochVolSim.ea(1);
+            ma_vol{1,cue}(i,j)         = stochVolSim.ma(2);
+            ea_vol{1,cue}(i,j)         = stochVolSim.ea(2);
+            allvals{1,cue}{i,j}        = vals; %(vols x stochs)
+    
+            % store estimated volatility and stochasticity for each combination
+            hvols{1,cue}{1,i}(:,j)     = stochVolSim.m_vol;
+            hevols{1,cue}{1,i}(:,j)    = stochVolSim.e_vol;
+            hstcs{1,cue}{1,i}(:,j)     = stochVolSim.m_stc;
+            hestcs{1,cue}{1,i}(:,j)    = stochVolSim.e_stc;
 
-        % extract learning rates for each combination of vol and stoch
-        ma_stable(i,j)      = stochVolSim.ma(1);
-        ea_stable(i,j)      = stochVolSim.ea(1);
-        ma_vol(i,j)         = stochVolSim.ma(2);
-        ea_vol(i,j)         = stochVolSim.ea(2);
-        allvals{i,j}        = vals; %(vols x stochs)
-
-        % store estimated volatility and stochasticity for each combination
-        hvols{1,i}(:,j)     = stochVolSim.m_vol;
-        hevols{1,i}(:,j)    = stochVolSim.e_vol;
-        hstcs{1,i}(:,j)     = stochVolSim.m_stc;
-        hestcs{1,i}(:,j)    = stochVolSim.e_stc;
+        end
 
     end % end of stochasticities loop
 end % end of volatilities loop
 
 %% plot estimated volatility and stochasticity for the different combinations 
 
-fsiz        = [0 0 .45 1];
-
-figure; 
-
-nr          = 1;
-nc          = 2;
-subplots    = 1:2;
-
 for i = 1:length(allvosl)
 
-    mvol = hvols{1,i};
-    evol = hevols{1,i};
-    mstc = hstcs{1,i};
-    estc = hestcs{1,i};
+    mvol = hvols{1,1}{1,i};
+    evol = hevols{1,1}{1,i};
+    mstc = hstcs{1,1}{1,i};
+    estc = hestcs{1,1}{1,i};
 
     % plot the volatilties and stochastciities
-    h = plotHealthyPF(nr,nc,subplots,mvol,evol,mstc,estc,x);
-
-
-
+    [h,f] = plotHealthyPF(mvol,evol,mstc,estc,x);
 
 end % end of volatilities loop
-
-
 
 %% 
 ngroups         = 1;

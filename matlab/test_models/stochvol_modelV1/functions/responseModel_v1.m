@@ -26,42 +26,42 @@ for t = 1:size(xstate,1)
     a(t)    = mkchoice(p);      % make choice according to the choice probabilities
     r(t)    = rand < mu(a(t));  % generate reward based based on action
 
-    [~,imax]    = max(mu); % what is the contigency of this trial?
-    corr(t)     = a(t)==imax;
-    
-%     % is the choice correct?
-%     if t < cp(1)+1
-%         [~,imax]    = max(mu); % what is the contigency of this trial?
-%         corr(t)     = a(t)==imax;
-% 
-%     elseif t > cp(5) && t < cp(6)+1
-%         [~,imax]    = max(mu); % what is the contigency of this trial?
-%         corr(t)     = a(t)==imax;
-% 
-%     elseif t > cp(1) && t < cp(2)+1
-%         [~,imin]    = min(mu);
-%         corr(t)     = a(t)==imin;
-% 
-%     elseif t > cp(3) && t < cp(4)+1
-% 
-%         [~,imin]    = min(mu);
-%         corr(t)     = a(t)==imin;
-% 
-%     elseif t > cp(6) && t < cp(7)+1
-% 
-%         [~,imin]    = min(mu);
-%         corr(t)     = a(t)==imin;
-% 
-%     elseif t > cp(8) && t < cp(9)+1
-% 
-%         [~,imin]    = min(mu);
-%         corr(t)     = a(t)==imin;
-% 
-%     else 
-% 
-%         [~,imax]    = max(mu); % what is the contigency of this trial?
-%         corr(t)     = a(t)==imax;
-%     end
+%     [~,imax]    = max(mu); % what is the contigency of this trial?
+%     corr(t)     = a(t)==imax;
+%     
+    % is the choice correct?
+    if t < cp(1)+1
+        [~,imax]    = max(mu); % what is the contigency of this trial?
+        corr(t)     = a(t)==imax;
+
+    elseif t > cp(5) && t < cp(6)+1
+        [~,imax]    = max(mu); % what is the contigency of this trial?
+        corr(t)     = a(t)==imax;
+
+    elseif t > cp(1) && t < cp(2)+1
+        [~,imin]    = min(mu);
+        corr(t)     = a(t)==imin;
+
+    elseif t > cp(3) && t < cp(4)+1
+
+        [~,imin]    = min(mu);
+        corr(t)     = a(t)==imin;
+
+    elseif t > cp(6) && t < cp(7)+1
+
+        [~,imin]    = min(mu);
+        corr(t)     = a(t)==imin;
+
+    elseif t > cp(8) && t < cp(9)+1
+
+        [~,imin]    = min(mu);
+        corr(t)     = a(t)==imin;
+
+    else 
+
+        [~,imax]    = max(mu); % what is the contigency of this trial?
+        corr(t)     = a(t)==imax;
+    end
 
    
 end % end of trials loop

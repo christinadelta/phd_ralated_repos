@@ -7,7 +7,7 @@ end
 if nargin<6, mstr = []; end
 if nargin<7, all_title = []; end
 if nargin<8, N = nan; end
-if nargin<9, yll = []; end
+%if nargin<9, yll = []; end
 if nargin<10, abc = ''; end
 if nargin<11, col = ''; end
 if nargin<12, do_xlbl = 1; end
