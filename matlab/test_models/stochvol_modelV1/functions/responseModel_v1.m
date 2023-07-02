@@ -1,3 +1,4 @@
+%function [x, dp, tstable, tvolatile] = responseModel_v1(xstate, val,trialvolatile, trialstable, beta)
 function [xx, mR, dp, simResp] = responseModel_v1(xstate, val,tvolatile, tstable, beta)
 
 % Created May 2023

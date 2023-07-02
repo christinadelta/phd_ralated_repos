@@ -7,7 +7,7 @@
 
 clear all
 clc
- 
+
 %% set paths and init variables
 
 % set paths
@@ -20,14 +20,14 @@ plotpath        = fullfile(pwd, 'plotting');    addpath(plotpath);
 
 % initialise variables 
 subjects        = 1;
-condition       = 4;                        % stable & volatile / small & large stochasticity
+condition       = 5;                        % stable & volatile / small & large stochasticity
 % task            = 1;                        % stable without switch (if task = 2 then stable with one switch)
-probabilities   = [.88 .10;                 % small stochasticity probabilities
-    .65 .40];                               % large stochasticity probabilities (either 60:40 or 64:36)
-trials          = 200;                      % total trials
-condtrials      = [100 25];                 % 100 per stochasticity condition in stable env and 25 trials in volatile condition;
+probabilities   = [.80 .20;                 % small stochasticity probabilities
+    .68 .32];                               % large stochasticity probabilities (either 60:40 or 64:36)
+trials          = 160;                      % total trials
+condtrials      = [80 20];                  % 100 per stochasticity condition in stable env and 25 trials in volatile condition;
 outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
-nCues =          2;
+nCues           = 2;
 
 % define initial learning rate inverse temperature parameters (don't think
 % that this will be used)
@@ -56,13 +56,19 @@ model = 1;
 
 % define parameters and config for the particle filter 
 nsim        = 100;
+% tvolatile   = data.t(:,2);
+% tstable     = data.t(:,1);
 tvolatile   = data.t(:,2);
 tstable     = data.t(:,1);
 
 for cue = 1:nCues
 
-    x               = data.state(:,1); % 
+%    x               = data.state(:,1); % 
+%    o               = data.outcome(:,cue); % outcomes computed using outcome variance
+    x               = data.state(:,1);
+
     o               = data.outcome(:,cue);
+
 
     params          = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
     config          = struct('tvolatile',tvolatile,'tstable',tstable,'state',x,'rng_id',0,'nsim',nsim,'model_parameters',params);
@@ -83,8 +89,9 @@ end
 ngroups     = 2;
 
 xstate      = data.state;
+% xstate      = data.state(1:160,1);
 xx          = nan(nsim, ngroups); % I guess I wont include volatility for now 
-mR          = nan(nsim, ngroups); 
+% mR          = nan(nsim, ngroups); 
 mxx         = nan(ngroups, 2); % mean correct 
 exx         = nan(ngroups, 2); % se correct 
 beta        = 5;
@@ -105,15 +112,17 @@ for j = 1:ngroups
         val(:,2) = valB(:,i);
 
         % generate responses for control and clinical simulated groups using the softmax function 
-        [xx(i,:),mR(i,:),~,~] = responseModel_v1(xstate, val,tvolatile, tstable, beta);
+        % [xx(i,:),mR(i,:),~,~] = responseModel_v1(xstate, val,tvolatile, tstable, beta);
+        [xx(i,:),~,~,~] = responseModel_v1(xstate, val,tvolatile, tstable, beta);
 
     end % end of simulations loop
 
     mxx(j,:) = median(xx);
     exx(j,:) = se_median(xx);
-    mRR(j,:) = median(mR);
-    eRR(j,:) = se_median(mR);
+%     mRR(j,:) = median(mR);
+%     eRR(j,:) = se_median(mR);
     
+    clear xx
 end % end of volatility condition
 
 
@@ -128,7 +137,7 @@ subplots    = 1:4;
 
 % plot estimated reward, learning rates, estimated volatility and estimated
 % stochasticity 
-h = plotPF(nr,nc,subplots,stochVolSim,x);
+h = plotPF(nr,nc,subplots,allSVsims{1,1},x);
 
 
 %% plot performance 
@@ -141,7 +150,7 @@ subplots = 1;
 labels = {'Stable','Volatile'};
 
 
-h = plot_bar(1,1,subplots(1),{mRR},{eRR},{'control','ASD'},{'Reward','Performance'},'',col);
+h = plot_bar(1,1,subplots(1),{mxx},{exx},{'control','ASD'},{'Performance','Performance'},'',col);
 set(h,'ylim',[0 1]);
 legend(h,labels,'fontsize',fsy,'location','north','box','off');
 title(h,'Model');

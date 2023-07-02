@@ -50,6 +50,8 @@ for j=1:g % this loop is for the group (control, anxiety)
         % [o] = timeseries;
         % simulate dataset(s)
         d                                       = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
+        % o                                       = d.outcome(:,cue);
+        % o                                       = d.feedback(:,cue);
         o                                       = d.outcome(:,cue);
         [vol(:,i),stc(:,i),lr(:,i),val(:,i)]    = model_parfilter(o,config.model_parameters,lnames{j});   % is that the inference model?       
     end 
