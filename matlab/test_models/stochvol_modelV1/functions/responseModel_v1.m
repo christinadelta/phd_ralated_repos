@@ -1,5 +1,5 @@
 %function [x, dp, tstable, tvolatile] = responseModel_v1(xstate, val,trialvolatile, trialstable, beta)
-function [xx, mR, dp, simResp] = responseModel_v1(xstate, val,tvolatile, tstable, beta)
+function [xx, mR, dp, simResp] = responseModel_v1(xstate, val,tvolatile, tstable, o, beta)
 
 % Created May 2023
 % The function generates responses for the action-learning simulated data 
@@ -14,6 +14,8 @@ function [xx, mR, dp, simResp] = responseModel_v1(xstate, val,tvolatile, tstable
 N = size(xstate,1);
 cp = find(diff(xstate(:,1))~=0);
 
+%cp(:,2) = 1:length(cp)
+
 
 % loop over trials 
 for t = 1:size(xstate,1)
@@ -23,72 +25,40 @@ for t = 1:size(xstate,1)
     
     % compute choice probabilities (i.e., convert Qs into choice
     % probabiltiies)
-    p       = exp(beta*Qval) / sum(exp(beta*Qval));
-    a(t)    = mkchoice(p);      % make choice according to the choice probabilities
-    r(t)    = rand < mu(a(t));  % generate reward based based on action
-
-%     [~,imax]    = max(mu); % what is the contigency of this trial?
-%     corr(t)     = a(t)==imax;
-%     
-    % is the choice correct?
-    if t < cp(1)+1
-        [~,imax]    = max(mu); % what is the contigency of this trial?
-        corr(t)     = a(t)==imax;
-
-    elseif t > cp(5) && t < cp(6)+1
-        [~,imax]    = max(mu); % what is the contigency of this trial?
-        corr(t)     = a(t)==imax;
-
-    elseif t > cp(1) && t < cp(2)+1
-        [~,imin]    = min(mu);
-        corr(t)     = a(t)==imin;
-
-    elseif t > cp(3) && t < cp(4)+1
-
-        [~,imin]    = min(mu);
-        corr(t)     = a(t)==imin;
-
-    elseif t > cp(6) && t < cp(7)+1
-
-        [~,imin]    = min(mu);
-        corr(t)     = a(t)==imin;
-
-    elseif t > cp(8) && t < cp(9)+1
-
-        [~,imin]    = min(mu);
-        corr(t)     = a(t)==imin;
-
-    else 
-
-        [~,imax]    = max(mu); % what is the contigency of this trial?
-        corr(t)     = a(t)==imax;
-    end
-
-   
+    p           = exp(beta*Qval) / sum(exp(beta*Qval));
+    a(t)        = mkchoice(p);      % make choice according to the choice probabilities
+    % r(t)    = rand < mu(a(t));  
+    r(t)        = o(t,a(t)); % generate reward based based on action and outcome
+    correct(t)  = o(t,a(t));
+ 
 end % end of trials loop
 
-% transpose
-r               = r'; 
-a               = a'; 
-corr            = corr';
+%% compute performance
+a1          = a==1;
+a2          = a==2;
 
-% compute p(correct) for all trials
-mPerf           = mean(corr);
-sPerf           = mean(corr(tstable,:));
-vPerf           = mean(corr(tvolatile,:));
+reward(a1)  = o(a1,1);
+reward(a2)  = o(a2,2);
 
-% difference in performance between conditions
-dp              = sPerf - vPerf;
-xx              = [sPerf vPerf];
+reward      = reward';
+correct     = correct';
 
 % compute mean reward for each of the conditions
-sR              = mean(r(tstable,:));
-vR              = mean(r(tvolatile,:));
+sR              = mean(reward(tstable,:));
+vR              = mean(reward(tvolatile,:));
+
+sPerf           = mean(correct(tstable,:));
+vPerf           = mean(correct(tvolatile,:));
 
 mR              = [sR vR];
 
+dp              = sPerf - vPerf;
+xx              = [sPerf vPerf];
+
 simResp.r       = r;
 simResp.a       = a;
-simResp.corr    = corr;
+simResp.reward  = reward;
+
+
 
 end

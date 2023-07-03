@@ -1,4 +1,4 @@
-function [stochVolSim, vals] = runModel(cue, config, model, condition, probabilities, trials,condtrials, outpath, outtype)
+function [stochVolSim, vals] = runModel(cue, config, model, condition, probabilities, trials,condtrials, outpath, outtype, trls)
 
 % runs stochasticity-volatility model (main, lesioned)
 % Created in June 2023
@@ -49,10 +49,9 @@ for j=1:g % this loop is for the group (control, anxiety)
     for i=1:nsim            
         % [o] = timeseries;
         % simulate dataset(s)
-        d                                       = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
-        % o                                       = d.outcome(:,cue);
-        % o                                       = d.feedback(:,cue);
-        o                                       = d.outcome(:,cue);
+        % d                                       = action_simdataV1(condition, probabilities, trials,condtrials, outpath, outtype);
+        d                                       = action_simdataV2(condition, probabilities, trials,condtrials, outpath, outtype,2);
+        o                                       = d.outcome(trls,cue);
         [vol(:,i),stc(:,i),lr(:,i),val(:,i)]    = model_parfilter(o,config.model_parameters,lnames{j});   % is that the inference model?       
     end 
 
