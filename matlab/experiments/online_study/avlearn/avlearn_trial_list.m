@@ -25,17 +25,21 @@ function data = avlearn_trial_list(condition, probabilities, trials,condtrials, 
 % -------------------------
 % SIMULATE TASK DATA
 
-%% generate probabilistic relationships between cues-outcomes 
+%% init variables
 
 data                = {};       % init data structure
 NumVol              = 2;        % how many volatility conditions?
 NumStoch            = 2;        % how many stochasticity conditions?
-switches            = [2 4];    % 
+switches            = [1 4];    % 
 nCues               = 2;        % option A and option B
+blockTrials         = 80;
 
 if outtype == 2
     outVar          = .01;  % outcome variance (play around with the value)
 end
+
+
+%% generate probabilistic relationships between cues-outcomes 
 
 % create the four blocks (stable - low stoch, volatile - low stoch, stable
 % - high stoch, volatile -high stoch)
@@ -43,8 +47,8 @@ end
 % loop over stochasticity conditions 
 for j = 1:NumStoch
 
-    thisProbs       = probabilities(j, :); % is it small or large stochasticity block?
-     
+    thisProbs       = probabilities(j, :); 
+
     % loop over volatility conditions
     for i = 1:NumVol
 
@@ -64,9 +68,7 @@ for j = 1:NumStoch
         end
 
         runTrials       = condtrials(i); 
-        
-        % create a sequence of the probabilistic relationships (at a trial
-        % basis)
+
         for run = 1:NumSwitch
 
             counter = 0; % init counter 
@@ -79,7 +81,18 @@ for j = 1:NumStoch
             end
 
         end % end of runs loop
-        
+
+        % create blocks array
+        if j == 1 && i == 1
+            block(1:blockTrials,1) = 1;
+        elseif j == 1 && i == 2
+            block(1:blockTrials,2) = 2;
+        elseif j == 2 && i == 1
+            block(1:blockTrials,3) = 3;
+        elseif j == 2 && i == 2
+            block(1:blockTrials,4) = 4;
+        end
+
         % update state(s)
         tmp                         = tmp(:);
         x(:,i)                      = tmp; % contigencies for option A
@@ -109,11 +122,16 @@ for j = 1:NumStoch
             for run = 1:NumSwitch
 
                 % feedback{i,cue}(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
-                feedback(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
+                feedback(:,run) = makefb(1:runTrials, ProbSeq(cue,run), rdm);
 
             end % end of run loop
 
-            outcome(:,cue) = feedback(:);
+            if cue == 1
+
+                outcome1(:,1) = feedback(:);
+            elseif cue == 2
+                outcome2(:,1) = feedback(:);
+            end
 
             clear feedback
 
@@ -121,94 +139,68 @@ for j = 1:NumStoch
 
         clear ProbSeq
 
-        alloutcomes{1,i} = outcome;
-        clear outcome
+        alloutcomes1(:,i) = outcome1;
+        alloutcomes2(:,i) = outcome2;
+        
+        clear outcome1 outcome2
 
-    end % end of volatility loop
+    end % end of vol loop
 
-    % update state for stochasticity conditions
+    % update state and outcomes for stochasticity conditions
     x                   = x(:);
     xx                  = xx(:);
+    alloutcomes1        = alloutcomes1(:);
     state(:,j)          = x;
     state2(:,j)         = xx;
-    
-    % update outcomes 
-    stochoutcomes{1,j} = [alloutcomes{1,1}; alloutcomes{1,2}];
+    fb(:,j)             = alloutcomes1;
 
-    clear x xx alloutcomes
+    clear x xx alloutcomes1
 
 end % end of stch loop
 
-% update state and feedback/outcome
+%% update state and feedback/outcome
+
 state           = state(:);
-state(:,2)      = state2(:);
-feedbck         = [stochoutcomes{1,1}; stochoutcomes{1,2}]; % outcomes for option 1 and option 2
+feedbck         = fb(:);
+blocks          = block(:);
 
-% rearrange true reward 
-x(1:40,:)       = state(1:40,:);
-x(41:120,:)     = state(81:160,:);
-x(121:160,:)    = state(41:80,:);
-x(161:200,:)    = state(161:200,:);
-x(201:280,:)    = state(241:320,:);
-x(281:320,:)    = state(201:240,:);
+%% if outcomes not binary 
 
-f(1:40,:)       = feedbck(1:40,:);
-f(41:120,:)     = feedbck(81:160,:);
-f(121:160,:)    = feedbck(41:80,:);
-f(161:200,:)    = feedbck(161:200,:);
-f(201:280,:)    = feedbck(241:320,:);
-f(281:320,:)    = feedbck(201:240,:);
-
-
-% store simulations in data struct
-data.nCues      = nCues;
-data.state      = x;
-data.feedback   = f;
-
-% index stable and volatile trials for each stochasticity level (these will
-% be used to run th PFs)
-for j = 1:NumStoch
-
-    tstable                 = zeros(trials,1);
-    tvolatile               = zeros(trials,1);
-    tstable(1:40)           = 1;
-    tvolatile(41:120)       = 1;
-    tstable(121:trials)     = 1;
-
-    tstable                 = tstable == 1;
-    tvolatile               = tvolatile == 1;
-
-    tStoch{1,j}             = [tstable tvolatile];
-
-
-    clear tstable tvolatile
-
+if outtype == 2
+    % simulate outcomes with added variance noise
+    totalTrials                 = length(state);
+    o                           = state(:,1) + sqrt(outVar)*randn(totalTrials,1); % outcomes for option A(generated based on reward rates and stochasticity??)
 end
 
-% index stochasticity trials
-slow                        = zeros(trials*2,1);
-shigh                       = zeros(trials*2,1);
-slow(1:160)                 = 1;
-shigh(161:end)              = 1;
+%% add amount of loss for blue and red options 
 
-slow                        = slow == 1;
-shigh                       = shigh == 1;
-s                           = [slow shigh]; % column 1 = low stochasticity, column 2 = high stochasticity
+for ii = 1:length(state)
 
-%% Now let's make outcomes linear and not binary to test the model with both?
+    if feedbck(ii,1) == 1
+        loss_blue(ii,1) = 0.025;
+        loss_red(ii,1)  = 0;
+    elseif feedbck(ii,1) == 2
+        loss_blue(ii,1) = 0;
+        loss_red(ii,1)  = 0.025;
+    end
+end
 
-% simulate outcomes with added variance noise
-totalTrials                 = length(x);
-o                           = x(:,1) + sqrt(outVar)*randn(totalTrials,1); % outcomes for option A(generated based on reward rates and stochasticity??)
-oo                          = x(:,2) + sqrt(outVar)*randn(totalTrials,1); % outcomes for option B(generated based on reward rates and stochasticity??)
-t                           = [tStoch{1,1}; tStoch{1,2}]; % column 1 is stable, column 2 is volatile
+%% make table to save as spreadsheet
 
-% update data structure
-% data.stableTrials           = stableIndex;
-% data.volTrials              = volIndex;
-data.outcome(:,1)           = o; % linear outcomes 
-data.outcome(:,2)           = oo; % linear outcomes 
-data.t                      = t; % index volatility condition
-data.s                      = s; % index stochasticity condtion
+data_table = table(blocks,state,feedbck,loss_blue,loss_red);
+
+% store table in .xlsx format
+filename = 'data_table.xlsx';
+writetable(data_table,filename, 'Sheet', 1)
+% movefile('*.xlsx', outpath) % move file to output dir 
+
+
+
+
+
+
+%% create arrays with stim names
+
+
 
 end 
