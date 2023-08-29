@@ -15,7 +15,7 @@ trialnum    = length(trlvec);
 if rdm == 0 % if generate fixed sequence
     vertrials                           = round(trialnum*prob);
     feedback(1:vertrials,1)             = 1; % high probaility option
-    feedback(vertrials+1:trialnum,1)    = 2; % low probability option
+    feedback(vertrials+1:trialnum,1)    = 0; % low probability option
     feedback                            = shuffleseq(feedback);
 
 else % if generate random sequence
@@ -23,7 +23,7 @@ else % if generate random sequence
         if double(rand(1) <= prob)
             feedback(trl,1)             = 1;
         else
-            feedback(trl,1)             = 2;
+            feedback(trl,1)             = 0;
         end
     end % end of for loop
 end
