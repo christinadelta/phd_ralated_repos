@@ -8,9 +8,10 @@ function data = perclearn_trial_list(condition, probabilities, trials,condtrials
 data                = {};       % init data structure
 NumVol              = 2;        % how many volatility conditions?
 NumStoch            = 3;        % how many stochasticity conditions?
-switches            = [1 5];    % 
+switches            = [1 4];    % 
 nCues               = 2;        % option A and option B
-blockTrials         = 50;
+blockTrials         = 70;
+nOut                = 2;
 
 if outtype == 2
     outVar          = .01;  % outcome variance (play around with the value)
@@ -20,11 +21,10 @@ end
 
 % create the four blocks (stable - low stoch, volatile - low stoch, stable
 % - high stoch, volatile -high stoch)
-
 for j = 1:NumStoch
 
     thisProbs = probabilities(j, :);
-    
+
     % loop over volatility conditions
     for i = 1:NumVol
 
@@ -39,111 +39,99 @@ for j = 1:NumStoch
             NumSwitch       = switches(i); % 4 switches of the prob relationships
             
             % create the contigences of the volatile condition
-            ProbSeq(1,:)    = [thisProbs(1) thisProbs(2) thisProbs(1) thisProbs(2) thisProbs(1)]; % loss probabilities for 
-            ProbSeq(2,:)    = [thisProbs(2) thisProbs(1) thisProbs(2) thisProbs(1) thisProbs(2)]; % loss probabilities for 
+            ProbSeq(1,:)    = [repmat(1-thisProbs,1,2)]; % cue-outcome probabilities
+            ProbSeq(2,:)    = [repmat(thisProbs,1,2)]; 
         end
 
-        runTrials       = condtrials(i); 
+        runTrials       = condtrials{1,i}; 
 
         for run = 1:NumSwitch
 
-            counter = 0; % init counter 
+            counter         = 0; % init counter 
+            thisruntrials   = runTrials(run);
 
-            for trl = 1:runTrials
+            for trl = 1:thisruntrials
 
                 counter             = counter + 1; % update counter 
                 tmp(counter,run)    = ProbSeq(1,run);
                 tmp2(counter,run)   = ProbSeq(2,run);
-
             end
 
         end % end of runs loop
 
-        % create blocks array
-        if j == 1 && i == 1
-            block(1:blockTrials,1) = 1;
-        elseif j == 1 && i == 2
-            block(1:blockTrials,2) = 2;
-        elseif j == 2 && i == 1
-            block(1:blockTrials,3) = 3;
-        elseif j == 2 && i == 2
-            block(1:blockTrials,4) = 4;
-        elseif j == 3 && i == 1
-            block(1:blockTrials,5) = 5;
-        elseif j == 3 && i == 2
-            block(1:blockTrials,6) = 6;
+        if i == 1
+            tmp     = tmp(:);
+            x       = tmp; % contigencies for stable 1 option A
+           
+        else
+            tmp     = tmp(:);
+            x_vol   = nonzeros(tmp); % contigencies for stable 1 option A
+            
         end
-
-        % update state(s)
-        tmp                         = tmp(:);
-        x(:,i)                      = tmp; % contigencies for option A
-        tmp2                        = tmp2(:);
-        xx(:,i)                     = tmp2; % contigencies for option B
 
         clear tmp tmp2
 
-        %% generate feedback sequences (outcome sequences) 
+        %% generate outcome and cue sequences 
 
-        % There are two ways to generate feedback sequence (outcomes): either randomly or it
-        % can be fixed. 
-        % If runTrials*thisProbs(1) is  whole number, then we'll generate a fixed sequence (e.g., 88% of trials will results in monetary loss and 12% will be neutral-no loss) 
-        % If runTrials*thisProbs(1) is NOT a whole number, then we'll use
-        % rand to generate sequence of loss/no-loss options.
-        stateTrials        = runTrials*thisProbs(1); 
-
-        if rem(stateTrials,1) == 0
-            rdm     = 0; % generate fixed sequence
+        if i == 1
+       
+            for run = 1:NumSwitch
+    
+                cueTrials = runTrials(run);
+    
+                [tone_seq(:,run), outcome_seq(:,run)] = makeoutcome(1:cueTrials, ProbSeq(1,run));
+    
+            end % end of run loo
+    
+            % 
+            cues        = tone_seq(:); % all runs in one column
+            outcomes    = outcome_seq(:); % all runs in one column
         else
-            rdm     = 1; % generate random sequence
-        end
-
-        % compute feedback (independently for each cue) 
-        for cue = 1:nCues
 
             for run = 1:NumSwitch
+    
+                cueTrials = runTrials(run);
+    
+                [tone_seq{1,run}, outcome_seq{1,run}] = makeoutcome(1:cueTrials, ProbSeq(1,run));
+    
+            end % end of run loo
+    
+            % 
+            cues        = [tone_seq{1,1};tone_seq{1,2};tone_seq{1,3};tone_seq{1,4}]; % all runs in one column
+            outcomes    = [outcome_seq{1,1};outcome_seq{1,2};outcome_seq{1,3};outcome_seq{1,4}]; % all runs in one column
 
-                % feedback{i,cue}(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
-                feedback(:,run) = makeoutcome(1:runTrials, ProbSeq(cue,run), rdm);
 
-            end % end of run loop
+        end
 
-            if cue == 1
+        % add cues and outcomes in volatility matrix
+        allcues(:,i)        = cues;
+        alloutcomes(:,i)    = outcomes;
 
-                outcome1(:,1) = feedback(:);
-            elseif cue == 2
-                outcome2(:,1) = feedback(:);
-            end
-
-            clear feedback
-
-        end % end of cues loop
-
-        clear ProbSeq
-
-        alloutcomes1(:,i) = outcome1;
-        alloutcomes2(:,i) = outcome2;
-        
-        clear outcome1 outcome2
+        clear ProbSeq cues outcomes tone_seq outcome_seq
 
     end % end of volatility loop
 
-    % update state and outcomes for stochasticity conditions
-    x                   = x(:);
-    xx                  = xx(:);
-    alloutcomes1        = alloutcomes1(:);
-    state(:,j)          = x;
-    state2(:,j)         = xx;
-    fb(:,j)             = alloutcomes1;
+    % update state, cues and outcomes for stochasticity conditions
+    xfinal              = [x; x_vol];
+    cues_final          = allcues(:);
+    outcomes_final      = alloutcomes(:);
 
-    clear x xx alloutcomes1
+    state(:,j)          = xfinal;
+    cues_stc(:,j)       = cues_final;
+    outcomes_stc(:,j)   = outcomes_final;
+
+    clear xfinal x x_vol cues_final outcomes_final alloutcomes allcues 
 
 end % end of stch loop
 
-%% update state and feedback/outcome
+%% update state, cues and outcomes
 
-state           = state(:);
-feedbck         = fb(:);
-blocks          = block(:);
+state                   = state(:);
+cues_array              = cues_stc(:);
+outcomes_array          = outcomes_stc(:);
+
+% create blocks array
+blocks                  = createblocks(blockTrials);
 
 %% if outcomes not binary 
 
@@ -154,18 +142,19 @@ if outtype == 2
 end
 
 
+%% create array with stimulus names (to be used in the spreadsheet)
+
+[stimuli_cues, stimuli_outcomes] = writestim(outcomes_array, cues_array);
+
 %% make table to save as spreadsheet
 
-data_table = table(blocks,state,feedbck);
+data_table = table(blocks,state,cues_array,outcomes_array,stimuli_cues,stimuli_outcomes);
 
 % store table in .xlsx format
-% filename = 'data_table.xlsx';
-% writetable(data_table,filename, 'Sheet', 1)
+filename = 'data_table.xlsx';
+writetable(data_table,filename, 'Sheet', 1)
 % movefile('*.xlsx', outpath) % move file to output dir 
 
 data.table = data_table;
-
-%%
-
 
 end % end of function
