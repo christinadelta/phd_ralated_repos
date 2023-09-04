@@ -144,11 +144,11 @@ end
 
 %% create array with stimulus names (to be used in the spreadsheet)
 
-[stimuli_cues, stimuli_outcomes] = writestim(outcomes_array, cues_array);
+[stimuli_cues, stimuli_outcomes,stimuli_pitch] = writestim(outcomes_array, cues_array);
 
 %% make table to save as spreadsheet
 
-data_table = table(blocks,state,cues_array,outcomes_array,stimuli_cues,stimuli_outcomes);
+data_table = table(blocks,state,cues_array,outcomes_array,stimuli_cues,stimuli_outcomes,stimuli_pitch);
 
 % store table in .xlsx format
 filename = 'data_table.xlsx';

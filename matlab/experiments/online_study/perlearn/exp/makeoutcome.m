@@ -8,7 +8,7 @@ function [tone_seq, outcome_seq] = makeoutcome(trlvec, prob)
 
 % create fixed feedback sequence 
 cuetrls                         = length(trlvec)/2;
-probtrls                        = round(cuetrls*prob);
+probtrls                        = round(cuetrls*prob); % just to be safe
 
 % low tone outcome 
 lowt_col(1:cuetrls,1)           = 1; % low tone
