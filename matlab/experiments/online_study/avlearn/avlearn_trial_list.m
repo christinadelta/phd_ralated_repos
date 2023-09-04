@@ -99,7 +99,7 @@ for j = 1:NumStoch
 
         clear tmp tmp2
 
-        %% generate feedback sequences (outcome sequences) 
+        %% generate outcome and cue sequences 
 
         % There are two ways to generate feedback sequence (outcomes): either randomly or it
         % can be fixed. 
@@ -192,6 +192,11 @@ feedbck                     = fb(:);
 % create blocks array
 blocks                      = makeblocks(blockTrials);
 
+%% convert 0s to 2s in feedback
+
+outcome_zeros               = find(feedbck(:,1)==0);
+feedbck(outcome_zeros,1)    = 2;
+
 %% if outcomes not binary 
 
 if outtype == 2
@@ -205,11 +210,11 @@ end
 for ii = 1:length(state)
 
     if feedbck(ii,1) == 1
-        loss_blue(ii,1) = 0.3;
+        loss_blue(ii,1) = 0.1;
         loss_red(ii,1)  = 0;
-    elseif feedbck(ii,1) == 0
+    elseif feedbck(ii,1) == 2
         loss_blue(ii,1) = 0;
-        loss_red(ii,1)  = 0.3;
+        loss_red(ii,1)  = 0.1;
     end
 end
 
@@ -222,8 +227,8 @@ end
 data_table = table(blocks,state,feedbck,stimuli_left,stimuli_right,loss_blue,loss_red);
 
 % store table in .xlsx format
-% filename = 'data_table.xlsx';
-% writetable(data_table,filename, 'Sheet', 1)
+filename = 'data_table.xlsx';
+writetable(data_table,filename, 'Sheet', 1)
 % movefile('*.xlsx', outpath) % move file to output dir 
 
 data.table = data_table;
