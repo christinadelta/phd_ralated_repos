@@ -23,19 +23,19 @@ for sub = 1:nsubs
 
     %% load AQ data
     
-    AQT     = importAQdata(subdir);
+   % AQT     = importAQdata(subdir);
 
     %% load SPQ data
 
-    SPQT    = importSPQdata(subdir);
+   % SPQT    = importSPQdata(subdir);
 
     %% load IUS data
 
-    IUT     = importIUdata(subdir);
+  %  IUT     = importIUdata(subdir);
 
     %% load STAI data
 
-    STAIT   = importSTAIdata(subdir);
+   % STAIT   = importSTAIdata(subdir);
 
     %% load perceptual learning data
 
@@ -43,7 +43,7 @@ for sub = 1:nsubs
 
     % only extract data that we want from the table 
     eventidx                        = PLT.EventIndex; 
-    subnum(1:length(eventidx),sub)  = sub;
+    subnum(1:length(eventidx),1)    = sub;
     trialnum                        = PLT.TrialNumber;
     blocknum                        = PLT.Spreadsheet_Blocks;
     allcues                         = PLT.Spreadsheet_Cues_array;
@@ -92,20 +92,66 @@ for sub = 1:nsubs
     % 4. outcomes per voaltility 
     % 5. predictions per stochasticity 
     % 6. outcomes per stochasticty 
-    [m_all, m_vol, m_stc] = getAccuracyPL(subdata);
+    [m_allp(sub,:), m_allo(sub,:), m_volp(sub,:), m_volo(sub,:), m_stcp(sub,:), m_stco(sub,:),...
+        m_stc1_p(sub,:), m_stc2_p(sub,:), m_stc3_p(sub,:), m_stc1_o(sub,:), m_stc2_o(sub,:), m_stc3_o(sub,:)] = getAccuracyPL(subdata);
 
-    allsub_mcorrectPL(:,:,sub)    = m_all;
-    allsub_mvolPL(:,:,sub)        = m_vol;
-    allsub_mstcPL(:,:,sub)        = m_stc;
+    % for each subject compute mean rts 
+    m_rtsPL(sub,1) = mean(subdata(:,9)); % mean rts for prediction
+    m_rtsPL(sub,2) = mean(subdata(:,12)); % mean rts for outcome response
+
     
-    clear subdata outcome_temp outcome_data predict_temp predict_data gendata m_all m_vol m_stc
-
+    clear subdata outcome_temp outcome_data predict_temp predict_data gendata m_all m_vol m_stc screencount rts  
+    clear eventidx subnum trialnum blocknum allcues alloutcomes allanswers state screenum responses correct       
+  
     %% load action learning data
 
-    ALT                         = importALdata(subdir);
+    ALT                             = importALdata(subdir);
     
+    trialnum                        = ALT.TrialNumber;
+    subnum(1:length(trialnum),1)    = sub;
+    blocknum                        = ALT.Spreadsheet_Blocks;
+    state                           = ALT.Spreadsheet_State;
+    feedback                        = ALT.Spreadsheet_Feedbck; % if 1 (blue=loss), if 2 (red=loss)
+    allanswers                      = ALT.Spreadsheet_Answer;
+    screenum                        = ALT.Screen; % we need screen 3
+    responses                       = ALT.Response;
+    rts                             = ALT.ReactionTime;
+    correct                         = ALT.Correct;
 
+    gendata                         = [subnum trialnum blocknum state feedback allanswers screenum responses rts correct];
 
+    % remove rows 1-50 (practice trials)
+    gendata(1:50,:)     = [];
 
+    % change block = 0 to block = 1 if needed
+
+    % many rows are not needed. For each trial, only keep the response rows
+    % (that is where screennum == 3)
+    tmp_data            = find(gendata(:,7) == 3);
+    ALTdata             = gendata((tmp_data),:);
+    all_ALTdata{1,sub}  = ALTdata;
+
+    % compute mean rts for all subjects
+    m_rtsAL(sub,1) = mean(ALTdata(:,9));
+
+    % compute accuracy for:
+    % feedback all
+    % feedback - per vol phase
+    % feeback - per stc level
+    [m_all, m_vol, m_stc, m_stc1_sv, m_stc2_sv, m_stc3_sv] = getAccuracyALT(ALTdata);
+
+    allsubAL_meanCorrect(sub,1) = m_all;
+    allsubAL_meanvol(sub,:) = m_vol;
+    allsubAL_meanstc(sub,:) = m_stc;
+    allsubAL_meanstc1_sv(sub,:) = m_stc1_sv;
+    allsubAL_meanstc2_sv(sub,:) = m_stc2_sv;
+    allsubAL_meanstc3_sv(sub,:) = m_stc3_sv;
+
+  clear subnum trialnum blocknum allanswers state screenum responses correct  rts feedback tmp_data gendata
+  clear m_stc m_vol m_all
 
 end % end of subjects loop
+
+%% make barplots  with accuracy levels and rts
+
+

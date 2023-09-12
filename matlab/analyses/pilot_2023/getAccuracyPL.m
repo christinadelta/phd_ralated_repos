@@ -1,4 +1,4 @@
-function [m_all, m_vol, m_stc] = getAccuracyPL(subdata)
+function [m_allp, m_allo, m_volp, m_volo, m_stcp, m_stco, m_stc1_p, m_stc2_p, m_stc3_p, m_stc1_o, m_stc2_o, m_stc3_o] = getAccuracyPL(subdata)
 
 % get % correct for:
 % 1. predictions 
@@ -17,8 +17,8 @@ o               = subdata(:,13); % extract outcome response correct
 
 % look at proportion correct for outcomes and preidctions all blocks
 % and conditions
-m_all(1,1) = mean(p);
-m_all(1,2) = mean(o);
+m_allp(1,1) = mean(p);
+m_allo(1,1) = mean(o);
 
 %% compute mean for prediction correct and outcome correct for stable vs volatile 
 
@@ -50,13 +50,12 @@ o_stable        = allstable(:,13);
 p_vol           = allvol(:,10);
 o_vol           = allvol(:,13);
 
-% compute means 
+% compute means per volatility
+m_volp(1,1)     = mean(p_stable);
+m_volp(1,2)     = mean(p_vol); 
 
-m_vol(1,1)     = mean(p_stable);
-m_vol(1,2)     = mean(o_stable);
-
-m_vol(2,1)     = mean(p_vol);
-m_vol(2,2)     = mean(o_vol);
+m_volo(1,1)     = mean(o_stable);
+m_volo(1,2)     = mean(o_vol);
 
 %% compute mean for prediction correct and outcome correct per stochasticity level
 
@@ -75,13 +74,52 @@ o_stc2          = stc2(:,13);
 o_stc3          = stc3(:,13);
 
 % get means
-m_stc(1,1)      = mean(p_stc1);
-m_stc(1,2)      = mean(o_stc1);
+m_stcp(1,1)      = mean(p_stc1);
+m_stcp(1,2)      = mean(p_stc2);
+m_stcp(1,3)      = mean(p_stc3);
 
-m_stc(2,1)      = mean(p_stc2);
-m_stc(2,2)      = mean(o_stc2);
+m_stco(1,1)      = mean(o_stc1);
+m_stco(1,2)      = mean(o_stc2);
+m_stco(1,3)      = mean(o_stc3);
 
-m_stc(3,1)      = mean(p_stc3);
-m_stc(3,2)      = mean(o_stc3);
+%% compute mean of stable-volatile accuracy % for each stch
+
+% extract responses for stc 1 
+stc1_stblp       = stbl1(:,10);
+stc1_volp        = vol1(:,10);
+stc1_stblo       = stbl1(:,13);
+stc1_volo        = vol1(:,13);
+
+% extract responses for stc 2 
+stc2_stblp       = stbl2(:,10);
+stc2_volp        = vol2(:,10);
+stc2_stblo       = stbl2(:,13);
+stc2_volo        = vol2(:,13);
+
+% extract responses for stc 3 
+stc3_stblp       = stbl3(:,10);
+stc3_volp        = vol3(:,10);
+stc3_stblo       = stbl3(:,13);
+stc3_volo        = vol3(:,13);
+
+% compute means for predictions
+m_stc1_p(1,1) = mean(stc1_stblp); % stable
+m_stc1_p(1,2) = mean(stc1_volp); % volatile
+
+m_stc2_p(1,1) = mean(stc2_stblp); % stable
+m_stc2_p(1,2) = mean(stc2_volp); % volatile
+
+m_stc3_p(1,1) = mean(stc3_stblp); % stable
+m_stc3_p(1,2) = mean(stc3_volp); % stable
+
+% compute means for outcomes
+m_stc1_o(1,1) = mean(stc1_stblo); % stable
+m_stc1_o(1,2) = mean(stc1_volo); % volatile
+
+m_stc2_o(1,1) = mean(stc2_stblo); % stable
+m_stc2_o(1,2) = mean(stc2_volo); % volatile
+
+m_stc3_o(1,1) = mean(stc3_stblo); % stable
+m_stc3_o(1,2) = mean(stc3_volo); % stable
 
 end % end of function
