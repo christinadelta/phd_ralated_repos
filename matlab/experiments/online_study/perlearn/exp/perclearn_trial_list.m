@@ -146,9 +146,26 @@ end
 
 [stimuli_cues, stimuli_outcomes,stimuli_pitch] = writestim(outcomes_array, cues_array);
 
+
+%% create jitter for response array
+
+% create jitter array for fixation 
+xmin    = 1500;
+xmax    = 1800;
+n       = 420;
+xresp    = xmin+rand(1,n)*(xmax-xmin); xresp = xresp';
+
+clear xmin xmax n
+
+% create jitter array for fixation 
+xmin    = 1500;
+xmax    = 1800;
+n       = 420;
+xresp    = xmin+rand(1,n)*(xmax-xmin); xresp = xresp';
+
 %% make table to save as spreadsheet
 
-data_table = table(blocks,state,cues_array,outcomes_array,stimuli_cues,stimuli_outcomes,stimuli_pitch);
+data_table = table(blocks,state,cues_array,outcomes_array,stimuli_cues,stimuli_outcomes,stimuli_pitch,xresp);
 
 % store table in .xlsx format
 filename = 'data_table.xlsx';
