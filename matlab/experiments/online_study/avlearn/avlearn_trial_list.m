@@ -222,9 +222,27 @@ end
 
 [stimuli_left, stimuli_right] = writestimuli(blockTrials);
 
+%% create jitter arrays
+
+% create jitter array for fixation 
+xmin    = 700;
+xmax    = 1000;
+n       = 420;
+xfix    = xmin+rand(1,n)*(xmax-xmin); xfix = xfix';
+
+clear xmin xmax n
+
+% create jitter for cues 
+xmin    = 350;
+xmax    = 650;
+n       = 420;
+xcues   = xmin+rand(1,n)*(xmax-xmin); xcues = xcues';
+
+clear xmin xmax n
+
 %% make table to save as spreadsheet
 
-data_table = table(blocks,state,feedbck,stimuli_left,stimuli_right,loss_blue,loss_red);
+data_table = table(blocks,state,feedbck,stimuli_left,stimuli_right,loss_blue,loss_red, xfix, xcues);
 
 % store table in .xlsx format
 filename = 'data_table.xlsx';

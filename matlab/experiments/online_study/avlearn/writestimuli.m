@@ -1,4 +1,4 @@
-function [stimuli_left, stimuli_right] = writestimuli(blockTrials)
+function [stimuli_left, stimuli_right, stimIdx] = writestimuli()
 
 % create cell of stimuli for stable and volatile blocks
 
@@ -6,34 +6,38 @@ function [stimuli_left, stimuli_right] = writestimuli(blockTrials)
 stableStim = {'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
     'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
     'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png'...
+    'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png',...
+    'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
+    'blue.png','blue.png','blue.png','blue.png','blue.png','red.png','red.png','red.png','red.png','red.png'...
     'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png'}';
 
-% volatile stimuli
-volStim = {'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
-    'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
-    'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
-    'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png'...
-    'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png'...
-    'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png'}';
+% % volatile stimuli
+% volStim = {'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
+%     'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
+%     'blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png','blue.png'...
+%     'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png'...
+%     'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png'...
+%     'red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png','red.png'}';
 
-
+%%
 % now for each block copy the celss and randosize
 %v = [v1,v2];
 shufflestim  = @(v)v(randperm(numel(v)));
 one = shufflestim(stableStim);
-two = shufflestim(volStim);
+two = shufflestim(stableStim);
 three = shufflestim(stableStim);
 four = shufflestim(stableStim);
-five = shufflestim(volStim);
+five = shufflestim(stableStim);
 six = shufflestim(stableStim);
-seven = shufflestim(stableStim);
-eight = shufflestim(volStim);
-nine = shufflestim(stableStim);
+% seven = shufflestim(stableStim);
+% eight = shufflestim(volStim);
+% nine = shufflestim(stableStim);
 
 
 %% concatinate them all in one array of stimuli
 
-stimuli_left = [one;two;three;four;five;six;seven;eight;nine];
+% stimuli_left = [one;two;three;four;five;six;seven;eight;nine];
+stimuli_left = [one;two;three;four;five;six];
 
 %% make the second array with the opposite stimuli
 
@@ -42,11 +46,18 @@ l = length(stimuli_left);
 
 for i = 1:l
 
-    if length(stimuli_left{i}) == 8 % if blue 
+    if length(stimuli_left{i}) == 8 % if blue
 
-        stimuli_right{i} = 'red.png';
+        stimIdx(i,1)        = 1; % blue
+        stimIdx(i,2)        = 2; % red
+        stimuli_right{i}    = 'red.png';
+
     elseif length(stimuli_left{i}) == 7 % if red
-        stimuli_right{i} = 'blue.png';
+
+        % 
+        stimIdx(i,1)        = 2; % red
+        stimIdx(i,2)        = 1; % blue
+        stimuli_right{i}    = 'blue.png';
     end
 end
 
