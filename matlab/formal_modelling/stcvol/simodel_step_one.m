@@ -26,7 +26,7 @@ config      = struct('tvolatile',tvolatile,'tstable',tstable,'stc_small', stc_sm
     'stc_large',stc_large,'state',x,'rng_id',0,'nsim',2,'model_parameters',parameters);
 
 rng(config.rng_id); 
-nsim = config.nsim;
+nsim        = config.nsim;
 
 %%
 
@@ -55,7 +55,6 @@ elseif mdl == 2
 else
     lnames  = {'Healthy', sprintf('%s lesion',def_actions('stc')), sprintf('%s lesion',def_actions('vol'))};      
 end
-
 
 %% run the particle filter 
 
@@ -89,7 +88,8 @@ specs(1,:)          = glabels;
 
 t           = [tstable tvolatile];
 s           = [stc_small stc_medium stc_large];
-strcols     = {'Stable','Volatile'};
+volcols     = {'Stable','Volatile'};
+stccols     = {'Small', 'Medium', 'Large'};
 
  % estimate volatility, stochasticity and learning rates (for mean and
  % error accross simulations)
@@ -101,21 +101,40 @@ e_stc       = nan(N,mdl);
 e_lr        = nan(N,mdl);
 
 % these are not needed (lets leave it as it is for now)
-allvols        = cell(N,2);
-allstcs        = cell(N,2);
-alllrs         = cell(N,4);
+allvols     = cell(1,mdl);
+allstcs     = cell(1,mdl);
+allvals     = cell(1,mdl);
+alllrs      = cell(1,mdl);
 
 for j = 1:mdl
 
     % compute means and SEs over simulations for vol, stc, lr
-    m_vol(:,j)  = mean(sim.vols{j},2);
-    m_stc(:,j)  = mean(sim.stcs{j},2);
-    m_lr(:,j)   = mean(sim.lrs{j},2);
-    e_vol(:,j)  = serr(sim.vols{j},2);
-    e_stc(:,j)  = serr(sim.stcs{j},2);
-    e_lr(:,j)   = serr(sim.lrs{j},2);    
+    m_vol(:,j)  = mean(vols{j},2);
+    m_stc(:,j)  = mean(stcs{j},2);
+    m_lr(:,j)   = mean(lrs{j},2);
+    m_val(:,j)  = mean(vals{j},2);
+    e_vol(:,j)  = serr(vols{j},2);
+    e_stc(:,j)  = serr(stcs{j},2);
+    e_lr(:,j)   = serr(lrs{j},2);  
+    e_val(:,j)  = serr(vals{j},2);
+
+    % for each model group split estimated values per stc and vol levels
+    for ss = 1:3 % 3 stc levels 
+        tmp_vol     = vols{j}(s(:,ss),:); % 
+        tmp_stc     = stcs{j}(s(:,ss),:); % 
+        tmp_lrs     = lrs{j}(s(:,ss),:); % 
+        tmp_vals    = vals{j}(s(:,ss),:); % 
+
+        % now that we have the stc estimates split per voaltility
+        for k = 1:2 % stable - volatile
+        allvols{1,j}{ss,k} = tmp_vol(t(:,k),:); % split trials based on volatility
+
+
+
+        end % end of volatility (k) loop
+    end % end of stc loop
+
 
 end % end of model groups 
-
 
 end % end of model function 
