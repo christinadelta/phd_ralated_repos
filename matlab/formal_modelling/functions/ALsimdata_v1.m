@@ -147,12 +147,12 @@ for j = 1:NumStoch
             alloutcomes2_1(:,i) = outcome2_1; % stable 2 red feedback
 
         else
-
-            % compute feedback (for each cue) 
+            
+            % compute feedback for voalitile conidition
             for run = 1:NumSwitch
 
                 % feedback{i,cue}(:,run) = computeFeedback(1:runTrials, ProbSeq(cue,run), rdm);
-                feedback{1,run} = makefb(1:runTrials(run), ProbSeq(1,run), rdm);
+                feedback{1,run} = makefb(1:runTrials(run), ProbSeq(cue,run), rdm);
 
             end % end of run loop
             
@@ -188,6 +188,8 @@ end % end of stch loop
 
 state                       = state(:);
 feedbck                     = fb(:);
+stateR                      = 1 - state;
+feedbckR                    = 1- feedbck;
 
 %% index stable/volatile envs for each stc
 
@@ -237,12 +239,15 @@ t                           = [tStoch{1,1}; tStoch{1,2}; tStoch{1,3}]; % column 
 s                           = [small medium large]; % column 1 = low stochasticity, column 2 = high stochasticity
 
 % add all output in the data structure
+data.cues       = nCues;
 data.x          = state;
+data.xR         = stateR;
 data.stcind     = s;
 data.volind     = t;
 data.out        = out;
 data.o          = feedbck;
-
+data.oR         = feedbckR;
+data.t          = tStoch{1,1}; % I think only the first one could work!
 
 end % end of function
 
