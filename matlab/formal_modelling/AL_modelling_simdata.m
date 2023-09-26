@@ -16,8 +16,8 @@
  clear all
  clc
 
- %% define paths 
- % set paths
+%% define paths 
+% set paths
 addpath(fullfile(pwd,'functions'))
 
 outpath         = fullfile(pwd, 'output');      addpath(outpath);
@@ -51,28 +51,28 @@ mout            = simodel_step_one(data,probabilities, trials,condtrials, outtyp
 %% plot simulated output
 
 % plot lr for each stc level 
-mean_lrs    = mout.mean_data.mean_alphas{1,1};
-h           = plotAL(mean_lrs);
+mean_lrs        = mout.mean_data.mean_alphas{1,1};
+h               = plotAL(mean_lrs);
 
 %% compute simulated choices using the softmax function
 
-beta        = 3;
-vals        = mout.sim_data.vals; % averaged across simulations
-valsR       = mout.sim_data.valsR;
-o           = mout.sim_data.o; % outcomes
-oR          = mout.sim_data.oR;
+beta            = 3;
+vals            = mout.sim_data.vals; % averaged across simulations
+valsR           = mout.sim_data.valsR;
+o               = mout.sim_data.o; % outcomes
+oR              = mout.sim_data.oR;
 
 % run response model to get simulated responses
-[a,r,cp]    = respModel(vals,valsR,o,oR,beta);
+[a,r,cp]        = respModel(vals,valsR,o,oR,beta);
 
 
 %% compute accuracy 
 
-nsim        = size(a,2);
-ss          = data.stcind;
-tt          = data.t;
+nsim            = size(a,2);
+ss              = data.stcind;
+tt              = data.t;
 
 [all_stc, corr_stc] = getCorrect(a,o,ss,tt);
 
 
-%%
+%% 
