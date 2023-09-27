@@ -8,10 +8,9 @@
  % 4. for simulated and for empirical data, estimate learning rates, vol
  % stc and performance and plot them trial-by-trial like in figure 2 in the
  % Piray, 2021 paper
-
  %--------------------------
 
- clear all
+clear all
 clc
 
 %% set paths
@@ -42,4 +41,33 @@ nOut            = 2;
 
 data            = PLsimdata_v1(probabilities, trials, condtrials, outtype);
 
-%%
+%% run model with simulated data 
+
+% run model wiith simulated data first
+mout            = PLsimodel_step_one(data,probabilities, trials,condtrials, outtype);
+
+%% plot simulated output
+
+% plot lr for each stc level 
+mean_lrs        = mout.mean_data.mean_alphas{1,1};
+h               = plotAL(mean_lrs);
+
+%% compute simulated choices using the softmax function
+
+beta            = 3;
+vals            = mout.sim_data.vals; % averaged across simulations
+valsR           = mout.sim_data.valsR;
+o               = mout.sim_data.o; % outcomes
+oR              = mout.sim_data.oR;
+
+% run response model to get simulated responses
+[a,r,cp]        = respModel(vals,valsR,o,oR,beta);
+
+%% compute accuracy 
+
+nsim                = size(a,2);
+ss                  = data.s;
+tt                  = data.tt;
+
+[all_stc, corr_stc] = getCorrect(a,o,ss,tt);
+

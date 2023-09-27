@@ -26,14 +26,14 @@ mediumstc   = correct(ss(:,2),:);
 largestc    = correct(ss(:,3),:);
 
 % split per voalitlity 
-small_stbl = smallstc(tt(:,1),:);
-small_vol = smallstc(tt(:,2),:);
+small_stbl  = smallstc(tt(:,1),:);
+small_vol   = smallstc(tt(:,2),:);
 
 medium_stbl = mediumstc(tt(:,1),:);
-medium_vol = mediumstc(tt(:,2),:);
+medium_vol  = mediumstc(tt(:,2),:);
 
-large_stbl = largestc(tt(:,1),:);
-large_vol = largestc(tt(:,2),:);
+large_stbl  = largestc(tt(:,1),:);
+large_vol   = largestc(tt(:,2),:);
 
 %% compute averaged performance 
 

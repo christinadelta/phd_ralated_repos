@@ -182,7 +182,7 @@ tt                          = tStoch{1,1};
 
 %% store all in the data structure
 
-data = struct('o',o, 's',s, 't',t, 'tt', tt, 'state', state, 'outcomes', outcomes_array, 'cues',cues_array, 'outcomesR', outcomesR_array);
+data = struct('o',o, 's',s, 't',t, 'tt', tt, 'state', state, 'nCues',nCues, 'outcomes', outcomes_array, 'cues',cues_array, 'outcomesR', outcomesR_array);
 
 
 end % end of function
