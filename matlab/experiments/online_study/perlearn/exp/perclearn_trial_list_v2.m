@@ -149,10 +149,95 @@ for j = 1:NumStoch
 
 end % end of stc loop
 
+%% update state, cues and outcomes
 
+state                   = state(:);
+cues_array              = cues_stc(:);
+outcomes_array          = outcomes_stc(:);
 
+% create blocks array and trial randomiser array
+[blocks,randomise_trials] = createblocksV2(blockTrials,condtrials);
 
+% the array cues now refferes to the high probability cue, create the low
+% probability cue as 1-array
+% if highProbCue = 1 (low tone), then p(house|low tone) if outcome is 1 or
+% p(face|low tone) if outcome is 2
+% if highProbCue = 2 (high tone), then p(face| high tone) if outcome is 2
+% or p(house|high tone) if outcome is 1
 
+highProbCue         = cues_array;
+lowProbCue          = 1-highProbCue;
+outcomesArray2      = 1-outcomes_array;
+
+%% convert 0s to 2s in feedback
+
+% make the outcomes 1s & 2s
+outcome_zeros                       = find(outcomes_array(:,1)==0);
+outcomes_array(outcome_zeros,1)     = 2;
+clear outcome_zeros
+
+% make the cues 1s & 2s
+cue_zeros                       = find(highProbCue(:,1)==0);
+highProbCue(cue_zeros,1)        = 2;
+clear cue_zeros 
+
+cue_zeros                       = find(lowProbCue(:,1)==0);
+lowProbCue(cue_zeros,1)         = 2;
+clear cue_zeros
+
+cue_zeros                       = find(outcomesArray2(:,1)==0);
+outcomesArray2(cue_zeros,1)  = 2;
+clear cue_zeros
+
+%% if outcomes not binary 
+
+if outtype == 2
+    % simulate outcomes with added variance noise
+    totalTrials                 = length(state);
+    o                           = state(:,1) + sqrt(outVar)*randn(totalTrials,1); % outcomes for option A(generated based on reward rates and stochasticity??)
+end
+
+%% create array with stimulus names (to be used in the spreadsheet)
+
+[stimuli_cues, stimuli_outcomes, stimuli_pitch] = writestimV2(highProbCue,outcomes_array);
+
+%% create jitter for response array
+
+% create jitter array for fixation 
+xmin    = 1500;
+xmax    = 1800;
+n       = 420;
+xpred    = xmin+rand(1,n)*(xmax-xmin); xpred = xpred';
+
+clear xmin xmax n
+
+% create jitter array for fixation 
+xmin    = 1500;
+xmax    = 1800;
+n       = 420;
+xresp    = xmin+rand(1,n)*(xmax-xmin); xresp = xresp';
+
+%% make table to save as spreadsheet
+
+tone        = highProbCue;
+tone2       = lowProbCue;
+x_for_house = state; 
+answer      = outcomes_array; % for the spreadsheet
+
+data_table  = table(randomise_trials,blocks,state,tone,tone2,outcomes_array,outcomesArray2,answer,stimuli_cues,stimuli_outcomes,stimuli_pitch, xpred, xresp);
+
+% store table in .xlsx format
+filename    = 'data_table.xlsx';
+writetable(data_table,filename, 'Sheet', 1)
+% movefile('*.xlsx', outpath) % move file to output dir 
+
+data.table          = data_table;
+data.block          = blocks;
+data.x              = state;
+data.cue            = cues_array;
+data.outcome        = outcomes_array;
+data.cues_stim      = stimuli_cues;
+data.outcome_stim   = stimuli_outcomes;
 
 
 end % end of function 
