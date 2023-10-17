@@ -11,7 +11,7 @@ for i = 1:length(cues_array)
         stimuli_cues{i} = 'low.mp3';
         stimuli_pitch{i} = 'low.png';
 
-    else 
+    elseif cues_array(i,1) == 2
         stimuli_cues{i} = 'high.mp3';
         stimuli_pitch{i} = 'high.png';
     end
@@ -24,16 +24,29 @@ pitch_pngs      = stimuli_pitch'; % in case we will have pngs
 
 %% create cell array for outcomes
 
-for i = 1:length(outcomes_array)
+for j = 1:length(outcomes_array)
+    
+    % we have 2 face and 2 house stimuli, so make sure that half stimuli are
+    % stimuli 1 and the other half are stimuli 2 (both for faces and
+    % houses)
+    if rem(j,2) == 1
 
-    if outcomes_array(i,1) == 1
-        stimuli_outcomes{i} = 'house.png';
-   
-    else 
-        stimuli_outcomes{i} = 'face.png';
+        if outcomes_array(j,1) == 1
+            stimuli_outcomes{j} = 'house1.png';
+    
+        elseif outcomes_array(j,1) == 2 
+            stimuli_outcomes{j} = 'face1.png';
+        end
+
+    elseif rem(j,2) == 0
+
+        if outcomes_array(j,1) == 1
+            stimuli_outcomes{j} = 'house2.png';
+    
+        elseif outcomes_array(j,1) == 2
+            stimuli_outcomes{j} = 'face2.png';
+        end
     end
-
-
 end % end of cues loop
 
 

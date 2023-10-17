@@ -164,10 +164,8 @@ outcomes_array          = outcomes_stc(:);
 % p(face|low tone) if outcome is 2
 % if highProbCue = 2 (high tone), then p(face| high tone) if outcome is 2
 % or p(house|high tone) if outcome is 1
-
-highProbCue         = cues_array;
-lowProbCue          = 1-highProbCue;
-outcomesArray2      = 1-outcomes_array;
+cues_array2         = 1 - cues_array;
+outcomesArray2      = 1 - outcomes_array;
 
 %% convert 0s to 2s in feedback
 
@@ -177,16 +175,16 @@ outcomes_array(outcome_zeros,1)     = 2;
 clear outcome_zeros
 
 % make the cues 1s & 2s
-cue_zeros                       = find(highProbCue(:,1)==0);
-highProbCue(cue_zeros,1)        = 2;
+cue_zeros                       = find(cues_array(:,1)==0);
+cues_array(cue_zeros,1)        = 2;
 clear cue_zeros 
 
-cue_zeros                       = find(lowProbCue(:,1)==0);
-lowProbCue(cue_zeros,1)         = 2;
+cue_zeros                       = find(cues_array2(:,1)==0);
+cues_array2(cue_zeros,1)         = 2;
 clear cue_zeros
 
 cue_zeros                       = find(outcomesArray2(:,1)==0);
-outcomesArray2(cue_zeros,1)  = 2;
+outcomesArray2(cue_zeros,1)     = 2;
 clear cue_zeros
 
 %% if outcomes not binary 
@@ -199,7 +197,7 @@ end
 
 %% create array with stimulus names (to be used in the spreadsheet)
 
-[stimuli_cues, stimuli_outcomes, stimuli_pitch] = writestimV2(highProbCue,outcomes_array);
+[stimuli_cues, stimuli_outcomes, pitch_pngs] = writestimV2(outcomes_array, cues_array);
 
 %% create jitter for response array
 
@@ -219,12 +217,13 @@ xresp    = xmin+rand(1,n)*(xmax-xmin); xresp = xresp';
 
 %% make table to save as spreadsheet
 
-tone        = highProbCue;
-tone2       = lowProbCue;
+tone        = cues_array;
+tone2       = cues_array2;
 x_for_house = state; 
 answer      = outcomes_array; % for the spreadsheet
 
-data_table  = table(randomise_trials,blocks,state,tone,tone2,outcomes_array,outcomesArray2,answer,stimuli_cues,stimuli_outcomes,stimuli_pitch, xpred, xresp);
+data_table  = table(randomise_trials,blocks,state,tone,tone2,outcomes_array,outcomesArray2,answer,stimuli_cues,stimuli_outcomes,pitch_pngs, xpred, xresp);
+testing_tbl = table(blocks,state,tone,outcomes_array,answer,stimuli_cues,stimuli_outcomes);
 
 % store table in .xlsx format
 filename    = 'data_table.xlsx';
@@ -232,6 +231,7 @@ writetable(data_table,filename, 'Sheet', 1)
 % movefile('*.xlsx', outpath) % move file to output dir 
 
 data.table          = data_table;
+data.testing_tbl    = testing_tbl;
 data.block          = blocks;
 data.x              = state;
 data.cue            = cues_array;
