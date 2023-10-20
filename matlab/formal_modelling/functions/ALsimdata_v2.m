@@ -83,15 +83,15 @@ for j = 1:NumStoch
 
         if i == 1
             tmp     = tmp(:);
-            tmp2   = tmp2(:);
+            tmp2    = tmp2(:);
             x       = tmp; % contigencies for stable 1 option A
             x2      = tmp2;
            
         else
             tmp     = tmp(:);
-            tmp2   = tmp2(:);
+            tmp2    = tmp2(:);
             x_vol   = nonzeros(tmp); % this is  because each run has different num of trials
-            x2_vol   = nonzeros(tmp2);
+            x2_vol  = nonzeros(tmp2);
             
         end
 
@@ -111,9 +111,9 @@ for j = 1:NumStoch
             stateTrials     = sum(cueTrials)*thisProbs(1); 
 
             if rem(stateTrials,1) == 0
-                rdm     = 0; % generate fixed sequence
+                rdm         = 0; % generate fixed sequence
             else
-                rdm     = 1; % generate random sequence
+                rdm         = 1; % generate random sequence
             end
        
             for run = 1:NumSwitch

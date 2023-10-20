@@ -26,7 +26,7 @@ nCues       = data.cues;
 % define parameters for th particle filter
 parameters  = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
 config      = struct('tvolatile',tvolatile,'tstable',tstable,'stc_small', stc_small,'stc_medium',stc_medium,...
-    'stc_large',stc_large,'state',x,'rng_id',0,'nsim',1000,'model_parameters',parameters);
+    'stc_large',stc_large,'state',x,'rng_id',0,'nsim',100,'model_parameters',parameters);
 
 rng(config.rng_id); 
 nsim        = config.nsim;
@@ -75,8 +75,8 @@ for j = 1:mdl
         for cue = 1:nCues
             simdata                                                 = ALsimdata_v2(probabilities, trials, condtrials, outtype);
             %simdata                                                 = ALsimdata_v3(probabilities, trials, condtrials, outtype);
-            outcome(:,i)                                            = simdata.o; % run pf model fith binary outcomes 
-            outcomeR(:,i)                                           = simdata.oR; % we also want to estimate vals for the red feedback outcomes
+            outcome(:,i)                                            = simdata.out; % run pf model fith binary outcomes 
+            outcomeR(:,i)                                           = simdata.outR; % we also want to estimate vals for the red feedback outcomes
             if cue == 1
                 
                 [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)]    = model_parfilter(outcome(:,i),config.model_parameters,lnames{j});  
