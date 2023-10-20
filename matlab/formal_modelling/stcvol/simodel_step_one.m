@@ -26,7 +26,7 @@ nCues       = data.cues;
 % define parameters for th particle filter
 parameters  = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
 config      = struct('tvolatile',tvolatile,'tstable',tstable,'stc_small', stc_small,'stc_medium',stc_medium,...
-    'stc_large',stc_large,'state',x,'rng_id',0,'nsim',2,'model_parameters',parameters);
+    'stc_large',stc_large,'state',x,'rng_id',0,'nsim',1000,'model_parameters',parameters);
 
 rng(config.rng_id); 
 nsim        = config.nsim;
@@ -37,6 +37,9 @@ nsim        = config.nsim;
 % for pf
 N           = length(o);
 outcome     = nan(N,nsim);
+outcomeR    = nan(N,nsim);
+binary_o    = nan(N,nsim);
+binary_oR   = nan(N,nsim);
 vol         = nan(N,nsim);
 stc         = nan(N,nsim);
 lr          = nan(N,nsim);
@@ -45,6 +48,8 @@ val         = nan(N,nsim);
 % init varaibles that will be averaged across pf simulations
 outcomes    = cell(1,mdl); % blue feedback 
 outcomesR   = cell(1,mdl); % red feedback
+binout      = cell(1,mdl);
+binoutR     = cell(1,mdl);
 vols        = cell(1,mdl); % for model group
 stcs        = cell(1,mdl); % for model group
 lrs         = cell(1,mdl); % 
@@ -68,14 +73,24 @@ for j = 1:mdl
     % loop over simulations 
     for i = 1:nsim
         for cue = 1:nCues
-            simdata                                                 = ALsimdata_v1(probabilities, trials, condtrials, outtype);
+            simdata                                                 = ALsimdata_v2(probabilities, trials, condtrials, outtype);
+            %simdata                                                 = ALsimdata_v3(probabilities, trials, condtrials, outtype);
             outcome(:,i)                                            = simdata.o; % run pf model fith binary outcomes 
             outcomeR(:,i)                                           = simdata.oR; % we also want to estimate vals for the red feedback outcomes
             if cue == 1
-                [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)]    = model_parfilter(outcome(:,i),config.model_parameters,lnames{j});   
+                
+                [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)]    = model_parfilter(outcome(:,i),config.model_parameters,lnames{j});  
+
+                % also store binary outcomes for the response model
+                binary_o(:,i) = simdata.o;
             else
                 [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)]    = model_parfilter(outcomeR(:,i),config.model_parameters,lnames{j}); 
+
+                % also store binary outcomes for the response model
+                binary_oR(:,i) = simdata.oR;
             end
+
+            
         end
     end % end of simulations loop 
 
@@ -86,6 +101,8 @@ for j = 1:mdl
     
     outcomes{j}     = outcome; % I don't think this is needed 
     outcomesR{j}    = outcomeR;
+    binout{j}       = binary_o;
+    binoutR{j}      = binary_oR;
     vols{j}         = vol(:,:,1);
     stcs{j}         = stc(:,:,1);
     lrs{j}          = lr(:,:,1);
@@ -234,7 +251,7 @@ end % end of model groups loop
 
 %% store all needed data to output struct
 
-sim_data                = struct('vols',vols, 'vals', vals,'valsR',valsR, 'stcs', stcs,'lrs', lrs, 'o', outcomes, 'oR', outcomesR);
+sim_data                = struct('vols',vols, 'vals', vals,'valsR',valsR, 'stcs', stcs,'lrs', lrs, 'o', outcomes, 'oR', outcomesR, 'binout', binout, 'binoutR', binoutR);
 
 
 mean_data.m_vol         = m_vol;

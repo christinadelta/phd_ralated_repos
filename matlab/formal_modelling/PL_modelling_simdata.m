@@ -29,17 +29,17 @@ subjects        = 1;
 condition       = 6;                        % stable & volatile / small, medium & large stochasticity
 task            = 1;                        % stable without switch (if task = 2 then stable with one switch)
 probabilities   = [.80 .20;                 % small stochasticity probabilities
-    .70 .30;                                % medium stoch probabilities
+    .30 .70;                                % medium stochasticity
     .60 .40];                               % large stochasticity probabilities (either 60:40 or 64:36)
 trials          = 140;                      % total trials per stc level
-condtrials      = {70,[20,10,10,30]};       % 50 per stochasticity condition in stable env and 10 trials in volatile condition;
+condtrials      = {70,[30,10,10,20]};       % 50 per stochasticity condition in stable env and 10 trials in volatile condition;
 outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
 nCues           = 2;
 nOut            = 2;
 
 %% simulate data for the model
 
-data            = PLsimdata_v1(probabilities, trials, condtrials, outtype);
+data            = PLsimdata_v2(probabilities, trials, condtrials, outtype);
 
 %% run model with simulated data 
 
@@ -54,11 +54,11 @@ h               = plotAL(mean_lrs);
 
 %% compute simulated choices using the softmax function
 
-beta            = 3;
+beta            = 2;
 vals            = mout.sim_data.vals; % averaged across simulations
 valsR           = mout.sim_data.valsR;
-o               = mout.sim_data.o; % outcomes
-oR              = mout.sim_data.oR;
+o               = mout.sim_data.binout; % outcomes
+oR              = mout.sim_data.binoutR;
 
 % run response model to get simulated responses
 [a,r,cp]        = respModel(vals,valsR,o,oR,beta);
@@ -66,8 +66,8 @@ oR              = mout.sim_data.oR;
 %% compute accuracy 
 
 nsim                = size(a,2);
-ss                  = data.s;
-tt                  = data.tt;
+ss                  = data.stcind;
+tt                  = data.t;
 
 [all_stc, corr_stc] = getCorrect(a,o,ss,tt);
 

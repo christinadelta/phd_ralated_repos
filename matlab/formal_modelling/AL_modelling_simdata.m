@@ -11,10 +11,10 @@
 
  %--------------------------
 
- %% 
+%% 
 
- clear all
- clc
+clear all
+clc
 
 %% define paths 
 % set paths
@@ -31,17 +31,22 @@ plotpath        = fullfile(pwd, 'plotting');    addpath(plotpath);
 subjects        = 1;
 condition       = 6;                        % stable & volatile / small, medium & large stochasticity
 task            = 2;                        % stable without switch (if task = 2 then stable with one switch)
-probabilities   = [.80 .20;                 % small stochasticity probabilities
-    .30 .70;                                % medium stochasticity
-    .60 .40];                               % large stochasticity probabilities (either 60:40 or 64:36)
+probabilities   = [.90 .10;                 % small stochasticity probabilities
+    .80 .20;                                % medium stochasticity
+    .70 .30];                               % large stochasticity probabilities (either 60:40 or 64:36)
+%trials          = 160;                      % total trials
 trials          = 140;                      % total trials
-condtrials      = {40,[20,10,10,20]};       % 60 per stochasticity condition in stable env and 16 trials in volatile condition;
+%condtrials      = {70,[30,30,10,20]};
+condtrials      = {70,[30,10,10,20]};
+%condtrials      = {40,[20,10,10,20]};     % 60 per stochasticity condition in stable env and 16 trials in volatile condition;
 outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
 nCues           = 2;
 
 %% simulate data
 
-data            = ALsimdata_v1(probabilities, trials, condtrials, outtype);
+%data            = ALsimdata_v1(probabilities, trials, condtrials, outtype);
+%data            = ALsimdata_v3(probabilities, trials, condtrials, outtype);
+data            = ALsimdata_v2(probabilities, trials, condtrials, outtype);
 
 %% run model with simulated data 
 
@@ -56,15 +61,14 @@ h               = plotAL(mean_lrs);
 
 %% compute simulated choices using the softmax function
 
-beta            = 3;
+beta            = 2;
 vals            = mout.sim_data.vals; % averaged across simulations
 valsR           = mout.sim_data.valsR;
-o               = mout.sim_data.o; % outcomes
-oR              = mout.sim_data.oR;
+o               = mout.sim_data.binout; % outcomes
+oR              = mout.sim_data.binoutR;
 
 % run response model to get simulated responses
 [a,r,cp]        = respModel(vals,valsR,o,oR,beta);
-
 
 %% compute accuracy 
 
