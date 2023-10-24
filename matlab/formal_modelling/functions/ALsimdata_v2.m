@@ -6,16 +6,19 @@ function data = ALsimdata_v2(probabilities, trials,condtrials, outtype)
 % To run the stochasticity/volatility model  (Piray & Daw, 2021)
 % Inputs: 
 % -     condition (6 conditions; double 1x1)
-% -     probabilities (0.8:0.2, 0.7:0.3, 0.6:0.4)
+% -     probabilities (0.9:0.1, 0.8:0.2, 0.7:0.3)
 % -     trials (total number of trials)
 % -     condtrials (number of trials per condition)
 % -     outtype (double 1x1; if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes) 
 
 % Output:
-% structure with simulated data:
+% structure with simulated data for modeling:
 % stateENV  = loss rates (1 x trials)
-% outcome   = outcomes (1 x trials) 
+% outcome   = outcomes (1 x trials) (binary)
+% estimated reward = saved in variable called "out" 
 % tables with all the simulated data (for vis)
+
+% state, outcomes and estimated reward are simulate for both cues/options
 
 % INFO ABOUT OUTCOMES:
 % we need hidden state, outcomes (binary and with some var), indexes for vol and stc  
@@ -34,7 +37,7 @@ blockTrials         = 70;       %
 nOut                = 2;        % number of outcomes 
 
 if outtype == 2
-    outVar          = .01;  % outcome variance (play around with the value)
+    outVar          = .01;  % outcome variance to cmpute estimated reward rate(play around with the value)
 end
 
 %% generate probabilistic relationships between cues-outcomes 
@@ -81,17 +84,15 @@ for j = 1:NumStoch
 
         end % end of runs loop
 
+        % add all runs state (probability sequence) in one matrix
         if i == 1
-            tmp     = tmp(:);
-            tmp2    = tmp2(:);
-            x       = tmp; % contigencies for stable 1 option A
-            x2      = tmp2;
+
+            x       = tmp(:); % contigencies for stable 1 option A
+            x2      = tmp2(:);
            
         else
-            tmp     = tmp(:);
-            tmp2    = tmp2(:);
-            x_vol   = nonzeros(tmp); % this is  because each run has different num of trials
-            x2_vol  = nonzeros(tmp2);
+            x_vol   = nonzeros(tmp(:)); % this is  because each run has different num of trials
+            x2_vol  = nonzeros(tmp2(:));
             
         end
 
@@ -219,9 +220,9 @@ large                       = large == 1;
 
 %% Now let's make outcomes linear and not binary to test the model with both?
 
-% simulate outcomes with added variance noise
+% simulate estimated reward with added variance noise
 totalTrials                 = length(state);
-out                         = state(:,1) + sqrt(outVar)*randn(totalTrials,1); % outcomes for option A(generated based on reward rates and stochasticity??)
+out                         = state(:,1) + sqrt(outVar)*randn(totalTrials,1); %for option A(generated based on reward rates and stochasticity??)
 outR                        = stateR(:,1) + sqrt(outVar)*randn(totalTrials,1);
 t                           = [tStoch{1,1}; tStoch{1,2}; tStoch{1,3}]; % column 1 is stable, column 2 is volatile
 s                           = [small medium large]; % column 1 = low stochasticity, column 2 = medium stochasticity, column 3 high stochasticity

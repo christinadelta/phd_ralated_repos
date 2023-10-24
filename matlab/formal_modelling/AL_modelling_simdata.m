@@ -1,13 +1,12 @@
- % main script for modelling perceptual learning simulations & empirical data 
+ % main script for modelling perceptual learning simulations 
  % created September 2023
 
  % 1. simulate data
  % 2. run healthy model with simulated data ( all three stc levels)
  % 3. run healthy model and lession models with simulated for each stc
  % level seperately
- % 4. for simulated and for empirical data, estimate learning rates, vol
- % stc and performance and plot them trial-by-trial like in figure 2 in the
- % Piray, 2021 paper
+ % 4. for simulated data estimate learning rates, vol and performance and 
+ % plot them
 
  %--------------------------
 
@@ -33,12 +32,11 @@ condition       = 6;                        % stable & volatile / small, medium 
 task            = 2;                        % stable without switch (if task = 2 then stable with one switch)
 probabilities   = [.90 .10;                 % small stochasticity probabilities
     .80 .20;                                % medium stochasticity
-    .70 .30];                               % large stochasticity probabilities (either 60:40 or 64:36)
-%trials          = 160;                      % total trials
+    .70 .30];                               % large stochasticity probabilities (either 70:30 or 60:40)
 trials          = 140;                      % total trials
 %condtrials      = {70,[30,30,10,20]};
 condtrials      = {70,[30,10,10,20]};
-%condtrials      = {40,[20,10,10,20]};     % 60 per stochasticity condition in stable env and 16 trials in volatile condition;
+%condtrials      = {40,[20,10,10,20]};      % 70 per stochasticity condition in stable env and 70 trials in volatile condition;
 outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
 nCues           = 2;
 
