@@ -1,0 +1,40 @@
+function data = generateData
+
+
+
+% initialise variables 
+subjects        = 1;
+condition       = 6;                        % stable & volatile / small, medium & large stochasticity
+task            = 2;                        % stable without switch (if task = 2 then stable with one switch)
+probabilities   = [.90 .10;                 % small stochasticity probabilities
+    .80 .20;                                % medium stochasticity
+    .70 .30];                               % large stochasticity probabilities (either 70:30 or 60:40)
+trials          = 140;                      % total trials
+
+condtrials      = {70,[30,10,10,20]};
+outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
+
+data            = {};                       % init data structure 
+
+NumVol          = 2;                        % how many volatility conditions [stable volatile stable]?
+NumStoch        = 3;                        % how many stochasticity conditions?
+switches        = [1 4];                    % 
+nCues           = 2;                        % option A and option B
+nOut            = 2;                        % number of outcomes 
+
+%% generate probabilistic relationships between cues-outcomes 
+
+% create the four blocks (stable - low stoch, volatile - low stoch, stable
+% - high stoch, volatile -high stoch)
+
+% loop over stochasticity conditions 
+for j = 1:NumStoch
+
+
+
+
+end % end of stc loop
+
+
+
+end 
