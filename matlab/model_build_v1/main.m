@@ -13,7 +13,7 @@ clc
 % set paths
 simpath         = fullfile(pwd, 'datasim'); addpath(simpath);
 modelpath       = fullfile(pwd, 'model');    addpath(modelpath);
-% plotpath        = fullfile(pwd, 'plotting');    addpath(plotpath);
+plotpath        = fullfile(pwd, 'plotting');    addpath(plotpath);
 
 %% generate some data
 
@@ -34,6 +34,16 @@ params                      = struct('lambda_v',.1, 'v0',.1,'sigma',.1, 'y', dat
 m1 = 1./(1+exp(-predict));
 
 %% plot trial-by-trial 
+
+col = 1;
+row = 2;
+x   = data.x;
+y   = data.o;
+f   = plotsignal(col,row,m1,vol,x,y);
+
+
+
+
 
 
 
