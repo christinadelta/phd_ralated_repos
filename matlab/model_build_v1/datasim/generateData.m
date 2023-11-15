@@ -11,7 +11,7 @@ probabilities   = [.90 .10;                 % small stochasticity probabilities
     .70 .30];                               % large stochasticity probabilities (either 70:30 or 60:40)
 trials          = 140;                      % total trials
 
-condtrials      = {70,[30,10,10,20]};
+condtrials      = {70,[30,10,20,10]};
 outtype         = 2;                        % if 1 = outcomes are binary [0,1], if 2 = outcome variance [0.01] is added to outcomes
 
 data            = {};                       % init data structure 
