@@ -402,4 +402,54 @@ sub_lr = all_lr_model3{1,1};
 [h, g, f] = plot_fitLRs(sub_lr);
 
 
+%% for each subject and parameter, average parameter values across blocks
+
+for sub = 1:nsubs
+
+    
+    this_sub_x  = allX{1,sub};
+    this_sub_x2 = allX_model2{1,sub};
+    this_sub_x3 = allX_model3{1,sub};
+
+    for i = 1:3
+
+        for j = 1:2
+            
+            % extract model 1 parameter values
+            m1_lambda_s(i,j) = this_sub_x{i,j}(1,1)
+            m1_lambda_v(i,j) = this_sub_x{i,j}(1,2)
+            m1_beta(i,j) = this_sub_x{i,j}(1,3)
+            m1_s0(i,j) = this_sub_x{i,j}(1,4)
+            m1_v0(i,j) = this_sub_x{i,j}(1,5)
+
+            % extract model 2 parameter values
+            m2_lambda_s(i,j) = this_sub_x2{i,j}(1,1)
+            m2_lambda_v(i,j) = this_sub_x2{i,j}(1,2)
+            m2_beta(i,j) = this_sub_x2{i,j}(1,3)
+
+            % extract model 3 parameter values
+            m3_lambda_s(i,j) = this_sub_x3{i,j}(1,1)
+            m3_lambda_v(i,j) = this_sub_x3{i,j}(1,2)
+
+        end 
+    end
+
+    % average parameter values - model 1
+    allsub_m1_lambda_s(sub,1) = mean(m1_lambda_s,"all")
+    allsub_m1_lambda_v(sub,1) = mean(m1_lambda_v,"all")
+    allsub_m1_beta(sub,1) = mean(m1_beta,"all")
+    allsub_m1_s0(sub,1) = mean(m1_s0,"all")
+    allsub_m1_v0(sub,1) = mean(m1_v0,"all")
+
+    % average parameter values - model 2
+    allsub_m2_lambda_s(sub,1) = mean(m2_lambda_s,"all")
+    allsub_m2_lambda_v(sub,1) = mean(m2_lambda_v,"all")
+    allsub_m2_beta(sub,1) = mean(m2_beta,"all")
+
+    % average parameter values - model 3
+    allsub_m3_lambda_s(sub,1) = mean(m3_lambda_s,"all")
+    allsub_m3_lambda_v(sub,1) = mean(m3_lambda_v,"all")
+
+end % end of subjects loop
+
 %%
