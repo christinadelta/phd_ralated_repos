@@ -1,4 +1,4 @@
-function [h, g, f] = plot_fitLRs(sublr)
+function [h, g, f] = plot_fitLRs(sublr,subnum)
 
 % plot fit lrs 
 
@@ -99,7 +99,10 @@ text(-0.03,1.12,'C','Units', 'Normalized', 'VerticalAlignment', 'Top') % add lab
 fontsize(gcf,16,"points")
 
 % title handle
-t = sgtitle('Participant 4 Learning Rates');
+str1 = 'Participant ';
+str2 = ' Learning Rates';
+
+t = sgtitle(append(str1, subnum, str2));
 t.FontSize = 20;
 
 

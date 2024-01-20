@@ -106,7 +106,7 @@ for i = 1:3
         vol_o           = stc_o(vv(:,j),:);
         vol_a           = stc_a(vv(:,j),:);
         config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
-        parameters      = [0.4 0.5 1 0.8 1 100 1 1 0.001];  % parameters for modelling 
+        parameters      = [0.4 0.6 1 0.8 1.2 100 1 1 0.001];  % parameters for modelling 
         x               = [0.4 0.5 1 0.8 1];                % Starting points of free parameters (lambda_s and lambda_v)
         
         % which model should we run?
@@ -117,7 +117,6 @@ end % end of stc levels
 
 % plot learning rates for testing 
 [h, g, f] = plotLRs(lr);
-
 
 %% fit full model to participnat data for each block seperately 
 
@@ -164,7 +163,7 @@ for sub = 1:nsubs
             vol_o           = stc_o(vv(:,j),:);
             vol_a           = stc_a(vv(:,j),:);
             config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
-            parameters      = [0.4 0.5 1 0.8 1 100 1 1 0.001];  % parameters for modelling 
+            parameters      = [0.3 0.6 0.5 0.8 1.2 100 1 1 0.001];  % parameters for modelling 
             x               = [0.4 0.5 1 0.8 1];                % Starting points of free parameters (lambda_s and lambda_v)
 
             %---                       ---%
@@ -176,9 +175,9 @@ for sub = 1:nsubs
             
             x0  = [parameters(1) parameters(2) parameters(3) parameters(4) parameters(5)];  % Starting point
             lb  = [0.1 0.1 0.1 0.1 0.1];                                                    % Lower bounds
-            ub  = [0.9 0.9 10 2 2];                                                         % Upper bounds
-            plb = [0.2 0.3 0.5 0.2 0.2];                                                    % Plausible lower bounds
-            pub = [0.9 0.8 5 2 2];                                                          % Plausible upper bounds
+            ub  = [0.9 0.9 5 2 2];                                                          % Upper bounds
+            plb = [0.1 0.1 0.1 0.1 0.1];                                                    % Plausible lower bounds
+            pub = [0.9 0.9 5 2 2];                                                          % Plausible upper bounds
 
             % Set BADS options
             options                         = bads('defaults');
@@ -191,7 +190,7 @@ for sub = 1:nsubs
            
             % now run the model with the minimised x values to get subject learning
             % rates
-            [val,vol,unp,lr,unc,choice] = rbpf_coreb_full(x,o,parameters,config);
+            [val,vol,unp,lr,unc,choice] = rbpf_coreb_full(x,vol_o,parameters,config);
 
             % store output for each subejct, block
             allX{1,sub}{i,j}        = x;
@@ -207,10 +206,14 @@ clear a o bo dat state ss vv x fval lr choice val
 
 %% plot learning rates 
 
-sub_lr = all_lr{1,4};
+% loop over participants to plot learning rates
+for sub = 1:nsubs
+    sub_lr = all_lr{1,sub};
+    subnum = sprintf('%d',sub);
 
-% plot learning rates for each sub seperately
-[h, g, f] = plot_fitLRs(sub_lr);
+    % plot learning rates for each sub seperately
+    [h, g, f] = plot_fitLRs(sub_lr,subnum);
+end 
 
 %% fit lambdas_beta model to participnat data for each block seperately 
 
@@ -258,7 +261,7 @@ for sub = 1:nsubs
             vol_o           = stc_o(vv(:,j),:);
             vol_a           = stc_a(vv(:,j),:);
             config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
-            parameters      = [0.4 0.5 1 0.8 1 100 1 1 0.001];  % parameters for modelling 
+            parameters      = [0.3 0.5 0.5 0.3 1 100 1 1 0.001];  % parameters for modelling 
             % x               = [0.4 0.5 1 0.8 1];                % Starting points of free parameters (lambda_s and lambda_v)
 
             %---                       ---%
@@ -270,9 +273,9 @@ for sub = 1:nsubs
             
             x0  = [parameters(1) parameters(2) parameters(3)];  % Starting point
             lb  = [0.1 0.1 0.1];                                % Lower bounds
-            ub  = [0.9 0.9 10];                                 % Upper bounds
-            plb = [0.2 0.3 0.5];                                % Plausible lower bounds
-            pub = [0.9 0.8 5];                                  % Plausible upper bounds
+            ub  = [0.9 0.9 5];                                 % Upper bounds
+            plb = [0.2 0.2 0.2];                                % Plausible lower bounds
+            pub = [0.9 0.9 5];                                  % Plausible upper bounds
 
             % Set BADS options
             options                         = bads('defaults');
@@ -301,10 +304,14 @@ clear a o bo dat state ss vv x x0 fval lr choice val
 
 %% plot learning rates 
 
-sub_lr = all_lr_model2{1,4};
+% loop over participants to plot learning rates
+for sub = 1:nsubs
+    sub_lr = all_lr_model2{1,sub};
+    subnum = sprintf('%d',sub);
 
-% plot learning rates for each sub seperately
-[h, g, f] = plot_fitLRs(sub_lr);
+    % plot learning rates for each sub seperately
+    [h, g, f] = plot_fitLRs(sub_lr,subnum);
+end 
 
 %% fit lambdas model to participnat data for each block seperately 
 
@@ -352,7 +359,7 @@ for sub = 1:nsubs
             vol_o           = stc_o(vv(:,j),:);
             vol_a           = stc_a(vv(:,j),:);
             config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
-            parameters      = [0.4 0.5 1 0.8 1 100 1 1 0.001];  % parameters for modelling 
+            parameters      = [0.3 0.5 0.5 0.3 1 100 1 1 0.001];  % parameters for modelling 
             % x               = [0.4 0.5 1 0.8 1];                % Starting points of free parameters (lambda_s and lambda_v)
 
             %---                       ---%
@@ -365,8 +372,8 @@ for sub = 1:nsubs
             x0  = [parameters(1) parameters(2)];            % Starting point
             lb  = [0.1 0.1];                                % Lower bounds
             ub  = [0.9 0.9];                                % Upper bounds
-            plb = [0.2 0.3];                                % Plausible lower bounds
-            pub = [0.9 0.8];                                % Plausible upper bounds
+            plb = [0.2 0.2];                                % Plausible lower bounds
+            pub = [0.9 0.9];                                % Plausible upper bounds
 
             % Set BADS options
             options                         = bads('defaults');
@@ -396,17 +403,19 @@ clear a o bo dat state ss vv x x0 fval lr choice val
 
 %% plot learning rates 
 
-sub_lr = all_lr_model3{1,1};
+% loop over participants to plot learning rates
+for sub = 1:nsubs
+    sub_lr = all_lr_model3{1,sub};
+    subnum = sprintf('%d',sub);
 
-% plot learning rates for each sub seperately
-[h, g, f] = plot_fitLRs(sub_lr);
-
+    % plot learning rates for each sub seperately
+    [h, g, f] = plot_fitLRs(sub_lr,subnum);
+end 
 
 %% for each subject and parameter, average parameter values across blocks
 
 for sub = 1:nsubs
 
-    
     this_sub_x  = allX{1,sub};
     this_sub_x2 = allX_model2{1,sub};
     this_sub_x3 = allX_model3{1,sub};
@@ -416,40 +425,41 @@ for sub = 1:nsubs
         for j = 1:2
             
             % extract model 1 parameter values
-            m1_lambda_s(i,j) = this_sub_x{i,j}(1,1)
-            m1_lambda_v(i,j) = this_sub_x{i,j}(1,2)
-            m1_beta(i,j) = this_sub_x{i,j}(1,3)
-            m1_s0(i,j) = this_sub_x{i,j}(1,4)
-            m1_v0(i,j) = this_sub_x{i,j}(1,5)
+            m1_lambda_s(i,j)    = this_sub_x{i,j}(1,1);
+            m1_lambda_v(i,j)    = this_sub_x{i,j}(1,2);
+            m1_beta(i,j)        = this_sub_x{i,j}(1,3);
+            m1_s0(i,j)          = this_sub_x{i,j}(1,4);
+            m1_v0(i,j)          = this_sub_x{i,j}(1,5);
 
             % extract model 2 parameter values
-            m2_lambda_s(i,j) = this_sub_x2{i,j}(1,1)
-            m2_lambda_v(i,j) = this_sub_x2{i,j}(1,2)
-            m2_beta(i,j) = this_sub_x2{i,j}(1,3)
+            m2_lambda_s(i,j)    = this_sub_x2{i,j}(1,1);
+            m2_lambda_v(i,j)    = this_sub_x2{i,j}(1,2);
+            m2_beta(i,j)        = this_sub_x2{i,j}(1,3);
 
             % extract model 3 parameter values
-            m3_lambda_s(i,j) = this_sub_x3{i,j}(1,1)
-            m3_lambda_v(i,j) = this_sub_x3{i,j}(1,2)
+            m3_lambda_s(i,j)    = this_sub_x3{i,j}(1,1);
+            m3_lambda_v(i,j)    = this_sub_x3{i,j}(1,2);
 
         end 
     end
 
     % average parameter values - model 1
-    allsub_m1_lambda_s(sub,1) = mean(m1_lambda_s,"all")
-    allsub_m1_lambda_v(sub,1) = mean(m1_lambda_v,"all")
-    allsub_m1_beta(sub,1) = mean(m1_beta,"all")
-    allsub_m1_s0(sub,1) = mean(m1_s0,"all")
-    allsub_m1_v0(sub,1) = mean(m1_v0,"all")
+    allsub_m1_lambda_s(sub,1)   = mean(m1_lambda_s,"all");
+    allsub_m1_lambda_v(sub,1)   = mean(m1_lambda_v,"all");
+    allsub_m1_beta(sub,1)       = mean(m1_beta,"all");
+    allsub_m1_s0(sub,1)         = mean(m1_s0,"all");
+    allsub_m1_v0(sub,1)         = mean(m1_v0,"all");
 
     % average parameter values - model 2
-    allsub_m2_lambda_s(sub,1) = mean(m2_lambda_s,"all")
-    allsub_m2_lambda_v(sub,1) = mean(m2_lambda_v,"all")
-    allsub_m2_beta(sub,1) = mean(m2_beta,"all")
+    allsub_m2_lambda_s(sub,1)   = mean(m2_lambda_s,"all");
+    allsub_m2_lambda_v(sub,1)   = mean(m2_lambda_v,"all");
+    allsub_m2_beta(sub,1)       = mean(m2_beta,"all");
 
     % average parameter values - model 3
-    allsub_m3_lambda_s(sub,1) = mean(m3_lambda_s,"all")
-    allsub_m3_lambda_v(sub,1) = mean(m3_lambda_v,"all")
+    allsub_m3_lambda_s(sub,1)   = mean(m3_lambda_s,"all");
+    allsub_m3_lambda_v(sub,1)   = mean(m3_lambda_v,"all");
 
 end % end of subjects loop
 
 %%
+
