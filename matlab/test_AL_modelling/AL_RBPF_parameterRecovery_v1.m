@@ -29,7 +29,7 @@ data            = ALsimdata_v3(probabilities, trials,condtrials);
 %% run inference model (full model)
 
 % how many simulations?
-reps = 20;
+reps = 100;
 
 for rep = 1:reps
 
@@ -41,7 +41,7 @@ for rep = 1:reps
     sim_lambda_v    = sim_lambda(2);
     
     % 2. softmax temperatyre beta -- sould be between 0.1 and 10
-    sim_beta        = 0.1 + (10-0.1).* rand(1,1); 
+    sim_beta        = 0.1 + (5-0.1).* rand(1,1); 
     
     % 3. s0 and v0 -- should be between 0.1 and 2
     sim_init_vals   = 0.1 + (2-0.1).* rand(2,1); 
@@ -86,8 +86,23 @@ for rep = 1:reps
             vol_o           = stc_o(vv(:,j),:);
             vol_a           = stc_a(vv(:,j),:);
 
+            % re-generate parameter values for recovery
+            % 1. lambda_s and lambda_v -- should be at unit ramge (between 0 and 1) 
+            lambda      = 0.1 + (0.9-0.1).* rand(2,1); 
+            lambda_s    = lambda(1);
+            lambda_v    = lambda(2);
+            
+            % 2. softmax temperatyre beta -- sould be between 0.1 and 10
+            beta        = 0.1 + (5-0.1).* rand(1,1); 
+            
+            % 3. s0 and v0 -- should be between 0.1 and 2
+            init_vals   = 0.1 + (2-0.1).* rand(2,1); 
+            s0          = init_vals(1);
+            v0          = init_vals(2);
+            
+
             % fit model to the simulated outcomes and actions 
-            params          = [sim_lambda_s sim_lambda_v sim_beta sim_s0 sim_v0 100 1 1 0.001];  % parameters for modelling 
+            params          = [lambda_s lambda_v beta s0 v0 100 1 1 0.001];  % parameters for modelling 
 
             %---                       ---%
             %--- fit simple BADS model ---%
@@ -96,9 +111,10 @@ for rep = 1:reps
             % bounding the region where the solution might lie.
             x0  = [params(1) params(2) params(3) params(4) params(5)];                      % Starting point
             lb  = [0.1 0.1 0.1 0.1 0.1];                                                    % Lower bounds
-            ub  = [0.90 0.90 10 2 2];                                                       % Upper bounds
-            plb = [0.3 0.3 0.5 0.7 0.5];                                                    % Plausible lower bounds
-            pub = [0.8 0.8 3 1.8 1.8];                                                      % Plausible upper bounds
+            ub  = [0.9 0.9 5 2 2];                                                          % Upper bounds
+            plb = [0.1 0.1 0.1 0.1 0.1];                                                    % Plausible lower bounds
+            pub = [0.9 0.9 5 2 2];                                                          % Plausible upper bounds
+
 
             % Set BADS options
             options                         = bads('defaults');
@@ -161,7 +177,7 @@ y           = fitParams.s0;
 x           = simParams.s0;
 ylm         = [0 2];
 colours     = "cyan"; % let's start with magenta?
-param_title = 's0';
+param_title = 's_0';
 d           = plotScatter(y, x, ylm, colours,param_title);
 
 % plot v0 
@@ -169,7 +185,7 @@ y           = fitParams.v0;
 x           = simParams.v0;
 ylm         = [0 2];
 colours     = "green"; % let's start with magenta?
-param_title = 'v0';
+param_title = 'v_0';
 e           = plotScatter(y, x, ylm, colours,param_title);
 
 %%

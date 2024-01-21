@@ -30,8 +30,8 @@ for ii = 1:groups
     lfit(ii).LineWidth  = 0.7;
 
     % axis labels
-    ylabel('estimated number of samples')
-    xlabel('simulated number of samples')
+    ylabel('estimated parameter values')
+    xlabel('simulated parameter values')
     text(-0.03,1.12, sprintf('block %d',ii),'Units', 'Normalized', 'VerticalAlignment', 'Top') % add label?
     fontsize(gcf,12,"points")
 
