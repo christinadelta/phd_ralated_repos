@@ -54,11 +54,14 @@ for rep = 1:reps
     output          = simModel(data, probabilities, trials,condtrials,parameters);
 
     % store simulated X 
-    simX(rep,1) = sim_lambda_s;
-    simX(rep,2) = sim_lambda_v;
-    simX(rep,3) = sim_beta;
-    simX(rep,4) = sim_s0;
-    simX(rep,5) = sim_v0;
+    simX(rep,1)     = sim_lambda_s;
+    simX(rep,2)     = sim_lambda_v;
+    simX(rep,3)     = sim_beta;
+    simX(rep,4)     = sim_s0;
+    simX(rep,5)     = sim_v0;
+    simlr{rep}      = output.mdata(1).mlr;
+    simactions{rep} = output.actions;
+    simoutcome{rep} = output.binary_o;
 
     % extract what we need and prepare data for model fititng 
     state(:,1)  = data.x;
@@ -188,5 +191,13 @@ colours     = "green"; % let's start with magenta?
 param_title = 'v_0';
 e           = plotScatter(y, x, ylm, colours,param_title);
 
-%%
+%% plot correlations of simulated vs estimated learning rates
+
+lr_timeseries = plot_corr_lrs(fitLrs,simlr);
+
+
+
+
+
+
 
