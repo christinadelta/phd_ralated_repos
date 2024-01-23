@@ -191,12 +191,17 @@ colours     = "green"; % let's start with magenta?
 param_title = 'v_0';
 e           = plotScatter(y, x, ylm, colours,param_title);
 
-%% plot correlations of simulated vs estimated learning rates
+%% plot correlations of simulated vs recovered learning rates
 
-lr_timeseries = plot_corr_lrs(fitLrs,simlr);
+[lr_timeseries,pvals,f] = plot_corr_lrs(fitLrs,simlr);
 
+%% plot correlation of loss from simulated and recovered
 
+% first compute loss for simulated and recovered actions 
+[sum_simloss, sum_fitloss] = computeLoss(fitaction, simactions,simoutcome);
 
+% plot correlations of loss
+loss_corr = plotCorrLoss(sum_simloss, sum_fitloss);
 
 
 
