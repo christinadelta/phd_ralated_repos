@@ -164,7 +164,6 @@ for sub = 1:nsubs
             vol_a           = stc_a(vv(:,j),:);
             config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
             parameters      = [0.3 0.6 0.5 0.8 1.2 100 1 1 0.001];  % parameters for modelling 
-            x               = [0.4 0.5 1 0.8 1];                % Starting points of free parameters (lambda_s and lambda_v)
 
             %---                       ---%
             %--- fit simple BADS model ---%

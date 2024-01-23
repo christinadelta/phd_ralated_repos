@@ -64,12 +64,12 @@ for rep = 1:reps
     simoutcome{rep} = output.binary_o;
 
     % extract what we need and prepare data for model fititng 
-    state(:,1)  = data.x;
-    state(:,2)  = 1 - state(:,1);
-    ss          = data.stcind;
-    vv          = data.t;
-    test_o      = output.test_o;
-    test_a      = output.test_a;
+    state(:,1)      = data.x;
+    state(:,2)      = 1 - state(:,1);
+    ss              = data.stcind;
+    vv              = data.t;
+    test_o          = output.test_o;
+    test_a          = output.test_a;
     test_a(find(test_a==0)) = 2; % convert action 2 to 0
     
     config      = struct('tvol',vv,'tstc',ss,'state',state,'nsim',1);
@@ -127,19 +127,22 @@ for rep = 1:reps
             % Run BADS, which returns the minimum X and the NLL.
             bFunc       = @(x) rbpf_core_full(x0,vol_o,vol_a,params,config);
             [x,fval]    = bads(bFunc,x0,lb,ub,plb,pub,[],options);
+            Hopt        = hessian(bFunc,x); % compute hessian matrix 
+
            
             % now run the model with the minimised x values to get subject learning
             % rates
             [val,vol,unp,lr,unc,choice] = rbpf_coreb_full(x,vol_o,params,config);
 
             % store fitted parameter values
-            fitX{rep}{i,j}(1)   = x(1);
-            fitX{rep}{i,j}(2)   = x(2);
-            fitX{rep}{i,j}(3)   = x(3);
-            fitX{rep}{i,j}(4)   = x(4);
-            fitX{rep}{i,j}(5)   = x(5);
-            fitLrs{rep}{i,j}    = lr;
-            fitaction{rep}{i,j} = choice;
+            fitX{rep}{i,j}(1)       = x(1);
+            fitX{rep}{i,j}(2)       = x(2);
+            fitX{rep}{i,j}(3)       = x(3);
+            fitX{rep}{i,j}(4)       = x(4);
+            fitX{rep}{i,j}(5)       = x(5);
+            fitLrs{rep}{i,j}        = lr;
+            fitaction{rep}{i,j}     = choice;
+            Hmatrix{i,j}(:,:,rep)   = Hopt;
 
         end % end of volatility loop
     end % end of stc loop    
@@ -202,6 +205,13 @@ e           = plotScatter(y, x, ylm, colours,param_title);
 
 % plot correlations of loss
 loss_corr = plotCorrLoss(sum_simloss, sum_fitloss);
+
+%% plot hessian matrix for each condition
+
+h = plotHeatmapFull(Hmatrix);
+
+%%
+
 
 
 

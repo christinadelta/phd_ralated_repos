@@ -88,8 +88,8 @@ data            = ALsimdata_v3(probabilities, trials,condtrials);
 
 %%  test the distribution of the newly simulated outcomes 
 
-std_o = data.std_o;
-std_oR = data.std_oR;
+std_o   = data.std_o;
+std_oR  = data.std_oR;
 
 
 % plot outcomes with a histogram 
@@ -139,6 +139,7 @@ test_a      = output.test_a;
 test_a(find(test_a==0)) = 2; % convert action 2 to 0
 
 config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
+
 %% fit model to the simulated outcomes and actions 
 
 parameters      = [0.7 0.3 1 1 0.6 100 1 1 0.001];  % parameters for modelling 
@@ -163,11 +164,16 @@ options.MaxTime                 = 3600;
 
 % Run BADS, which returns the minimum X and the NLL.
 bFunc                       = @(x) rbpf_core_full(x,test_o,test_a,parameters,config);
-[x,fval,result]             = bads(bFunc,x0,lb,ub,plb,pub,[],options);
+[x,fval]                    = bads(bFunc,x0,lb,ub,plb,pub,[],options);
+Hopt                        = hessian(bFunc,x); % compute hessian matrix 
 
 % now run the model with the minimised x values to get subject learning
 % rates
 [val,vol,unp,lr,unc,choice] = rbpf_coreb_full(x,test_o,parameters,config);
+
+%% plot hessian matrix 
+
+
 
 %% plot learning rates 
 
