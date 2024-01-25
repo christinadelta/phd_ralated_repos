@@ -187,7 +187,7 @@ for sub = 1:nsubs
             bFunc       = @(x) rbpf_core_full(x0,vol_o,vol_a,parameters,config);
             [x,fval]    = bads(bFunc,x0,lb,ub,plb,pub,[],options);
            
-            % now run the model with the minimised x values to get subject learning
+            % now run the model with the optimised x values to get subject learning
             % rates
             [val,vol,unp,lr,unc,choice] = rbpf_coreb_full(x,vol_o,parameters,config);
 

@@ -1,4 +1,4 @@
-function [NLL,lr] = rbpf_core_full(x,o,a,parameters,config)
+function NLL = rbpf_core_full(x,o,a,parameters,config)
 % function [val,vol,unp,lr,unc] = rbpf_core(o,x0_unc,lambda_v,lambda_u,v0,u0,nparticles)
 
 %------
