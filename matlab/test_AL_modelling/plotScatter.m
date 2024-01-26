@@ -32,6 +32,11 @@ for ii = 1:groups
     % axis labels
     ylabel('estimated parameter values')
     xlabel('simulated parameter values')
+
+    tmp=corrcoef(xg,yg);
+    str=sprintf('r= %1.2f',tmp(1,2));
+    T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
+    set(T, 'fontsize', 12, 'verticalalignment', 'top', 'horizontalalignment', 'left');
     text(-0.03,1.12, sprintf('block %d',ii),'Units', 'Normalized', 'VerticalAlignment', 'Top') % add label?
     fontsize(gcf,12,"points")
 
