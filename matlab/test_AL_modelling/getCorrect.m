@@ -7,12 +7,12 @@ for i = 1:3
     for j = 1:2
 
         action_tmp  = actions{i,j};
-        o_tmp       = o{i,j};
+        o_tmp       = o{i,j}(:,1,:);
 
-        for sim = 1:size(o_tmp,2)
+        for sim = 1:size(action_tmp,2)
 
             a_sim = action_tmp(:,sim);
-            o_sim = o_tmp(:,sim);
+            o_sim = o_tmp(:,1,sim);
 
             % loop over trials 
             for t = 1:length(o_sim)

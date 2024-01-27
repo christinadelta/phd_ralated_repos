@@ -2,6 +2,7 @@ function data = ALsimdata_v2(probabilities, trials,condtrials)
 % function data = action_simdataV1(condition, probabilities, trials,condtrials, outpath)
 
 % created August 2023
+% modified January 2024
 
 % To run the stochasticity/volatility model  (Piray & Daw, 2021)
 % Inputs: 
@@ -21,7 +22,7 @@ function data = ALsimdata_v2(probabilities, trials,condtrials)
 % state, outcomes and estimated reward are simulate for both cues/options
 
 % INFO ABOUT OUTCOMES:
-% we need hidden state (loss rate), outcomes (binary and with some var), indexes for vol and stc  
+% we need hidden state, outcomes (binary and with some var), indexes for vol and stc  
 
 % -------------------------
 % SIMULATE TASK DATA
@@ -36,7 +37,8 @@ nCues               = 2;        % option A and option B
 blockTrials         = 70;       %
 nOut                = 2;        % number of outcomes 
 
-outVar          = .001;  % outcome variance to cmpute estimated reward rate(play around with the value)
+% define vector of stdDev values for each stc
+stdvals             = [0.15 0.20 0.25];
 
 %% generate probabilistic relationships between cues-outcomes 
 
@@ -53,16 +55,16 @@ for j = 1:NumStoch
         if i == 1 % if this is a stable environment
             
             NumSwitch       = switches(i);  % one switch in the contingency at 40 stable trials
-            ProbSeq(1,:)    = thisProbs; 
-            ProbSeq(2,:)    = [thisProbs(2) thisProbs(1)];
+            ProbArray(1,:)  = thisProbs; 
+            ProbArray(2,:)  = [thisProbs(2) thisProbs(1)];
 
         else % if this is a volatile environment 
 
             NumSwitch       = switches(i); % 4 switches of the prob relationships
             
             % create the contigences of the volatile condition
-            ProbSeq(1,:)    = [thisProbs(2) thisProbs(1) thisProbs(2) thisProbs(1)]; % cue-outcome probabilities
-            ProbSeq(2,:)    = [thisProbs(1) thisProbs(2) thisProbs(1) thisProbs(2)]; 
+            ProbArray(1,:)  = [thisProbs(2) thisProbs(1) thisProbs(2) thisProbs(1)]; % cue-outcome probabilities
+            ProbArray(2,:)  = [thisProbs(1) thisProbs(2) thisProbs(1) thisProbs(2)]; 
         end
 
         % number of consition trials?
@@ -76,8 +78,8 @@ for j = 1:NumStoch
             for trl = 1:thisruntrials
 
                 counter             = counter + 1; % update counter 
-                tmp(counter,run)    = ProbSeq(1,run);
-                tmp2(counter,run)   = ProbSeq(2,run);
+                tmp(counter,run)    = ProbArray(1,run);
+                tmp2(counter,run)   = ProbArray(2,run);
             end
 
         end % end of runs loop
@@ -119,7 +121,7 @@ for j = 1:NumStoch
     
                 cueTrials               = runTrials(run);
     
-                [f(:,run), c(:,run)]    = makefb_v2(1:cueTrials, ProbSeq(1,run), rdm);
+                [f(:,run), c(:,run)]    = makefb_v2(1:cueTrials, ProbArray(1,run), rdm);
     
             end % end of run loo
     
@@ -140,7 +142,7 @@ for j = 1:NumStoch
                     rdm     = 1; % generate random sequence
                 end
     
-                [f{1,run}, c{1,run}] = makefb_v2(1:cueTrials, ProbSeq(1,run),rdm);
+                [f{1,run}, c{1,run}] = makefb_v2(1:cueTrials, ProbArray(1,run),rdm);
     
             end % end of run loo
     
@@ -152,8 +154,9 @@ for j = 1:NumStoch
         % add cues and outcomes in volatility matrix
         allcues(:,i)        = cues;
         alloutcomes(:,i)    = outcomes;
+        volprobs{:,i}       = ProbArray;
 
-        clear ProbSeq cues outcomes tone_seq outcome_seq f c
+        clear ProbArray cues outcomes tone_seq outcome_seq f c
 
     end % end of volatility loop
 
@@ -167,6 +170,7 @@ for j = 1:NumStoch
     state2(:,j)         = x2final;
     cues_stc(:,j)       = cues_final;
     outcomes_stc(:,j)   = outcomes_final;
+    stcprbs{:,j}        = volprobs;
 
     clear xfinal x x_vol cues_final outcomes_final alloutcomes allcues 
 
@@ -220,10 +224,22 @@ large                       = large == 1;
 
 % simulate estimated reward with added variance noise
 totalTrials                 = length(state);
-out                         = state(:,1) + sqrt(outVar)*randn(totalTrials,1); %for option A(generated based on reward rates and stochasticity??)
-outR                        = stateR(:,1) + sqrt(outVar)*randn(totalTrials,1);
 t                           = [tStoch{1,1}; tStoch{1,2}; tStoch{1,3}]; % column 1 is stable, column 2 is volatile
 s                           = [small medium large]; % column 1 = low stochasticity, column 2 = medium stochasticity, column 3 high stochasticity
+
+%% Add Gaussian noise to outcomes to be used by the Kalman and Particle filters 
+
+for ss = 1:3 % three stc levels
+
+    tmp_o           = feedbck(s(:,ss),:);
+    tmp_oR          = feedbckR(s(:,ss),:);
+    std_o(:,ss)     = tmp_o + stdvals(ss) * randn(size(tmp_o));
+    std_oR(:,ss)    = tmp_oR + stdvals(ss) * randn(size(tmp_oR));
+
+end 
+
+std_o   = std_o(:);
+std_oR  = std_oR(:);
 
 %% add output in the struct
 
@@ -233,11 +249,12 @@ data.x          = state;
 data.xR         = stateR;
 data.stcind     = s;
 data.volind     = t;
-data.std_o      = out;
-data.std_oR     = outR;
-data.o          = feedbck;
-data.oR         = feedbckR;
+data.o          = feedbckR; % the good option is the low probability option (1-outcome)
+data.oR         = feedbck;  % the bad option is the high probability option (outcome)
+data.std_o      = std_oR;   % the good option is the low probability option (1-outcome)
+data.std_oR     = std_o;    % the bad option is the high probability option (outcome)
 data.t          = tStoch{1,1}; % I think only the first one could work!
+data.probs      = stcprbs;
 
 
 end % end of function
