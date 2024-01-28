@@ -53,9 +53,24 @@ oR          = data.std_oR;
 
 %% define model parameters and config 
 
+% define model parameters  
+% randomly generate values for the free parameterers of the full model:
+% 1. lambda_s and lambda_v -- should be at unit ramge (between 0 and 1) 
+sim_lambda      = 0.1 + (0.9-0.1).* rand(2,1); 
+sim_lambda_s    = sim_lambda(1);
+sim_lambda_v    = sim_lambda(2);
+
+% 2. softmax temperatyre beta -- sould be between 0.1 and 10
+sim_beta        = 0.1 + (5-0.1).* rand(1,1); 
+
+% 3. s0 and v0 -- should be between 0.1 and 2
+sim_init_vals   = 0.1 + (2-0.1).* rand(2,1); 
+sim_s0          = sim_init_vals(1);
+sim_v0          = sim_init_vals(2);
+
 % define parameters for th particle filter
 %parameters  = struct('nparticles',100,'x0_unc',1,'lambda_v',.2,'lambda_s',.2,'v0',.1,'s0',.1,'s0_lesioned',0.001);
-parameters  = struct('nparticles',500,'x0_unc',1,'lambda_v',.4,'lambda_s',.2,'v0',.1,'s0',.1);
+parameters  = struct('nparticles',500,'x0_unc',1,'lambda_v',sim_lambda_v,'lambda_s',sim_lambda_s,'v0',sim_v0,'s0',sim_s0);
 config      = struct('tvolatile',tvolatile,'tstable',tstable,'stc_small', stc_small,'stc_medium',stc_medium,...
     'stc_large',stc_large,'state',x,'rng_id',0,'nsim',100,'model_parameters',parameters);
 
@@ -106,7 +121,7 @@ for i = 1:nsim
     % run response model to simulate actions 
     Qvals(:,1)              = val(:,i,1);
     Qvals(:,2)              = val(:,i,2);
-    [action(:,i),r(:,i)]    = respModel(Qvals, beta,x);
+    [action(:,i),r(:,i)]    = respModel(Qvals, sim_beta,x);
 
 end % end of simulations loop
 
@@ -120,8 +135,8 @@ end
 
 % for testing model fitting 
 test_a          = action(:,1);
-test_o(:,1)     = outcome(:,1);
-test_o(:,2)     = outcomeR(:,1);
+test_o(:,1)     = outcome(:,1,1);
+test_o(:,2)     = outcome(:,2,1);
 
 %% compute mean of estimated values over simulations 
 
@@ -210,7 +225,6 @@ output.simdata      = sim_data;
 output.mdata        = mean_data;
 output.sedata       = se_data;
 output.outcomes     = outcome;
-output.outcomesR    = outcomeR;
 output.actions      = allactions;
 output.binary_o     = allbinary_o;
 output.rewrad       = r;

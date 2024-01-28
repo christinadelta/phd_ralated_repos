@@ -39,4 +39,3 @@ for i = 1:3
 end % end of stc loop
 
 end % end of function 
-
