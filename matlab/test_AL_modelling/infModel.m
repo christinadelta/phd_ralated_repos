@@ -68,12 +68,12 @@ mdl         = 1; % only core model to run
 % initialise variables
 % for pf
 N           = length(o);
-outcome     = nan(N,nsim);
-outcomeR    = nan(N,nsim);
-vol         = nan(N,nsim);
-stc         = nan(N,nsim);
-lr          = nan(N,nsim);
-val         = nan(N,nsim);    
+outcome     = nan(N,nCues,nsim);
+outcomeR    = nan(N,nCues,nsim);
+vol         = nan(N,nCues,nsim);
+stc         = nan(N,nCues,nsim);
+lr          = nan(N,nCues,nsim);
+val         = nan(N,nCues,nsim);    
 
 % init varaibles that will be averaged across pf simulations
 vols        = cell(1,nCues); % 
@@ -88,28 +88,30 @@ lnames      = {'Healthy'};
 
 %% run the kalman and particle filters
 
+
 % loop over simulations 
 for i = 1:nsim
+
+    simdata         = ALsimdata_v2(probabilities, trials, condtrials);
+    outcome(:,1,i)  = simdata.std_o; % 
+    outcome(:,2,i)  = simdata.std_oR;
+    o_binary(:,1,i) = simdata.o;
+    o_binary(:,2,i) = simdata.oR;
+
+    % loop over cues 
     for cue = 1:nCues
-        simdata                                                     = ALsimdata_v3(probabilities, trials, condtrials);
-        outcome(:,i)                                                = simdata.std_o; % run pf model fith estimated reward (for high probability option)
-        o_binary(:,i)                                               = simdata.o;
-        outcomeR(:,i)                                               = simdata.std_oR; % this is for the low probability option
-        if cue == 1 
-            [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)]    = model_pf(outcome(:,i),config.model_parameters,lnames{1});  
-        else
-            [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)]    = model_pf(outcomeR(:,i),config.model_parameters,lnames{1}); 
-        end   
-    end
+        % run rbpf model 
+        [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)] = model_pf(outcome(:,cue,i),config.model_parameters,lnames{1}); 
+    end % end of cues loop  
 
     % run response model to simulate actions 
     Qvals(:,1)              = val(:,i,1);
     Qvals(:,2)              = val(:,i,2);
-    [action(:,i),r(:,i)]    = respModel(Qvals, beta,x);
+    [action(:,i),r(:,i)]    = respModel(Qvals,beta,x);
 
 end % end of simulations loop
 
-% fextract values for option A and option B
+% extract values for option A and option B
 for j = 1:nCues
     vols{j}     = vol(:,:,j);
     stcs{j}     = stc(:,:,j);
@@ -119,8 +121,8 @@ end
 
 % for testing model fitting 
 test_a          = action(:,1);
-test_o(:,1)     = outcome(:,1);
-test_o(:,2)     = outcomeR(:,1);
+test_o(:,1)     = outcome(:,1,1);
+test_o(:,2)     = outcome(:,2,1);
 
 %% compute mean of estimated values over simulations 
 
@@ -190,11 +192,11 @@ end % end of options loop
 for stc = 1:3
 
     tmp_actions     = action(s(:,stc),:);
-    tmp_outcomes    = o_binary(s(:,stc),:);
+    tmp_outcomes    = o_binary(s(:,stc),:,:);
 
     for vol = 1:2
         allactions{stc,vol}     = tmp_actions(t(:,vol),:);
-        allbinary_o{stc,vol}    = tmp_outcomes(t(:,vol),:);
+        allbinary_o{stc,vol}    = tmp_outcomes(t(:,vol),:,:);
 
     end % end of volatility condition
 end % end of stc level
@@ -209,11 +211,11 @@ output.simdata      = sim_data;
 output.mdata        = mean_data;
 output.sedata       = se_data;
 output.outcomes     = outcome;
-output.outcomesR    = outcomeR;
 output.actions      = allactions;
 output.binary_o     = allbinary_o;
 output.rewrad       = r;
 output.test_a       = test_a;
 output.test_o       = test_o;
+
 
 end % end of function

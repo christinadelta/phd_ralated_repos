@@ -22,26 +22,37 @@ for sub = 1:nsubs
     subnum(1:length(trialnum),1)    = sub;
     blocknum                        = ALT.Spreadsheet_Blocks;
     state                           = ALT.Spreadsheet_State;
-    feedback                        = ALT.Spreadsheet_HighProbCue; % if 1 (blue=loss), if 2 (red=loss)
+    highprob                        = ALT.Spreadsheet_HighProbCue; % if 1 (blue=loss), if 2 (red=loss)
+    lowprob                         = ALT.Spreadsheet_LowProbCue; % if 1 (blue=loss), if 2 (red=loss)
     allanswers                      = ALT.Spreadsheet_Answers;
     screenum                        = ALT.Screen; % we need screen 3
     responses                       = ALT.Response;
     rts                             = ALT.ReactionTime;
     correct                         = ALT.Correct;
 
-    gendata                         = [subnum trialnum blocknum state feedback allanswers screenum responses rts correct];
+    % for testing 
+    test                            = ALT.Display;
+
+    % if rts are stored as a cell array, convert to double 
+    if iscell(rts) 
+        rts = str2double(rts);
+    end
+
+    gendata                         = [subnum trialnum blocknum state lowprob highprob allanswers screenum responses rts correct];
+
+
 
     % remove practice trials 
-    gendata(isnan(gendata(:,7)),:)  = [];  
+    gendata(isnan(gendata(:,8)),:)  = [];  
 
     % most of the rows are not needed. For each trial, only keep the response rows
     % (that is where screennum == 3). The results should be 420 trials 
-    tmp_data                        = find(gendata(:,7) == 3);
+    tmp_data                        = find(gendata(:,8) == 3);
     ALTdata                         = gendata((tmp_data),:);
     all_ALTdata{1,sub}              = ALTdata;
 
     % compute mean rts for all subjects
-    m_rtsAL(sub,1)                  = mean(ALTdata(:,9));
+    m_rtsAL(sub,1)                  = mean(ALTdata(:,10));
 
     % compute accuracy for:
     % feedback all
@@ -59,8 +70,9 @@ for sub = 1:nsubs
     allsub_mrtsStc{1,sub}               = mrts_stc;
 
 
+    clear rts subnum blocknum state highprob lowprob allanswers screenum responses trialnum correct
+
+
 end % end of subjects loop
-
-
 
 end % end of function

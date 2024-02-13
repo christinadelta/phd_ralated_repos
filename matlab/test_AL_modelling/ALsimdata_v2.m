@@ -38,7 +38,8 @@ blockTrials         = 70;       %
 nOut                = 2;        % number of outcomes 
 
 % define vector of stdDev values for each stc
-stdvals             = [0.15 0.20 0.25];
+stdvals             = [1 1.5 2];
+
 
 %% generate probabilistic relationships between cues-outcomes 
 

@@ -10,6 +10,8 @@ cols    = 3;
 xlm     = ylm;
 clf
 y = y'; x = x';
+
+
 %% loop over groups (that is over blocks)
 groups = size(y,1);
 
@@ -19,7 +21,7 @@ for ii = 1:groups
     ax(ii)          = subplot(rows,cols,ii);
 
     yg              = y(ii,:);  % get mean across reps/subjects and transpose so that the results is a 1xn array
-    xg              = x;        % same simulated x for each block 
+    xg              = x(ii,:);  % get simulated x for each block 
 
     % add scatter 
     f               = scatter(ax(ii),xg,yg,colours,'*');
@@ -34,7 +36,12 @@ for ii = 1:groups
     xlabel('simulated parameter values')
 
     tmp=corrcoef(xg,yg);
-    str=sprintf('r= %1.2f',tmp(1,2));
+    if length(tmp) == 2
+        str=sprintf('r= %1.2f',tmp(1,2));
+    else
+        str=sprintf('r= %1.2f',tmp(1));
+    end
+
     T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str); 
     set(T, 'fontsize', 12, 'verticalalignment', 'top', 'horizontalalignment', 'left');
     text(-0.03,1.12, sprintf('block %d',ii),'Units', 'Normalized', 'VerticalAlignment', 'Top') % add label?

@@ -6,7 +6,7 @@ function [mrts_all, mrts_vol, mrts_stc] = getRTsAL(ALTdata)
 % 3. Stable & volatile data per stochasticity 
 
 % extract accuracy
-rt_data    = ALTdata(:,9);
+rt_data    = ALTdata(:,10);
 
 %% 1. compute mean rts for all data
 mrts_all       = mean(rt_data);
@@ -36,17 +36,17 @@ vol3        = ALTdata((vol3),:);
 all_vol     = cat(1,vol1,vol2,vol3);
 
 % compute means: all stable and volatile
-mrts_vol(1,1)  = mean(all_stable(:,9));
-mrts_vol(1,2)  = mean(all_vol(:,9));
+mrts_vol(1,1)  = mean(all_stable(:,10));
+mrts_vol(1,2)  = mean(all_vol(:,10));
 
 %% 3. compute mean rts for stable & volatile per stochasticity 
 
-mrts_stc(1,1)  = mean(stb1(:,9));
-mrts_stc(1,2)  = mean(vol1(:,9));
-mrts_stc(2,1)  = mean(stb2(:,9));
-mrts_stc(2,2)  = mean(vol2(:,9));
-mrts_stc(3,1)  = mean(stb3(:,9));
-mrts_stc(3,2)  = mean(vol3(:,9));
+mrts_stc(1,1)  = mean(stb1(:,10));
+mrts_stc(1,2)  = mean(vol1(:,10));
+mrts_stc(2,1)  = mean(stb2(:,10));
+mrts_stc(2,2)  = mean(vol2(:,10));
+mrts_stc(3,1)  = mean(stb3(:,10));
+mrts_stc(3,2)  = mean(vol3(:,10));
 
 
 

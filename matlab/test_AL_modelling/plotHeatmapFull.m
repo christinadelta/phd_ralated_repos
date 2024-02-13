@@ -10,39 +10,40 @@ rows = 2;
 
 % average condition 1
 tmp_cond1 = Hmatrix{1,1};
+
 cond1_hmat = mean(tmp_cond1,3);
-cond1_mat = cond1_hmat/10^7;
+cond1_mat = cond1_hmat/10^9;
 
 % average condition 2
 tmp_cond2 = Hmatrix{1,2};
 cond2_hmat = mean(tmp_cond2,3);
-cond2_mat = cond2_hmat/10^7;
+cond2_mat = cond2_hmat/10^9;
 
 % average condition 3
 tmp_cond3 = Hmatrix{2,1};
 cond3_hmat = mean(tmp_cond3,3);
-cond3_mat = cond3_hmat/10^7;
+cond3_mat = cond3_hmat/10^9;
 
 % average condition 4
 tmp_cond4 = Hmatrix{2,2};
 cond4_hmat = mean(tmp_cond4,3);
-cond4_mat = cond4_hmat/10^7;
+cond4_mat = cond4_hmat/10^9;
 
 % average condition 5
 tmp_cond5 = Hmatrix{3,1};
 cond5_hmat = mean(tmp_cond5,3);
-cond5_mat = cond5_hmat/10^7;
+cond5_mat = cond5_hmat/10^9;
 
 
 % average condition 5
 tmp_cond6 = Hmatrix{3,2};
 cond6_hmat = mean(tmp_cond6,3);
-cond6_mat = cond6_hmat/10^7;
+cond6_mat = cond6_hmat/10^9;
 
 %% plot matrices as heatmaps
 
-xvalues = {'lambda_s','lambda_v','beta','s_0','v_0'};
-yvalues = {'lambda_s','lambda_v','beta','s_0','v_0'};
+xvalues = {'lambda_s','lambda_v','beta','s_0','v_0', 'lambda reg'};
+yvalues = {'lambda_s','lambda_v','beta','s_0','v_0','lambda reg'};
 
 figure 
 

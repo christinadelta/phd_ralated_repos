@@ -6,7 +6,7 @@ function [m_all, m_vol, m_stc] = getAccuracyAL(ALTdata)
 % 3. Stable & volatile data per stochasticity 
 
 % extract accuracy
-acc_data    = ALTdata(:,10);
+acc_data    = ALTdata(:,11);
 
 % 
 
@@ -38,17 +38,17 @@ vol3        = ALTdata((vol3),:);
 all_vol     = cat(1,vol1,vol2,vol3);
 
 % compute means: all stable and volatile
-m_vol(1,1)  = mean(all_stable(:,10));
-m_vol(1,2)  = mean(all_vol(:,10));
+m_vol(1,1)  = mean(all_stable(:,11));
+m_vol(1,2)  = mean(all_vol(:,11));
 
 %% 3. compute means for table & volatile per stochasticity 
 
-m_stc(1,1)  = mean(stb1(:,10));
-m_stc(1,2)  = mean(vol1(:,10));
-m_stc(2,1)  = mean(stb2(:,10));
-m_stc(2,2)  = mean(vol2(:,10));
-m_stc(3,1)  = mean(stb3(:,10));
-m_stc(3,2)  = mean(vol3(:,10));
+m_stc(1,1)  = mean(stb1(:,11));
+m_stc(1,2)  = mean(vol1(:,11));
+m_stc(2,1)  = mean(stb2(:,11));
+m_stc(2,2)  = mean(vol2(:,11));
+m_stc(3,1)  = mean(stb3(:,11));
+m_stc(3,2)  = mean(vol3(:,11));
 
 
 end % end of function

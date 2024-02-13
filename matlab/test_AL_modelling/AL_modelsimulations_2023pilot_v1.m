@@ -83,26 +83,27 @@ condtrials      = {70,[30,10,10,20]};
 nCues           = 2;
 beta            = 1;
 
-data            = ALsimdata_v3(probabilities, trials,condtrials);
-% data            = ALsimdata_v2(probabilities, trials,condtrials);
+% data            = ALsimdata_v3(probabilities, trials,condtrials);
+data            = ALsimdata_v2(probabilities, trials,condtrials);
 
 %%  test the distribution of the newly simulated outcomes 
 
 std_o   = data.std_o;
 std_oR  = data.std_oR;
+x = data.x;
 
 
 % plot outcomes with a histogram 
 % Plot a histogram
 figure;
-histogram(std_o, 'Normalization', 'pdf','NumBins', 120);
+histogram(x, 'Normalization', 'pdf','NumBins', 120);
 title('Histogram of Continuous Outcomes');
 xlabel('Value');
 ylabel('Probability Density');
 
 %% Q-Q plot
 figure;
-qqplot(std_o);
+qqplot(x);
 title('Q-Q Plot of Continuous Outcomes');
 
 %% Shapiro-Wilk test (if the Statistics and Machine Learning Toolbox is installed)
