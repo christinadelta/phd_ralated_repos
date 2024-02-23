@@ -29,11 +29,11 @@ set(0,'DefaultFigureWindowStyle','docked')
 %% define paths etc 
 % paths for subjects data 
 startpath       = pwd;
-datadir         = fullfile(startpath,'data');
-subs            = dir(fullfile(datadir, '*sub-*'));
-nsubs           = length(subs);
-
-figpath         = fullfile(pwd, 'figures');     addpath(figpath);
+% datadir         = fullfile(startpath,'data');
+% subs            = dir(fullfile(datadir, '*sub-*'));
+% nsubs           = length(subs);
+% 
+% figpath         = fullfile(pwd, 'figures');     addpath(figpath);
 
 %% simulate some data to extract underlying loss rate stc and vol indecies
 
