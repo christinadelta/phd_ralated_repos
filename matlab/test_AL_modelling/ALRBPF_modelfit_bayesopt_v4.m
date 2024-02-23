@@ -348,6 +348,7 @@ for sub = 1:nsubs
                 all_vol{1,sub}{1,rep}{i,j}         = vol;
                 all_val{1,sub}{1,rep}{i,j}         = val;
                 all_stc{1,sub}{1,rep}{i,j}         = unp;
+                all_outcome{1,sub}{1,rep}{i,j}     = binary_outcome; % store binary outcome here? 
     
                 clear vol_a vol_o fitParams minNLL lr choice val vol unp bestLambdaReg initialGuessTable results
             end % end of volatility loop

@@ -72,146 +72,50 @@ outcomeR    = nan(N,nsim);
 vol         = nan(N,nsim);
 stc         = nan(N,nsim);
 lr          = nan(N,nsim);
-val         = nan(N,nsim);    
-
-% init varaibles that will be averaged across pf simulations
-vols        = cell(1,nCues); % 
-stcs        = cell(1,nCues); % 
-lrs         = cell(1,nCues); % 
-vals        = cell(1,nCues); % 
-valsR       = cell(1,nCues); % 
-v_example   = cell(1,nCues); % 
-% glabels     = {'neurotypical','neurodiverse'};
+val         = nan(N,nsim);  
 lnames      = {'Healthy'};  
 
 %% run the kalman and particle filters
 
-% loop over simulations 
-for i = 1:nsim
+for sim = 1:nsim
+
+    simdata             = ALsimdata_v3(probabilities, trials, condtrials);
+    outcome(:,1,sim)    = simdata.std_o; % 
+    outcome(:,2,sim)    = simdata.std_oR;
+    o_binary(:,1,sim)   = simdata.o;
+    o_binary(:,2,sim)   = simdata.oR;
+
+    % loop over cues 
     for cue = 1:nCues
-        simdata                                                     = ALsimdata_v3(probabilities, trials, condtrials);
-        outcome(:,i)                                                = simdata.std_o; % run pf model fith estimated reward (for high probability option)
-        o_binary(:,i)                                               = simdata.o;
-        outcomeR(:,i)                                               = simdata.std_oR; % this is for the low probability option
-        if cue == 1 
-            [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)]    = model_pf(outcome(:,i),config.model_parameters,lnames{1});  
-        else
-            [vol(:,i,cue),stc(:,i,cue),lr(:,i,cue),val(:,i,cue)]    = model_pf(outcomeR(:,i),config.model_parameters,lnames{1}); 
-        end   
-    end
+        % run rbpf model 
+        [vol(:,cue,sim),stc(:,cue,sim),lr(:,cue,sim),val(:,cue,sim)] = model_pf(outcome(:,cue,sim) ,config.model_parameters,lnames{1});
+
+    end % end of cues loop  
 
     % run response model to simulate actions 
-    Qvals(:,1)              = val(:,i,1);
-    Qvals(:,2)              = val(:,i,2);
-    [action(:,i),r(:,i)]    = respModel(Qvals, beta,x);
-
+    Qvals(:,1)                  = val(:,1,sim);
+    Qvals(:,2)                  = val(:,2,sim);
+    [action(:,sim),r(:,sim)]    = respModel(Qvals,beta,x);
+    
 end % end of simulations loop
-
-% fextract values for option A and option B
-for j = 1:nCues
-    vols{j}     = vol(:,:,j);
-    stcs{j}     = stc(:,:,j);
-    lrs{j}      = lr(:,:,j);
-    vals{j}     = val(:,:,j);
-end
 
 % for testing model fitting 
 test_a          = action(:,1);
 test_o(:,1)     = outcome(:,1);
-test_o(:,2)     = outcomeR(:,1);
+test_o(:,2)     = outcome(:,2);
 
-%% compute mean of estimated values over simulations 
-
-t           = [tstable tvolatile];
-s           = [stc_small stc_medium stc_large];
-volcols     = {'Stable','Volatile'};
-stccols     = {'Small', 'Medium', 'Large'};
-
-% estimate volatility, stochasticity and learning rates (means and
-% error of means accross simulations)
-% loop over cues/options
-for j = 1:nCues
-
-    % compute means and SEs over simulations for vol, stc, lr
-    m_vol(:,j)  = mean(vols{j},2);
-    m_stc(:,j)  = mean(stcs{j},2);
-    m_lr(:,j)   = mean(lrs{j},2);
-    m_val(:,j)  = mean(vals{j},2);
-    e_vol(:,j)  = serr(vols{j},2);
-    e_stc(:,j)  = serr(stcs{j},2);
-    e_lr(:,j)   = serr(lrs{j},2);  
-    e_val(:,j)  = serr(vals{j},2);
-
-    % for each cue split estimated values per stc and vol levels (
-    % this could be used for visualization???)
-    for ss = 1:3 % 3 stc levels 
-        tmp_vol     = vols{j}(s(:,ss),:); % 
-        tmp_stc     = stcs{j}(s(:,ss),:); % 
-        tmp_lrs     = lrs{j}(s(:,ss),:); % 
-        tmp_vals    = vals{j}(s(:,ss),:); % 
-
-        % and the averaged and serr values
-        tmp_mvol     = m_vol(s(:,ss),j);
-        tmp_mstc     = m_stc(s(:,ss),j);
-        tmp_mlr      = m_lr(s(:,ss),j);
-        tmp_mval     = m_val(s(:,ss),j);
-
-        tmp_evol = e_vol(s(:,ss),j);
-        tmp_estc = e_stc(s(:,ss),j);
-        tmp_elr = e_lr(s(:,ss),j);
-        tmp_eval = e_val(s(:,ss),j);
-
-        % now that we have the stc estimates split per voaltility
-        for k = 1:2 % stable - volatile
-
-            allvols{1,j}{ss,k}      = tmp_vol(t(:,k),:); % split trials based on volatility
-            allstcs{1,j}{ss,k}      = tmp_stc(t(:,k),:); % 
-            allvals{1,j}{ss,k}      = tmp_vals(t(:,k),:); % split trials based on volatility
-            alllrs{1,j}{ss,k}       = tmp_lrs(t(:,k),:); % split trials based on volatility
-
-            all_mvols{1,j}{ss,k}    = tmp_mvol(t(:,k),:);
-            all_mstc{1,j}{ss,k}     = tmp_mstc(t(:,k),:);
-            all_mlr{1,j}{ss,k}      = tmp_mlr(t(:,k),:);
-            all_mval{1,j}{ss,k}     = tmp_mval(t(:,k),:);
-
-            all_evols{1,j}{ss,k}    = tmp_evol(t(:,k),:);
-            all_estc{1,j}{ss,k}     = tmp_estc(t(:,k),:);
-            all_elr{1,j}{ss,k}      = tmp_elr(t(:,k),:);
-            all_evals{1,j}{ss,k}    = tmp_eval(t(:,k),:);
-
-        end % end of volatility (k) loop
-    end % end of stc loop
-end % end of options loop
-
-%% split actions per stc and volatility
-
-for stc = 1:3
-
-    tmp_actions     = action(s(:,stc),:);
-    tmp_outcomes    = o_binary(s(:,stc),:);
-
-    for vol = 1:2
-        allactions{stc,vol}     = tmp_actions(t(:,vol),:);
-        allbinary_o{stc,vol}    = tmp_outcomes(t(:,vol),:);
-
-    end % end of volatility condition
-end % end of stc level
 
 %% store model results to output structure
 
-sim_data    = struct('allvols',allvols,'allstcs',allstcs, 'allvals',allvals,'alllrs',alllrs);
-mean_data   = struct('mvols',all_mvols,'mstcs',all_mstc,'mlr',all_mlr,'mvals',all_mval);
-se_data     = struct('evols',all_evols,'estcs',all_estc,'elr',all_elr,'evals',all_evals);
-
-output.simdata      = sim_data;
-output.mdata        = mean_data;
-output.sedata       = se_data;
-output.outcomes     = outcome;
-output.outcomesR    = outcomeR;
-output.actions      = allactions;
-output.binary_o     = allbinary_o;
-output.rewrad       = r;
-output.test_a       = test_a;
-output.test_o       = test_o;
+output.outcomes         = outcome;
+output.outcomesR        = outcomeR;
+output.vvals            = Qvals;
+output.volatility       = vol;
+output.stochasticity    = stc;
+output.binary_o         = o_binary;
+output.rewrad           = r;
+output.lrs              = lr;
+output.test_a           = test_a;
+output.test_o           = test_o;
 
 end % end of fucntion

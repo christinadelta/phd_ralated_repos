@@ -85,7 +85,7 @@ for rep = 1:reps
             
             % PART 2 FITTING
             % extract what we need and prepare data for model fititng 
-            state(:,1)              = output.x;
+            state(:,1)              = data.x;
             state(:,2)              = 1 - state(:,1);
             ss                      = data.stcind;
             vv                      = data.t;

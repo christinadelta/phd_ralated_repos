@@ -1,4 +1,4 @@
-function [h, g, f] = plotPerf_v2(perfomance_data)
+function [h, g, f] = plotPerf_v2(performance_data)
 
 % visulaise performance for:
 % A) different stochasticity and volatility conditions in box plots 
@@ -17,8 +17,8 @@ colours = [0 0.4470 0.7410; % blue
 %% re-shape perfomanse array
 
 % small vs medium vs large stc performance
-dat_perf(1,:) = perfomance_data(:,1)'
-dat_perf(2,:) = perfomance_data(:,2)'
+dat_perf(1,:) = performance_data(:,1)'
+dat_perf(2,:) = performance_data(:,2)'
 %% plot the performance
 
 % plot stable phase
@@ -26,7 +26,7 @@ x = {'small','medium','large'}; % how many box plots per subplot?
 figure 
 subplot(rows,cols,1)
 
-boxplot(perfomance_data(:,1),x)
+boxplot(performance_data(:,1),x)
 h(:,1) = findobj(gca,'Tag','Box');
 for j=1:length(x)
     patch(get(h(j,1),'XData'),get(h(j,1),'YData'),colours(j,:),'FaceAlpha',.5);
@@ -38,7 +38,7 @@ text(-0.03,1.12,'A','Units', 'Normalized', 'VerticalAlignment', 'Top') % add lab
 
 % plot volatile phase 
 subplot(rows,cols,2)
-boxplot(perfomance_data(:,2),x)
+boxplot(performance_data(:,2),x)
 h(:,2) = findobj(gca,'Tag','Box');
 for j=1:length(x)
     patch(get(h(j,2),'XData'),get(h(j,2),'YData'),colours(j,:),'FaceAlpha',.5);
@@ -54,7 +54,7 @@ ylabel('% correct')
 xx = {'stable','volatile'}; % how many box plots per subplot?
 subplot(rows,cols,3)
 
-boxplot(perfomance_data,xx)
+boxplot(performance_data,xx)
 g(:,1) = findobj(gca,'Tag','Box');
 for j=1:length(xx)
     patch(get(g(j,1),'XData'),get(g(j,1),'YData'),colours(j,:),'FaceAlpha',.5);
