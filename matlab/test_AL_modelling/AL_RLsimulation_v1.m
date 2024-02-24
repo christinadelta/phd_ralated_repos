@@ -265,6 +265,7 @@ prob_beta                   = prob_beta / sum(prob_beta);
 expected_alpha              = sum(p{1}(:) .* prob_alpha(:));
 expected_beta               = sum(p{2}(:) .* prob_beta(:));
 
+
 %% run the RW model with marginal and expected values and compare their resulting choice probs
 
 % fit the model with the marginal parameter values from the search grid 

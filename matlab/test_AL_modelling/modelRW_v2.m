@@ -93,7 +93,26 @@ for trl = 1:trials
 
 end % end of trials loop
 
+%% from now on the rest is for plotting 
 
+% store output parameters in the output structure 
+modelout.Qvals      = values;
+modelout.allPs      = p;
+modelout.a          = choices;
+modelout.reward     = r;
+modelout.correct    = correct;
+
+%% store model stuff in table for faster reading
+
+choices = choices'; r = r'; % transpose choices and rewards
+c = correct';
+modeltable          = table(choices, r, values, p,c);
+% filename            = sprintf('model_table_%s.xlsx', data.volatility); % save table as xlsx file
+% 
+% writetable(modeltable,filename, 'Sheet', 1) 
+% movefile('*.xlsx', outpath) % move file to output dir 
+
+modelout.modeltable = modeltable;
 
 
 
