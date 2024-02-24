@@ -397,7 +397,6 @@ for rep = 1:repetitions
  
 end % end of reps loop
 
-%%
 
 %% plot simulated and estimated parameter values
 
@@ -463,7 +462,6 @@ xlabel('Simulated Decay'); ylabel('Fitted Decay');
 title('Simulated and Fitted Decay Values');
 set(gca, 'FontSize', 14); % additional plot formatting
 grid on; 
-
 
 %% sensitivity analysis with free parameter: alpha 
 

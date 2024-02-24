@@ -1,33 +1,35 @@
-function [modelout, nll] = fit_modelRW_v2(params, modelout)
+function nll = lik_modelRW_v2_sensAnalysis(params, fixedParams, modelout,m)
 
-% RW model simulation V1 
-
-% Date created : 17/02/2024
-
-% Rescola-Wagner model with 2 parameters to test the aversive learning task
-% this v1 function fits model and computes nll for the entire task 
+% objective function for version 1 of the RW model using the AL dataset
+% Date created : 20/02/2024
 
 % INPUTS: 
 %       - params (1-by-2) with alpha  and beta values for the model
 %       - output from model simulation (we need model choices and rewards)
 
 % OUTPUT:
-%       - structure with model results:
-%           * Qvals 
-%           * probability choices
-%           * ll (log likelihood) 
-%           * choices (actions)
-%           * reward
+%           * nll (log likelihood) 
 
-% feedback/outcome generated in the simualtion function and reward are also used for
-% visualisation 
+
 
 %% extract parameters and init variables 
 
 % extract parameter values 
-alpha           = params(1); % alpha
-beta            = params(2); % beta
-decay           = params(3); % decay
+if m == 1
+    alpha           = params(1); % alpha free
+    beta            = fixedParams(1); % beta
+    decay           = fixedParams(2); % decay
+elseif m == 2
+    alpha           = fixedParams(1); % alpha
+    beta            = params(1); % beta free
+    decay           = fixedParams(2); % decay
+else
+    alpha           = fixedParams(1); % alpha
+    beta            = fixedParams(2); % beta
+    decay           = params(1); % decay free
+end
+
+
 
 % extract info from the data structure that are needed for modelling 
 choice          = modelout.a;
@@ -47,7 +49,7 @@ p               = zeros(trials,nchoices);
 
 for trl = 1:trials
 
-    c       = choice(trl); % extract this trial's choice
+    c       = choice(trl);  % extract this trial's choice
     r       = outcome(trl); % extract this trial's reward
 
     PA      = exp(beta * vA) / (exp(beta * vA) + exp(beta * vB)); % Since PA + PB = 1   % compute choice probabilities using the softmax function
@@ -65,11 +67,11 @@ for trl = 1:trials
    
     % update value estimate for chosen option based on reward
     if c == 1
-        vA = vA + alpha * (outcome(trl) - vA);  % update vA
-        vB = vB * decay;                        % apply decay parameter to option B
+        vA = vA + alpha * (outcome(trl) - vA); % update vA
+        vB = vB * decay;                    % apply decay parameter to option B
     else
-        vB = vB + alpha * (outcome(trl) - vB);  % update vB
-        vA = vA * decay;                        % apply decay parameter to option B
+        vB = vB + alpha * (outcome(trl) - vB); % update vB
+        vA = vA * decay;                    % apply decay parameter to option B
     end
 
     % store value estimates
@@ -79,13 +81,5 @@ for trl = 1:trials
     p(trl, 2)       = PB;
 
 end % end of trials loop
-
-%% from now on the rest is for plotting 
-
-% store output parameters in the output structure 
-modelout.Qvals      = values;
-modelout.allPs      = p;
-modelout.a          = choice;
-modelout.reward     = outcome;
 
 end % end of function

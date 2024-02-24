@@ -105,7 +105,7 @@ pos2(2) = 1.2*pos2(2);
 set(hlg2,'Position',pos2);
 
 i =1;
-text(0.5,yst,'alpha = 0.3, beta = 1.5','fontsize',fst,'Unit','normalized','fontname',fnt,'parent',h(i),'HorizontalAlignment','Center','fontweight','bold');
+text(0.5,yst,'alpha = 0.3, beta = 1.5, decay = 0.1','fontsize',fst,'Unit','normalized','fontname',fnt,'parent',h(i),'HorizontalAlignment','Center','fontweight','bold');
 
 
 end % end of function 
