@@ -149,13 +149,16 @@ for rep = 1:randreps
         % extract this block data:
         stc_o = o(ss(:,i),:);
         stc_a = a(ss(:,i),:);
+        b_out = binoutcome(ss(:,i),:);
     
         for j = 1:2
     
             % extract this volatility outcomes and actions
-            vol_o           = stc_o(vv(:,j),:);
-            vol_a           = stc_a(vv(:,j),:);
-            config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
+            vol_o                   = stc_o(vv(:,j),:);
+            vol_a                   = stc_a(vv(:,j),:);
+            all_b_out{1,sub}{i,j}   = b_out(vv(:,j),:);
+
+            config                  = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
 
             % set up the BayesOpt configuration
             % Define the parameter space
@@ -238,7 +241,7 @@ clear allX allNLL all_lr all_choice fitParams allLambdaReg allResults
 %% Fit the rbpf full model using the BayesOpt toolbox and Ridge regularisation
 
 % exatact what we need from data struct and prepare data for model fitting 
-randreps        = 10;
+reps            = 2;
 state(:,1)      = data.x;
 state(:,2)      = 1 - state(:,1);
 ss              = data.stcind;
@@ -276,12 +279,14 @@ for sub = 1:nsubs
             % extract this stc outcomes and actions:
             stc_o = o(ss(:,i),:);
             stc_a = a(ss(:,i),:);
+            b_out = binoutcome(ss(:,i),:);
     
             for j = 1:2
     
                 % extract this volatility outcomes and actions
-                vol_o           = stc_o(vv(:,j),:);
-                vol_a           = stc_a(vv(:,j),:);
+                vol_o                   = stc_o(vv(:,j),:);
+                vol_a                   = stc_a(vv(:,j),:);
+                all_b_out{1,sub}{i,j}   = b_out(vv(:,j),:);
                 config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
 
                 % set up the BayesOpt configuration
@@ -344,11 +349,10 @@ for sub = 1:nsubs
                 allLambdaReg{1,sub}{1,rep}(i,j)    = bestLambdaReg;
                 allNLL{1,sub}{1,rep}(i,j)          = minNLL;
                 all_lr{1,sub}{1,rep}{i,j}          = lr;
-                all_choice{1,sub}{1,rep}{i,j}      = choice;
+                all_choice{1,sub}{i,j}(:,rep)      = choice;
                 all_vol{1,sub}{1,rep}{i,j}         = vol;
                 all_val{1,sub}{1,rep}{i,j}         = val;
                 all_stc{1,sub}{1,rep}{i,j}         = unp;
-                all_outcome{1,sub}{1,rep}{i,j}     = binary_outcome; % store binary outcome here? 
     
                 clear vol_a vol_o fitParams minNLL lr choice val vol unp bestLambdaReg initialGuessTable results
             end % end of volatility loop
@@ -423,12 +427,14 @@ for sub = 1:nsubs
             % extract this stc outcomes and actions:
             stc_o = o(ss(:,i),:);
             stc_a = a(ss(:,i),:);
+            b_out = binoutcome(ss(:,i),:);
     
             for j = 1:2
     
                 % extract this volatility outcomes and actions
-                vol_o           = stc_o(vv(:,j),:);
-                vol_a           = stc_a(vv(:,j),:);
+                vol_o                   = stc_o(vv(:,j),:);
+                vol_a                   = stc_a(vv(:,j),:);
+                all_b_out{1,sub}{i,j}   = b_out(vv(:,j),:);
                 config          = struct('tvol',vv,'tstc',ss,'state',state,'nsim',100);
 
                 % set up the BayesOpt configuration
@@ -491,7 +497,7 @@ for sub = 1:nsubs
                 lasso_allLambdaReg{1,sub}{1,rep}(i,j)    = bestLambdaReg;
                 lasso_allNLL{1,sub}{1,rep}(i,j)          = minNLL;
                 lasso_all_lr{1,sub}{1,rep}{i,j}          = lr;
-                lasso_all_choice{1,sub}{1,rep}{i,j}      = choice;
+                lasso_all_choice{1,sub}{i,j}(:,rep)      = choice;
                 lasso_all_vol{1,sub}{1,rep}{i,j}         = vol;
                 lasso_all_val{1,sub}{1,rep}{i,j}         = val;
                 lasso_all_stc{1,sub}{1,rep}{i,j}         = unp;
@@ -527,3 +533,42 @@ for sub = 1:nsubs
     % plot learning rates for each sub seperately
     [h, g, f] = plot_fitLRs(sub_lr,subnum);
 end 
+
+%% if you already have the actions
+
+for sub = 1:nsubs 
+    dat         = alldata{sub,1};
+    binoutcome  = dat.outcome; binoutcome(find(binoutcome==2)) = 0; % convert outcome 2 to 0
+
+    for i = 1:3
+
+        b_out = binoutcome(ss(:,i),:);
+
+        for j = 1:2
+
+            all_b_out{1,sub}{i,j}   = b_out(vv(:,j),:);
+ 
+        end % end of volatility
+    end % end of stc levels
+end % end of subs loop
+
+
+%% compute model performance 
+
+% loop over subjects to extract outcomes and model actions 
+for sub = 1:nsubs
+
+    temp_outcome        = all_b_out{1,sub};
+    temp_action         = all_choice{1,sub};
+    modelPerf           = computePerf(temp_outcome, temp_action);
+
+    allModel_perf(:,:,sub) = modelPerf;
+
+
+end % end of subject loop
+
+% to get mean across model instances 
+all_perf                = mean(allModel_perf,3);
+
+%%
+
