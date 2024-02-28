@@ -30,56 +30,53 @@ else
 end
 
 
+choice          = modelout.simulated_actions;
+good_options    = modelout.outcome(:,1); % Good options indicating no loss
+trials          = length(choice);
+nll             = 0; % Initialize nll 
+vA              = 0; % Initial Q-value for option A
+vB              = 0; % Initial Q-value for option B
 
-% extract info from the data structure that are needed for modelling 
-choice          = modelout.a;
-outcome         = modelout.reward;
-trials          = size(choice,2);    % total trials
-nchoices        = 2;                 % 2 choice options 
-nll             = 0;                 % init nll 
+rewardvalue     = 1; % Reward for choosing the good option (no loss)
+lossvalue       = -1; % Loss for choosing the bad option
 
-%%  Initialize parameters and estimates
+% convert outcomes to 1s and 2s
+good_options(find(good_options == 0)) = 2; % good option o
 
-vA              = 0;
-vB              = 0;
-values          = zeros(trials, nchoices); % column 1 for vA, column 2 for vB
-p               = zeros(trials,nchoices);
-
-%% simualte model 
+%% loop over trials and estimate values 
 
 for trl = 1:trials
-
-    c       = choice(trl);  % extract this trial's choice
-    r       = outcome(trl); % extract this trial's reward
-
-    PA      = exp(beta * vA) / (exp(beta * vA) + exp(beta * vB)); % Since PA + PB = 1   % compute choice probabilities using the softmax function
-    PB      = 1 - PA; 
+    PA              = exp(beta * vA) / (exp(beta * vA) + exp(beta * vB));
+    PB              = 1 - PA;
     
-    % after making a choice based on probabilities...
-    if c == 1
+    % Determine the probability of the choice actually made
+    if choice(trl) == 1
         chosenprob  = PA;
     else
         chosenprob  = PB;
     end
 
-    nll             = nll - log(chosenprob); % accumulate the NLL
+    nll             = nll - log(chosenprob); % Update NLL based on the choice probability
+    
+    isGoodChoice    = (choice(trl) == good_options(trl));
 
-   
-    % update value estimate for chosen option based on reward
-    if c == 1
-        vA = vA + alpha * (outcome(trl) - vA); % update vA
-        vB = vB * decay;                    % apply decay parameter to option B
+    % is it a good option? if yes update with reward, if not update with
+    % loss
+    if isGoodChoice
+        updateValue = rewardvalue;
     else
-        vB = vB + alpha * (outcome(trl) - vB); % update vB
-        vA = vA * decay;                    % apply decay parameter to option B
+        updateValue = lossvalue;
     end
 
-    % store value estimates
-    values(trl, 1)  = vA;
-    values(trl, 2)  = vB;
-    p(trl, 1)       = PA;
-    p(trl, 2)       = PB;
+    
+    if choice(trl) == 1
+        vA = vA + alpha * (updateValue - vA);
+        vB               = vB * decay; % apply decay parameter to option B
+    else
+        vB = vB + alpha * (updateValue - vB);
+        vA               = vA * decay; % apply decay parameter to option A
+    end
 
-end % end of trials loop
+end % en of trials loop
 
 end % end of function

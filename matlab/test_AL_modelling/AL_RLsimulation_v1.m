@@ -61,7 +61,7 @@ modelout = modelRW_v1(params, data);
 % trials of the two conditions
 Qvals   = modelout.Qvals;
 Ps      = modelout.allPs; %
-choices = modelout.a;
+choices = modelout.simulated_actions;
 a       = 2 - choices; % convert to be 1 and 0
 x       = data.x;
 correct = modelout.correct;
@@ -91,7 +91,7 @@ h               = plotRW_v1(x,Ps,Qvals,a);
 init_alpha      = 0.3;
 init_beta       = 1.5;
 bounds          = [0 1;   % alpha range
-                    0 5]; % beta range
+                    0 10]; % beta range
 bins            = [20 25];
 nparam          = length(params);
 
@@ -112,7 +112,7 @@ for t = 1:bins(1)
 
     for tt = 1:bins(2)
         params(2)           = p{2}(tt);
-        [~,negLL]           = fit_modelRW_v1(params,modelout);
+        negLL           = lik_modelRW_v1(params,modelout);
 
         % store this iteration's nll
         nll(t,tt)           = negLL;
@@ -278,7 +278,6 @@ expected_params         = [expected_alpha expected_beta];
 [grid_model_output, ~]  = fit_modelRW_v1(expected_params, modelout);
 expected_pp             = grid_model_output.allPs; clear grid_model_output
 
-
 %% plot marginal vs expected choice probabilties 
 
 %  let's look at how the model's predictions (based on marginal and expected 
@@ -348,7 +347,7 @@ for rep = 1:repetitions
     
         for tt = 1:bins(2)
             params(2)       = p{2}(tt);
-            [~,negLL]       = fit_modelRW_v1(params,modelout); % Assuming 'data' is predefined or simulated earlier
+            negLL           = lik_modelRW_v1(params,modelout); % Assuming 'data' is predefined or simulated earlier
     
             % store this iteration's nll
             nll(t,tt)       = negLL;
@@ -565,7 +564,7 @@ set(gca, 'FontSize', 15); % additional plot formatting
 grid on; 
 
 
-%%
+%% 
 
 
 

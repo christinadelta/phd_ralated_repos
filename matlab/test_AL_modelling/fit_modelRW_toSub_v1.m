@@ -1,6 +1,6 @@
-function [modelout, nll] = fit_modelRW_v2(params, modelout)
+function [modelout, nll] = fit_modelRW_toSub_v1(starting_params, dat)
 
-% RW model simulation V1 
+% RW model fitting to participant data V1 
 
 % Date created : 17/02/2024
 
@@ -25,17 +25,13 @@ function [modelout, nll] = fit_modelRW_v2(params, modelout)
 %% extract parameters and init variables 
 
 % extract parameter values 
-alpha           = params(1); % alpha
-beta            = params(2); % beta
-decay           = params(3); % decay
+alpha           = starting_params(1); % alpha
+beta            = starting_params(2); % beta
 
-good_options    = modelout.outcome(:,1);
+good_options    = dat.outcome(:,1);
 trials          = length(good_options);
 nchoices        = 2;
 nll             = 0;
-
-% convert outcomes to 1s and 2s
-good_options(find(good_options == 0)) = 2; % good option o
 
 %%  Initialize parameters and estimates
 
@@ -47,6 +43,20 @@ p               = zeros(trials,nchoices);
 % Define reward/loss values 
 rewardvalue     = 1; % no loss (reward for choosing the good option)
 lossvalue       = -1; % loss for choosing the bad option
+
+% convert outcomes to 1s and 2s
+good_options(find(good_options == 0)) = 2; % good option o
+
+%%  Initialize parameters and estimates
+
+vA              = 0;
+vB              = 0;
+values          = zeros(trials, nchoices); % column 1 for vA, column 2 for vB
+p               = zeros(trials,nchoices);
+
+% define reward/loss values 
+rewardvalue     = 1;    % no loss (reward for choosing the good option)
+lossvalue       = -1;   % loss for choosing the bad option
 
 %% simualte model 
 
@@ -77,10 +87,8 @@ for trl = 1:trials
     
     if simulatedChoice
         vA               = vA + alpha * (updateValue - vA);
-        vB               = vB * decay; % apply decay parameter to option B
     else
         vB               = vB + alpha * (updateValue - vB);
-        vA               = vA * decay; % apply decay parameter to option A
     end
     
     % Store simulated choices and outcomes

@@ -24,16 +24,13 @@ function [modelout, nll] = fit_modelRW_v1(params, modelout)
 
 %% extract parameters and init variables 
 
-% extract parameter values 
-alpha           = params(1); % alpha
-beta            = params(2); % beta
+alpha           = params(1);
+beta            = params(2);
 
-% extract info from the data structure that are needed for modelling 
-choice          = modelout.a;
-outcome         = modelout.reward;
-trials          = size(choice,2);    % total trials
-nchoices        = 2;                    % 2 choice options 
-nll             = 0;                            % init nll 
+good_options    = modelout.outcome(:,1);
+trials          = length(good_options);
+nchoices        = 2;
+nll             = 0;
 
 %%  Initialize parameters and estimates
 
@@ -42,38 +39,56 @@ vB              = 0;
 values          = zeros(trials, nchoices); % column 1 for vA, column 2 for vB
 p               = zeros(trials,nchoices);
 
+% Define reward/loss values 
+rewardvalue     = 1; % no loss (reward for choosing the good option)
+lossvalue       = -1; % loss for choosing the bad option
+
+% convert outcomes to 1s and 2s
+good_options(find(good_options == 0)) = 2; % good option o
+
 %% simualte model 
 
 for trl = 1:trials
 
-    c       = choice(trl); % extract this trial's choice
-    r       = outcome(trl); % extract this trial's reward
-
-    PA      = exp(beta * vA) / (exp(beta * vA) + exp(beta * vB)); % Since PA + PB = 1   % compute choice probabilities using the softmax function
-    PB      = 1 - PA; 
+    PA = exp(beta * vA) / (exp(beta * vA) + exp(beta * vB));
+    PB = 1 - PA;
     
-    % after making a choice based on probabilities...
-    if c == 1
-        chosenprob  = PA;
+    simulatedChoice = rand() < PA; % Simulate choice based on PA
+    
+    % Use the simulated choice for NLL calculation
+    if simulatedChoice
+        chosenprob = PA;
     else
-        chosenprob  = PB;
+        chosenprob = PB;
+    end
+    nll = nll - log(chosenprob); % Update NLL based on simulated choice probability
+
+    isGoodChoice        = (simulatedChoice + 1 == good_options(trl));
+
+    % update the update value and store correct/incorrect response 
+    if isGoodChoice
+        updateValue     = rewardvalue;
+    else
+        updateValue     = lossvalue;
     end
 
-    nll             = nll - log(chosenprob); % accumulate the NLL
-
-   
-    % update value estimate for chosen option based on reward
-    if c == 1
-        vA = vA + alpha * (outcome(trl) - vA); % update vA
+    
+    if simulatedChoice
+        vA               = vA + alpha * (updateValue - vA);
     else
-        vB = vB + alpha * (outcome(trl) - vB); % update vB
+        vB               = vB + alpha * (updateValue - vB);
     end
+    
+    % Store simulated choices and outcomes
+    modelout.simulated_actions(trl)  = simulatedChoice + 1; % Adjust for indexing
+    modelout.correct(trl)            = isGoodChoice; % Store if the choice was good
 
     % store value estimates
-    values(trl, 1)  = vA;
-    values(trl, 2)  = vB;
-    p(trl, 1)       = PA;
-    p(trl, 2)       = PB;
+    values(trl, 1)              = vA;
+    values(trl, 2)              = vB;
+    p(trl, 1)                   = PA;
+    p(trl, 2)                   = PB;
+    reward(trl)                 = updateValue;
 
 end % end of trials loop
 
@@ -82,7 +97,7 @@ end % end of trials loop
 % store output parameters in the output structure 
 modelout.Qvals      = values;
 modelout.allPs      = p;
-modelout.a          = choice;
-modelout.reward     = outcome;
+modelout.reward     = reward;
+
 
 end % end of function

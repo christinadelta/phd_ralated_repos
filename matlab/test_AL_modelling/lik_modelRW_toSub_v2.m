@@ -1,4 +1,4 @@
-function nll = lik_modelRW_v1(params, modelout)
+function nll = lik_modelRW_toSub_v2(params, modelout)
 
 % objective function for version 1 of the RW model using the AL dataset
 % Date created : 20/02/2024
@@ -10,20 +10,28 @@ function nll = lik_modelRW_v1(params, modelout)
 % OUTPUT:
 %           * nll (log likelihood) 
 
+
+
 %% extract parameters and init variables 
 
-alpha           = params(1); % alpha
-beta            = params(2); % beta
+alpha       = params(1); % alpha
+beta        = params(2); % beta
+decay       = params(3); % decay 
 
-choice          = modelout.simulated_actions;
+% Extract info from the data structure needed for modelling 
+choice          = modelout.actions; % Actual choices made by participants
 good_options    = modelout.outcome(:,1); % Good options indicating no loss
-trials          = length(choice);
-nll             = 0; % Initialize nll 
-vA              = 0; % Initial Q-value for option A
-vB              = 0; % Initial Q-value for option B
+trials          = size(choice,1); % Total trials
 
-rewardvalue     = 1; % Reward for choosing the good option (no loss)
-lossvalue       = -1; % Loss for choosing the bad option
+nll             = 0; % Initialize nll 
+
+% Initialize Q-values for both options
+vA              = 0;
+vB              = 0;
+
+% Define reward/loss values 
+rewardvalue = 1; % no loss (reward for choosing the good option)
+lossvalue = -1; % loss for choosing the bad option
 
 % convert outcomes to 1s and 2s
 good_options(find(good_options == 0)) = 2; % good option o
@@ -56,10 +64,11 @@ for trl = 1:trials
     
     if choice(trl) == 1
         vA = vA + alpha * (updateValue - vA);
+        vB = vB * decay;                    % apply decay parameter to option B
     else
         vB = vB + alpha * (updateValue - vB);
+        vA = vA * decay;                    % apply decay parameter to option B
     end
 
 end % en of trials loop
-
 end % end of function

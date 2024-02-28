@@ -31,7 +31,7 @@ beta            = params(2); % beta
 decay           = params(3); % decay
 
 % extract info from the data structure that are needed for modelling 
-good_options     = data.oR;                     % good option outcomes (low prob of losing) 
+good_options     = data.o;                      % good option outcomes (low prob of losing) 
 % outcome(:,2)    = data.o;                     % bad oprion outcomes (high probability of losing)
 trials          = size(good_options(:,1),1);    % total trials
 nchoices        = data.cues;                    % 2 choice options 
@@ -45,7 +45,7 @@ good_options(find(good_options == 0)) = 2; % good option outcomes (low prob of l
 vA              = 0;
 vB              = 0;
 values          = zeros(trials, nchoices); % column 1 for vA, column 2 for vB
-choices         = zeros(1, trials);
+simulatedChoice         = zeros(1, trials);
 p               = zeros(trials,nchoices);
 
 % define the reward/loss values
@@ -59,37 +59,47 @@ for trl = 1:trials
     PA      = exp(beta * vA) / (exp(beta * vA) + exp(beta * vB)); % Since PA + PB = 1   % compute choice probabilities using the softmax function
     PB      = 1 - PA; 
 
-    % make a choice based on probabilities
-    if rand < PA
-        chosen = 1; % option A chosen
+    simulatedChoice = rand() < PA; % Simulate choice based on PA
+    
+    % Use the simulated choice for NLL calculation
+    if simulatedChoice
+        chosenprob = PA;
     else
-        chosen = 2; % option B chosen
-    end
-    choices(trl) = chosen;
+        chosenprob = PB;
 
-    % determine reward based on choice and good option
-    if chosen == good_options(trl)
-        r(trl)          = rewardvalue; % chose the good option, no loss
-        correct(trl)    = 1;
-    else
-        r(trl)          = lossvalue; % chose the bad option, incur loss
-        correct(trl)    = 0;
     end
 
-    % update value estimate for chosen option based on reward
-    if chosen == 1
-        vA = vA + alpha * (r(trl) - vA);    % update vA
-        vB = vB * decay;                    % apply decay parameter to option B
+    % is the current choice a good choice?
+    isGoodChoice        = (simulatedChoice + 1 == good_options(trl));
+
+    % update the update value and store correct/incorrect response 
+    if isGoodChoice
+        updateValue     = rewardvalue;
     else
-        vB = vB + alpha * (r(trl) - vB);    % update vB
-        vA = vA * decay;                    % apply decay parameter to option B
+        updateValue     = lossvalue;
     end
 
+    % update the reward array
+    reward(trl)         = updateValue;
+
+    if simulatedChoice
+        vA               = vA + alpha * (updateValue - vA);
+        vB               = vB * decay; % apply decay parameter to option B
+    else
+        vB               = vB + alpha * (updateValue - vB);
+        vA               = vA * decay; % apply decay parameter to option A
+    end
+
+    % Store simulated choices and outcomes
+    modelout.simulated_actions(trl)  = simulatedChoice + 1; % Adjust for indexing
+    modelout.correct(trl)            = isGoodChoice; % Store if the choice was good
+    
     % store value estimates
-    values(trl, 1) = vA;
-    values(trl, 2) = vB;
-    p(trl, 1) = PA;
-    p(trl, 2) = PB;
+    values(trl, 1)      = vA;
+    values(trl, 2)      = vB;
+    p(trl, 1)           = PA;
+    p(trl, 2)           = PB;
+  
 
 end % end of trials loop
 
@@ -98,21 +108,8 @@ end % end of trials loop
 % store output parameters in the output structure 
 modelout.Qvals      = values;
 modelout.allPs      = p;
-modelout.a          = choices;
-modelout.reward     = r;
-modelout.correct    = correct;
-
-%% store model stuff in table for faster reading
-
-choices = choices'; r = r'; % transpose choices and rewards
-c = correct';
-modeltable          = table(choices, r, values, p,c);
-% filename            = sprintf('model_table_%s.xlsx', data.volatility); % save table as xlsx file
-% 
-% writetable(modeltable,filename, 'Sheet', 1) 
-% movefile('*.xlsx', outpath) % move file to output dir 
-
-modelout.modeltable = modeltable;
+modelout.reward     = reward;
+modelout.outcome    = good_options;
 
 
 
