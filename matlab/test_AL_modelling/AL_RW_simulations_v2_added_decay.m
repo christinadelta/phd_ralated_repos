@@ -49,7 +49,7 @@ modelout = modelRW_v2(params, data);
 % trials of the two conditions
 Qvals   = modelout.Qvals;
 Ps      = modelout.allPs; %
-choices = modelout.a;
+choices = modelout.simulated_actions;
 a       = 2 - choices; % convert to be 1 and 0
 x       = data.x;
 correct = modelout.correct;
@@ -80,9 +80,9 @@ init_alpha      = 0.3;
 init_beta       = 1.5;
 init_decay      = 0.1;
 bounds          = [0 1;   % alpha range
-                    0 5;  % beta range
+                    0 10;  % beta range
                     0 1]; % decay range
-bins            = [20 25 20];
+bins            = [20 30 20];
 nparam          = length(params);
 
 simalpha_bin    = init_alpha/bounds(1,2)*bins(1);
@@ -105,12 +105,11 @@ for t = 1:bins(1)
         params(2)           = p{2}(tt);
         for ttt = 1:bins(3)
 
-            params(3)           = p{3}(ttt);
-            
-            [~,negLL]           = fit_modelRW_v2(params,modelout);
+            params(3)       = p{3}(ttt);
+            negLL           = lik_modelRW_v2(params,modelout);
     
             % store this iteration's nll
-            nll(t,tt,ttt)           = negLL;
+            nll(t,tt,ttt)   = negLL;
     
             % update best parameters if current nll is lower
             if negLL < best_negLL
@@ -133,7 +132,7 @@ fprintf('Best alpha: %f, Best beta: %f, Best decay: %f, with negative LL: %f\n',
 % THE BEST PARAMETER VALUES
 
 % specify the number of decay slices to visualize
-num_decay_slices_to_visualize   = 2;
+num_decay_slices_to_visualize   = 5;
 
 % calculate indices for evenly spaced decay slices
 decay_indices                   = round(linspace(1, length(p{3}), num_decay_slices_to_visualize));
@@ -351,7 +350,7 @@ repetitions = 100;
 
 % define ranges for alpha and beta for true parameter values 
 alpha_range = [0 1]; % range for alpha
-beta_range  = [0 5]; % range for beta
+beta_range  = [0 10]; % range for beta
 decay_range = [0 1]; % range for alpha
 
 % loop over repetitions 
@@ -374,7 +373,7 @@ for rep = 1:repetitions
     % generate starting points using a random generator for odd iterations
     % assuming known plausible ranges for alpha and beta
     alphaRange      = [0 1]; 
-    betaRange       = [0 5];
+    betaRange       = [0 10];
     decayRange      = [0 1]; 
 
     starting_alpha  = alphaRange(1) + (alphaRange(2) - alphaRange(1)) * rand();
@@ -386,7 +385,7 @@ for rep = 1:repetitions
 
     X0                  = [starting_alpha startingBeta starting_decay];
     LB                  = [0 0 0];
-    UB                  = [1 5 1];
+    UB                  = [1 10 1];
     [Xfit, NegLL]       = fmincon(obFunc, X0, [], [], [], [], LB, UB);
 
     allfit_alpha(rep)   = Xfit(1);
@@ -396,7 +395,6 @@ for rep = 1:repetitions
 
  
 end % end of reps loop
-
 
 %% plot simulated and estimated parameter values
 

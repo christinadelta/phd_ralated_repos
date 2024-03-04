@@ -292,7 +292,6 @@ ylabel('Probability');
 fontsize(gcf,16,"points")
 grid on;
 
-
 % Super title for the figure
 sgtitle('Normalized Distributions of Learning Rate, Inverse Temperature and Decay Parameters');
 
