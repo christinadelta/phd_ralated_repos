@@ -3,13 +3,25 @@ function modelout = modelRW_v2(params, data)
 % RW model simulation V1 
 
 % Date created : 14/02/2024
+% Rescola-Wagner same as version with and added parameter: DECAY 
 
-% Rescola-Wagner model with 2 parameters to test the aversive learning task
-% this v1 function simulates model for one participant and 1 condition only
-% (small stochasticity/stable condition) 
+% What does the decay parameter do?:
+% The **decay factor** measures how quickly the model "forgets" or 
+% devalues past information in favour of more recent observations. 
+% A high decay factor (close to 1) means that forgetting is slow, and 
+% past information remains relevant for longer. This slow decay is 
+% beneficial in environments where changes are infrequent or non-existent, 
+% as it allows for a stable buildup of knowledge.
+% A low decay factor (closer to 0) accelerates the forgetting process, 
+% helping the model to rapidly adjust its expectations or value estimates 
+% in response to new information. This is particularly useful in 
+% environments that change frequently, requiring the model to de-emphasise 
+% older, potentially obsolete information to maintain flexibility in its 
+% decision-making strategy.
+
 
 % INPUTS: 
-%       - params (1-by-2) with alpha  and beta values for the model
+%       - params (1-by-2) with alpha, beta and decay values for the model
 %       - data structure with simulated data
 
 % OUTPUT:
@@ -84,15 +96,17 @@ for trl = 1:trials
 
     if simulatedChoice
         vA               = vA + alpha * (updateValue - vA);
-        vB               = vB * decay; % apply decay parameter to option B
+        vB               = vB * (1- decay);
+        % vB               = vB - decay * (updateValue - vA); % Joe's suggestion
     else
         vB               = vB + alpha * (updateValue - vB);
-        vA               = vA * decay; % apply decay parameter to option A
+        vA               = vA * (1 - decay) ; % apply decay parameter to option A
+        % vA               = vA - decay * (updateValue - vB); % Joe's suggestion
     end
 
     % Store simulated choices and outcomes
     modelout.simulated_actions(trl)  = simulatedChoice + 1; % Adjust for indexing
-    modelout.correct(trl)            = isGoodChoice; % Store if the choice was good
+    modelout.correct(trl)            = isGoodChoice;        % Store if the choice was good
     
     % store value estimates
     values(trl, 1)      = vA;
@@ -110,7 +124,6 @@ modelout.Qvals      = values;
 modelout.allPs      = p;
 modelout.reward     = reward;
 modelout.outcome    = good_options;
-
 
 
 end
