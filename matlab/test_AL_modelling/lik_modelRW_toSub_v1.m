@@ -1,4 +1,4 @@
-function nll = lik_modelRW_toSub_v2(params, modelout)
+function nll = lik_modelRW_toSub_v1(params, modelout)
 
 % objective function for version 1 of the RW model using the AL dataset
 % Date created : 20/02/2024
@@ -16,7 +16,6 @@ function nll = lik_modelRW_toSub_v2(params, modelout)
 
 alpha       = params(1); % alpha
 beta        = params(2); % beta
-decay       = params(3); % decay 
 
 % Extract info from the data structure needed for modelling 
 choice          = modelout.actions; % Actual choices made by participants
@@ -26,8 +25,8 @@ trials          = size(choice,1); % Total trials
 nll             = 0; % Initialize nll 
 
 % Initialize Q-values for both options
-vA              = 0.5;
-vB              = 0.5;
+vA              = 0;
+vB              = 0;
 
 % Define reward/loss values 
 rewardvalue = 1; % no loss (reward for choosing the good option)
@@ -63,13 +62,9 @@ for trl = 1:trials
 
     
     if choice(trl) == 1
-        vA               = vA + alpha * (updateValue - vA);
-        vB               = vB * (1- decay);
-        % vB               = vB - decay * (updateValue - vA); % Joe's suggestion
+        vA = vA + alpha * (updateValue - vA);
     else
-        vB               = vB + alpha * (updateValue - vB);
-        vA               = vA * (1 - decay) ; % apply decay parameter to option A
-        % vA               = vA - decay * (updateValue - vB); % Joe's suggestion
+        vB = vB + alpha * (updateValue - vB);
     end
 
 end % en of trials loop

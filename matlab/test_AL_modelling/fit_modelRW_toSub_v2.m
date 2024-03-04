@@ -36,8 +36,8 @@ nll             = 0;
 
 %%  Initialize parameters and estimates
 
-vA              = 0;
-vB              = 0;
+vA              = 0.5;
+vB              = 0.5;
 values          = zeros(trials, nchoices); % column 1 for vA, column 2 for vB
 p               = zeros(trials,nchoices);
 
@@ -47,17 +47,6 @@ lossvalue       = -1; % loss for choosing the bad option
 
 % convert outcomes to 1s and 2s
 good_options(find(good_options == 0)) = 2; % good option o
-
-%%  Initialize parameters and estimates
-
-vA              = 0;
-vB              = 0;
-values          = zeros(trials, nchoices); % column 1 for vA, column 2 for vB
-p               = zeros(trials,nchoices);
-
-% define reward/loss values 
-rewardvalue     = 1;    % no loss (reward for choosing the good option)
-lossvalue       = -1;   % loss for choosing the bad option
 
 %% simualte model 
 
@@ -87,11 +76,13 @@ for trl = 1:trials
 
     
     if simulatedChoice
-        vA                  = vA + alpha * (updateValue - vA);
-        vB                  = vB * decay;                    % apply decay parameter to option B
+        vA               = vA + alpha * (updateValue - vA);
+        vB               = vB * (1- decay);
+        % vB               = vB - decay * (updateValue - vA); % Joe's suggestion
     else
-        vB                  = vB + alpha * (updateValue - vB);
-        vA                  = vA * decay;                    % apply decay parameter to option B
+        vB               = vB + alpha * (updateValue - vB);
+        vA               = vA * (1 - decay) ; % apply decay parameter to option A
+        % vA               = vA - decay * (updateValue - vB); % Joe's suggestion
     end
     
     % Store simulated choices and outcomes

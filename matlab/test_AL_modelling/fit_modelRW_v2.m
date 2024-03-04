@@ -77,10 +77,12 @@ for trl = 1:trials
     
     if simulatedChoice
         vA               = vA + alpha * (updateValue - vA);
-        vB               = vB * decay; % apply decay parameter to option B
+        vB               = vB * (1- decay);
+        % vB               = vB - decay * (updateValue - vA); % Joe's suggestion
     else
         vB               = vB + alpha * (updateValue - vB);
-        vA               = vA * decay; % apply decay parameter to option A
+        vA               = vA * (1 - decay) ; % apply decay parameter to option A
+        % vA               = vA - decay * (updateValue - vB); % Joe's suggestion
     end
     
     % Store simulated choices and outcomes
