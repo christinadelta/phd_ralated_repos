@@ -34,7 +34,7 @@ datadir         = fullfile(startpath,'data');
 subs            = dir(fullfile(datadir, '*sub-*'));
 nsubs           = length(subs);
 
-figpath         = fullfile(pwd, 'figures');     addpath(figpath);
+% figpath         = fullfile(pwd, 'figures');     addpath(figpath);
 
 %% simulate some data to extract underlying loss rate stc and vol indecies
 
@@ -61,7 +61,7 @@ data            = ALsimdata_v2(probabilities, total_trials,condtrials);
 % extract data needed
 v = data.t;
 s = data.stcind;
-o = data.oR;
+o = data.o;
 c = data.cues;
 x = data.x;
 
@@ -72,7 +72,7 @@ for ss = 1:3
 
     for vv = 1:2
 
-        dat.oR      = stc_o(v(:,vv),:);
+        dat.o       = stc_o(v(:,vv),:);
         vol_x       = stc_x(v(:,vv),:);
         params      = [params_alpha(vv,ss) params_beta(vv,ss)];
         dat.cues    = c;
@@ -84,7 +84,7 @@ for ss = 1:3
         % trials of the two conditions
         Qvals{ss,vv}   = modelout.Qvals;
         Ps{ss,vv}      = modelout.allPs; %
-        choices        = modelout.a;
+        choices        = modelout.simulated_actions;
         a{ss,vv}       = 2 - choices; % convert to be 1 and 0
         correct{ss,vv} = modelout.correct;
         
@@ -144,9 +144,9 @@ for stc = 1:3 % Stochasticity levels
         for t = 1:bins(1) % Alpha loop
             for tt = 1:bins(2) % Beta loop
 
-                params = [p{1}(t), p{2}(tt)];
-                mout = all_modout{stc, vol};
-                [~, negLL] = fit_modelRW_v1(params, mout);
+                params  = [p{1}(t), p{2}(tt)];
+                mout    = all_modout{stc, vol};
+                negLL   = lik_modelRW_v1(params, mout);
 
                 % Store NLL
                 nll{stc,vol}(t,tt) = negLL;
@@ -311,8 +311,8 @@ for pairIndex = 1:totalPairs
     expected_beta(pairIndex) = sum(p{2}(:) .* prob_beta(:));
 end
 
-% 'expected_alpha' and 'expected_beta' now contain the expected values of alpha and beta
-% for each condition/volatility pair
+% 'expected_alpha' and 'expected_beta' contain the expected values of alpha and beta
+% for each stochasticity/volatility pair
 
 %% fit model with the best marginal and expected values from grid search
 

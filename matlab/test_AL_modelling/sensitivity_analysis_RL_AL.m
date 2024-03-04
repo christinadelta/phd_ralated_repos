@@ -85,8 +85,9 @@ for i       = 1:repetitions
     d                       = ALsimdata_v2(probabilities, total_trials,condtrials);
     out                     = modelRW_v2([true_alpha beta_fix decay_fix], d); % simulate model
     allsim_output{i}        = out;
-    sim_actions             = out.a;
-    sim_outcome             = out.reward;
+    sim_actions             = out.simulated_actions;
+    sim_reward              = out.reward;
+    sim_outcome             = d.o;
     sim_pp(:,:,i)           = out.allPs;
     sim_Qs(:,:,i)           = out.Qvals;
 
@@ -108,8 +109,8 @@ for i       = 1:repetitions
     allNLL(i)               = NegLL;
 
     % prepare simulated output and fitted values to fit the model to data
-    dat.a                   = sim_actions;
-    dat.reward              = sim_outcome;
+    dat.simulated_actions   = sim_actions;
+    dat.outcome             = sim_outcome;
     params                  = [Xfit(1) beta_fix decay_fix];
     [fit_model_output, ~]   = fit_modelRW_v2(params, dat);
     fit_pp(:,:,i)           = fit_model_output.allPs;
@@ -185,8 +186,8 @@ for i       = 1:repetitions
     d                       = ALsimdata_v2(probabilities, total_trials,condtrials);
     out                     = modelRW_v2([alpha_fix true_beta decay_fix], d); % simulate model
     allsim_output_m2{i}     = out;
-    sim_actions             = out.a;
-    sim_outcome             = out.reward;
+    sim_actions             = out.simulated_actions;
+    sim_outcome             = out.outcome;
     sim_pp_m2(:,:,i)        = out.allPs;
     sim_Qs_m2(:,:,i)        = out.Qvals;
 
@@ -208,8 +209,8 @@ for i       = 1:repetitions
     allNLL_m2(i)            = NegLL;
 
     % prepare simulated output and fitted values to fit the model to data
-    dat.a                   = sim_actions;
-    dat.reward              = sim_outcome;
+    dat.simulated_actions   = sim_actions;
+    dat.outcome             = sim_outcome;
     params                  = [alpha_fix Xfit(1) decay_fix];
     [fit_model_output, ~]   = fit_modelRW_v2(params, dat);
     fit_pp_m2(:,:,i)        = fit_model_output.allPs;
@@ -286,8 +287,8 @@ for i       = 1:repetitions
     d                       = ALsimdata_v2(probabilities, total_trials,condtrials);
     out                     = modelRW_v2([alpha_fix beta_fix true_decay], d); % simulate model
     allsim_output_m3{i}     = out;
-    sim_actions             = out.a;
-    sim_outcome             = out.reward;
+    sim_actions             = out.simulated_actions;
+    sim_outcome             = out.outcome;
     sim_pp_m3(:,:,i)        = out.allPs;
     sim_Qs_m3(:,:,i)        = out.Qvals;
 
@@ -309,8 +310,8 @@ for i       = 1:repetitions
     allNLL_m3(i)            = NegLL;
 
     % prepare simulated output and fitted values to fit the model to data
-    dat.a                   = sim_actions;
-    dat.reward              = sim_outcome;
+    dat.simulated_actions   = sim_actions;
+    dat.outcome             = sim_outcome;
     params                  = [alpha_fix beta_fix Xfit(1)];
     [fit_model_output, ~]   = fit_modelRW_v2(params, dat);
     fit_pp_m3(:,:,i)        = fit_model_output.allPs;
